@@ -66,7 +66,7 @@ plot_topoplot(f[1,1],data[:,end,1],pos2[:,1:2])
 end
 
 # ╔═╡ c29e489b-bc21-4f17-b676-a26c3788cad1
-PyMNE.viz.plot_topomap(data[:,end,1],pos2)
+#PyMNE.viz.plot_topomap(data[:,end,1],pos2)
 
 # ╔═╡ Cell order:
 # ╠═31cea56f-f6d1-4412-a4b3-14bfe714491e
