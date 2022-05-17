@@ -7,7 +7,7 @@ using InteractiveUtils
 # ╔═╡ 31cea56f-f6d1-4412-a4b3-14bfe714491e
 	begin
 	using Pkg
-	Pkg.activate(temp=true)
+	Pkg.activate(".")
 	end
 
 # ╔═╡ f49917ee-d5de-11ec-2e00-315d3bbbf4fc
@@ -55,18 +55,22 @@ current_figure()
 end
 
 # ╔═╡ 91da8540-5cda-43b3-8bc1-72d9ede1fcc9
+begin
+	times = range(-0.3000,stop=0.4980,step=1/500)
 lines(data[1,:,1]) # channel x time x [estimate,std,pvalue]
+end
 
 # ╔═╡ 5edd1570-e6cd-4eeb-ae1b-bcc0d0901e47
 begin
 	f = CairoMakie.Figure()
 	f[1,1] = Axis(f)
-plot_topoplot(f[1,1],data[:,end,1],pos2[:,1:2])
+	ix = argmin(abs.(times .- .400))
+plot_topoplot(f[1,1],data[:,ix,1],pos2[:,1:2],labels=1:size(pos,2))
 	f
 end
 
 # ╔═╡ c29e489b-bc21-4f17-b676-a26c3788cad1
-#PyMNE.viz.plot_topomap(data[:,end,1],pos2)
+PyMNE.viz.plot_topomap(data[:,ix,1],get_info(raw))
 
 # ╔═╡ Cell order:
 # ╠═31cea56f-f6d1-4412-a4b3-14bfe714491e
