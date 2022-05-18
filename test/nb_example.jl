@@ -15,7 +15,7 @@ using InteractiveUtils
 begin
 
 	Pkg.add(["JLD2","CairoMakie","PyMNE","PyPlot"])
-	Pkg.add(url="https://github.com/unfoldtoolbox/UnfoldMakie.jl",rev="topoplot")
+	#Pkg.add(url="https://github.com/unfoldtoolbox/UnfoldMakie.jl",rev="topoplot")
 
 	
 end
@@ -65,12 +65,12 @@ begin
 	f = CairoMakie.Figure()
 	f[1,1] = Axis(f)
 	ix = argmin(abs.(times .- .400))
-plot_topoplot(f[1,1],data[:,ix,1],pos2[:,1:2],labels=1:size(pos,2))
+plot_topoplot(f[1,1],data[:,ix,1],pos2,labels=string.(1:size(pos,2)))
 	f
 end
 
 # ╔═╡ c29e489b-bc21-4f17-b676-a26c3788cad1
-PyMNE.viz.plot_topomap(data[:,ix,1],get_info(raw))
+PyMNE.viz.plot_topomap(data[:,ix,1],get_info(raw),names=string.(1:size(pos,2)),show_names=true)
 
 # ╔═╡ Cell order:
 # ╠═31cea56f-f6d1-4412-a4b3-14bfe714491e
