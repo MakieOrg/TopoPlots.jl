@@ -5,8 +5,7 @@ function spline2d_mne(positions, data; pad=0.01, xres=512, yres=xres)
     maxpoint = maximum(rect)
     width = widths(rect)
     middle = minpoint .+ (width ./ 2)
-    radius = maximum(width ./ 2) .+ 0.1
-    @show middle radius
+    radius = maximum(width ./ 2) .+ 0.1 # TODO, why is the exact radius producing cut off results?
     interp = PyMNE.viz.topomap._GridData([first.(positions) last.(positions)], "head", [middle...], [radius, radius], "mean")
     interp.set_values(data)
     pad_amount = maximum(width) .* pad
