@@ -31,8 +31,9 @@ end
 
 # ╔═╡ 1ba342d1-ee1d-4a32-b750-4901b57c8df6
 begin
-	pos = load("example.jld2","pos")
-	data = load("example.jld2","data")
+	data_dict = load(joinpath(@__DIR__, "example.jld2"))
+	pos = data_dict["pos"]
+	data = data_dict["data"]
 end;
 
 # ╔═╡ 17e7a862-ac44-4802-9449-a98894657ad0
@@ -45,19 +46,20 @@ montage = PyMNE.channels.make_dig_montage(ch_pos=chname_pos_dict,coord_frame="he
 	 
 	 layout_from_raw = PyMNE.channels.make_eeg_layout(get_info(raw))
 	 pos2 = layout_from_raw.pos
+
  end;
 
 # ╔═╡ a5dc2801-9fa8-4193-9c1e-254bd692c1b7
 begin
 CairoMakie.scatter(pos[1,:]*0.05 .+1.5,pos[2,:]*0.05.+0.5,color="blue") # no project
 CairoMakie.scatter!(pos2[:,1],pos2[:,2],color="red") # projection
-current_figure()
+JLD2.save(joinpath(@__DIR__, "example.jld2"), Dict("data"=>data, "pos" => pos, "pos2" => pos2))
 end
 
 # ╔═╡ 91da8540-5cda-43b3-8bc1-72d9ede1fcc9
 begin
 	times = range(-0.3000,stop=0.4980,step=1/500)
-lines(data[1,:,1]) # channel x time x [estimate,std,pvalue]
+	lines(data[1,:,1]) # channel x time x [estimate,std,pvalue]
 end
 
 # ╔═╡ 5edd1570-e6cd-4eeb-ae1b-bcc0d0901e47
@@ -65,12 +67,12 @@ begin
 	f = CairoMakie.Figure()
 	f[1,1] = Axis(f)
 	ix = argmin(abs.(times .- .400))
-plot_topoplot(f[1,1],data[:,ix,1],pos2,labels=string.(1:size(pos,2)))
+	plot_topoplot(f[1,1],data[:,ix,1],pos2,labels=string.(1:size(pos,2)))
 	f
 end
 
 # ╔═╡ c29e489b-bc21-4f17-b676-a26c3788cad1
-PyMNE.viz.plot_topomap(data[:,ix,1],get_info(raw),names=string.(1:size(pos,2)),show_names=true)
+PyMNE.viz.plot_topomap(data[:,ix,1],get_info(raw),names=string.(1:size(pos,2)),show_names=true, vmin=-0.7, vmax=0.7)
 
 # ╔═╡ Cell order:
 # ╠═31cea56f-f6d1-4412-a4b3-14bfe714491e
