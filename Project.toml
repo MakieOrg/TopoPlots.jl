@@ -8,6 +8,7 @@ Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 PyMNE = "6c5003b2-cbe8-491c-a0d1-70088e6a0fd6"
 
 [compat]
+PyMNE = "0.1"
 julia = "1"
 
 [extras]
