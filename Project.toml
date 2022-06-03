@@ -14,6 +14,7 @@ SciPy = "ebc72ef8-9537-4fb0-b64e-ac76025fed2d"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
+PyMNE = "0.1"
 julia = "1"
 
 [extras]
