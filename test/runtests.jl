@@ -6,17 +6,8 @@ pos = example_data["pos2"]
 data = example_data["data"]
 positions = Point2f.(pos[:,1], pos[:,2])
 
-begin
-    r = Rect2f(positions)
-    middle = mean(positions)
-    radius, idx = findmax(x-> norm(x .- middle), positions)
-    f, ax, pl = scatter(positions, axis=(aspect=DataAspect(),))
-    poly!(ax, r, color=(:black, 0.5))
-    poly!(ax, Circle(Point(middle), radius))
-    f
-end
 function test()
-    f = Figure()
+    f = Figure(resolution=(1000, 1000))
     interpolators = [TopoPlots.delaunay_mesh TopoPlots.claugh_tochter; TopoPlots.spline2d TopoPlots.spline2d_mne]
 
     s = Slider(f[:, 1], range=1:size(data, 2), startvalue=351)
@@ -29,8 +20,9 @@ function test()
     end
     f
 end
+
 function test2()
-    f = Figure()
+    f = Figure(resolution=(1000, 1000))
     s = Slider(f[:, 1], range=1:size(data, 2), startvalue=351)
     data_obs = map(s.value) do idx
         data[:, idx, 1]
