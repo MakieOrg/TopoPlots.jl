@@ -31,6 +31,10 @@ function draw_ear_nose!(parent, circle)
     lines!(parent, head_points, color=:black, linewidth=3)
 end
 
+function labels2positions(labels)
+    error("Not implemented yet")
+end
+
 function Makie.plot!(plot::EEGTopoPlot)
     positions = lift(plot.labels, plot.positions) do labels, positions
         if positions isa Makie.Automatic
@@ -41,7 +45,7 @@ function Makie.plot!(plot::EEGTopoPlot)
         end
     end
 
-    tplot = topoplot!(plot, Attributes(plot), positions, plot.data; labels=plot.labels)
+    tplot = topoplot!(plot, Attributes(plot), plot.data, positions; labels=plot.labels)
     draw_ear_nose!(plot, tplot.geometry)
     return
 end

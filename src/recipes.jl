@@ -15,7 +15,7 @@
 * label_scatter = nothing:  true -> add point for each position, NamedTuple -> gets passed to the `scatter!` call!
 * contours = nothing:  true -> add point for each position, NamedTuple -> gets passed to the `contour!` call!
 """
-@recipe(TopoPlot, positions, data) do scene
+@recipe(TopoPlot, data, positions) do scene
     return Attributes(
         colormap = Reverse(:RdBu),
         colorrange = Makie.automatic,
@@ -66,7 +66,6 @@ function Makie.plot!(p::TopoPlot)
         data = lift(p.interpolation, xg, yg, padded_position, padded_data) do interpolation, xg, yg, points, data
             return interpolation(xg, yg, points, data)
         end
-
         heatmap!(p, xg, yg, data, colormap=p.colormap, colorrange=p.colorrange, interpolate=true)
         contours = to_value(p.contours)
         if !isnothing(contours)
@@ -83,7 +82,6 @@ function Makie.plot!(p::TopoPlot)
             text!(p, p.positions, text=p.labels; attributes...)
         end
         label_scatter = to_value(p.label_scatter)
-        @show label_scatter
         if !isnothing(label_scatter)
             defaults = Attributes(markersize=5, color=p.data, colormap=p.colormap, colorrange=p.colorrange, strokecolor=:black, strokewidth=1)
             attributes = label_scatter === true ? defaults : merge(label_scatter, defaults)

@@ -13,6 +13,7 @@ using Parameters
 # Write your package code here.
 include("interpolators.jl")
 include("recipes.jl")
+include("eeg.jl")
 
 # Interpolators
 export ClaughTochter, SplineInterpolator, DelaunayMesh
