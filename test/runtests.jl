@@ -62,3 +62,9 @@ begin
     f, ax, pl = TopoPlots.eegtopoplot(data[:, 340, 1], labels; positions=positions, axis=(aspect=DataAspect(),))
     @test_figure("eeg-topoplot", f)
 end
+
+begin
+    labels = TopoPlots.CHANNELS_10_20
+    f, ax, pl = TopoPlots.eegtopoplot(data[1:19, 340, 1], labels; axis=(aspect=DataAspect(),), label_text=true, label_scatter=(markersize=10, strokewidth=2,))
+    @test_figure("eeg-topoplot2", f)
+end

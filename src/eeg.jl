@@ -29,10 +29,32 @@ function draw_ear_nose!(parent, circle)
     end
 
     lines!(parent, head_points, color=:black, linewidth=3)
+
 end
 
+const CHANNELS_10_20 = ["fp1", "f3", "c3", "p3", "o1", "f7", "t3", "t5", "fz", "cz", "pz", "fp2", "f4", "c4", "p4", "o2", "f8", "t4", "t6"]
+const CHANNEL_TO_POSITION_10_20 = begin
+    # We load this during precompilation, so that this gets stored as a global
+    # that's immediately loaded when loading the package
+    result = Matrix{Float64}(undef, 19, 2)
+    read!(assetpath("layout_10_20.bin"), result)
+    positions = Point2f.(result[:, 1], result[:, 2])
+    Dict{String, Point2f}(zip(CHANNELS_10_20, positions))
+end
+
+"""
+    labels2positions(labels)
+Currently only supporsts 10/20 layout, by looking it up in `TopoPlots.CHANNEL_TO_POSITION_10_20`.
+"""
 function labels2positions(labels)
-    error("Not implemented yet")
+    return map(labels) do label
+        key = lowercase(label)
+        if haskey(CHANNEL_TO_POSITION_10_20, key)
+            return CHANNEL_TO_POSITION_10_20[key]
+        else
+            error("Currently only 10_20 is supported. Found: $(label)")
+        end
+    end
 end
 
 function Makie.plot!(plot::EEGTopoPlot)

@@ -5,3 +5,4 @@
 /docs/build/
 test/test_images
 test/Manifest.toml
+deps/build.log
