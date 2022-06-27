@@ -1,10 +1,11 @@
 using Test
-using LinearAlgebra, Statistics, TopoPlots, CairoMakie, JLD2
+using LinearAlgebra, Statistics, TopoPlots, CairoMakie
 
-example_data = JLD2.load(joinpath(@__DIR__, "example.jld2"))
-pos = example_data["pos2"]
-data = example_data["data"]
-positions = Point2f.(pos[:,1], pos[:,2])
+data = Array{Float32}(undef, 64, 400, 3)
+read!(TopoPlots.assetpath("example-data.bin"), data)
+
+positions = Vector{Point2f}(undef, 64)
+read!(TopoPlots.assetpath("layout64.bin"), positions)
 
 include("percy.jl")
 

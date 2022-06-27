@@ -91,7 +91,6 @@ function Makie.plot!(p::TopoPlot)
     return
 end
 
-
 """
     enclosing_geometry(G::Type{<: Geometry}, positions, enlarge=0.0)
 
@@ -116,7 +115,7 @@ end
     pad_boundary(::Type{Geometry}, positions, enlarge=0.2) where Geometry
 
 Adds new points to positions, adding the boundary from enclosing all positions with `Geometry`.
-See [enclosing_geometry](@Ref) for more details about the boundary.
+See [`TopoPlots.enclosing_geometry`](@ref) for more details about the boundary.
 """
 function pad_boundary!(::Type{Geometry}, positions, enlarge=0.2) where Geometry
     c = enclosing_geometry(Geometry, positions, enlarge)

@@ -54,8 +54,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
       - run: |
-          julia --project=docs -e '
-            using Documenter: DocMeta, doctest
-            using TopoPlots
-            DocMeta.setdocmeta!(TopoPlots, :DocTestSetup, :(using TopoPlots); recursive=true)
-            doctest(TopoPlots)'
+          julia --project=docs docs/make.jl

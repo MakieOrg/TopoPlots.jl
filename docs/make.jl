@@ -16,9 +16,10 @@ makedocs(;
     pages=[
         "Home" => "index.md",
     ],
+    strict=true
 )
 
 deploydocs(;
     repo="github.com/MakieOrg/TopoPlots.jl",
-    devbranch="master",
+    devbranch="master", push_preview=true
 )
