@@ -72,3 +72,101 @@ function Makie.plot!(plot::EEGTopoPlot)
     draw_ear_nose!(plot, tplot.geometry)
     return
 end
+
+
+
+
+# if no labels are provided, just 1:nchannel
+plot_topoplot_series(data::Matrix,Δbin;kwargs...) = 
+plot_topoplot_series(data,string.(1:size(data,1)),Δbin;kwargs...)
+
+# convert a 2D Matrix to the dataframe
+function plot_topoplot_series(data::Matrix,labels,Δbin;kwargs...)
+
+df = DataFrame(data',labels)
+df[!,:time] .= 1:nrow(df)
+df = stack(df,variable_name=:label,value_name="erp")
+plot_topoplot_series(df,Δbin;kwargs...)
+end
+#--- topoplot series
+# plot_topoplot_series
+# expects data to contain :time column, groups according to Δbin binsizes, plots topoplot series
+# channels have to be in column :channel
+plot_topoplot_series(data::DataFrame;Δbin,kwargs...) = plot_topoplot_series(data,Δbin;kwargs...)
+"""
+(TYPEDSIGNATURES)
+
+
+plot a series of topoplot. The function automatically takes the `combinefun=mean` over the :time column of `data` in `Δbin` steps.
+
+`data` need column `:time` and `:channel`, and column `y=:estimate`
+
+Further specifications via topoplotCfg for the topoplot recipe (XXX how to do ref?). In most cases user should provide the electrode positions via
+`topoplotCFG = (positions=pos,)` # note the trailling comma to make it a tuple
+
+`mappingCfg` is for the mapping command of AOG, typical usages would be `mappingCfg=(col=:time,row=:condition,)` to layout the plot. Topoplot modification via topoplotCfg as it is a visual
+ 
+
+# Examples
+Desc
+```julia-repl
+julia> data = DataFrame(:estimate=>repeat(1:63,100),:time=>repeat(1:20,5*63),:channel=>repeat(1:63,100)) # fake data
+julia> pos = [(1:63)./63 .* (sin.(range(-2*pi,2*pi,63))) (1:63)./63 .* cos.(range(-2*pi,2*pi,63))].*0.5 .+0.5 # fake electrode positions
+julia> plot_topoplot_series(data,5;topoplotCfg=(positions=pos,))
+```
+
+"""
+function plot_topoplot_series(data::DataFrame,Δbin; 				 
+    col_y=:erp,
+    col_label=:label,
+    topoplotCfg=NamedTuple(),
+    mappingCfg=(col=:time,),
+    combinefun=mean)
+
+
+    # cannot be made easier right now, but Simon promised a simpler solution "soonish"
+    axisOptions = (aspect = 1,xgridvisible=false,xminorgridvisible=false,xminorticksvisible=false,xticksvisible=false,xticklabelsvisible=false,xlabelvisible=false,ygridvisible=false,yminorgridvisible=false,yminorticksvisible=false,yticksvisible=false,yticklabelsvisible=false,ylabelvisible=false,
+    leftspinevisible = false,rightspinevisible = false,topspinevisible = false,bottomspinevisible=false,)
+
+    data_mean = topoplot_timebin(data,Δbin;
+            col_y=col_y,
+            col_label = col_label,
+            fun=combinefun,
+            grouping=values(mappingCfg)
+            )
+
+    
+    return AlgebraOfGraphics.data(data_mean)*
+        mapping(col_y,col_label;mappingCfg...)*
+        visual(EEGTopoPlot;topoplotCfg...)|>
+            x->draw(x,axis=axisOptions)
+
+end
+
+
+"""
+(TYPEDSIGNATURES)
+
+Split/Combine dataframe according to equally spaced time-bins
+
+- `df` AbstractTable with fields :time and :channel
+- `Δbin` bin-size
+
+- `y` default :estimate, the column to combine (using `fun`) over
+- `fun` function to combine, default is `mean`
+
+"""
+function topoplot_timebin(df,Δbin;col_y=:erp,col_label=:label,fun=mean,grouping=[])
+    tmin = minimum(df.time)
+    tmax = maximum(df.time)
+    
+    bins = range(start=tmin+Δbin/2,step=Δbin,stop=tmax-Δbin/2)
+    df = deepcopy(df) # cut seems to change stuff inplace
+    df.time = cut(df.time,bins,extend=true)
+
+    df_m = combine(groupby(df,unique([:time,col_label, grouping...])),col_y=>fun)
+    #df_m = combine(groupby(df,Not(y)),y=>fun)
+    rename!(df_m,names(df_m)[end]=>col_y) # remove the _fun part of the new column
+    return df_m
+
+end;

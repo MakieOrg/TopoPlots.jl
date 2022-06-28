@@ -4,6 +4,9 @@ authors = ["Benedikt Ehinger", "Simon Danisch", "Beacon Biosignals"]
 version = "0.1.0"
 
 [deps]
+AlgebraOfGraphics = "cbdf2221-f076-402e-a563-3d30da359d67"
+CategoricalArrays = "324d7699-5711-5eae-9e2f-1d82baa6b597"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Delaunay = "07eb4e4e-0c6d-46ef-bc4e-83d5e5d860a9"
 Dierckx = "39dd38d3-220a-591b-8e3c-4c3a8c710a94"
 GeometryBasics = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
@@ -13,6 +16,7 @@ Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 SciPy = "ebc72ef8-9537-4fb0-b64e-ac76025fed2d"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
 julia = "1"

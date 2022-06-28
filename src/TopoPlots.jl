@@ -9,6 +9,9 @@ using Statistics
 using GeometryBasics
 using GeometryBasics: origin, radius
 using Parameters
+using DataFrames
+using CategoricalArrays
+using AlgebraOfGraphics
 
 assetpath(files...) = normpath(joinpath(dirname(@__DIR__), "assets", files...))
 
