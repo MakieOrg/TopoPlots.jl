@@ -1,28 +1,10 @@
-"""
-    topoplot(positions, data)
-
-* colormap = Reverse(:RdBu):
-* colorrange = Makie.automatic:
-* labels = nothing:
-* levels = 6:
-* linecolor = (:black, 0.5):
-* interpolation = ClaughTochter():
-* padding_geometry  = Circle:
-* padding = 0.1:
-* pad_value = 0.0:
-* resolution = (512, 512):
-* label_text = nothing: true -> add label for each position, NamedTuple -> gets passed to the `text!` call!
-* label_scatter = nothing:  true -> add point for each position, NamedTuple -> gets passed to the `scatter!` call!
-* contours = nothing:  true -> add point for each position, NamedTuple -> gets passed to the `contour!` call!
-"""
 @recipe(TopoPlot, data, positions) do scene
     return Attributes(
         colormap = Reverse(:RdBu),
         colorrange = Makie.automatic,
         sensors = true,
-        linecolor = (:black, 0.5),
         interpolation = ClaughTochter(),
-        padding_geometry = Circle,
+        bounding_geometry = Circle,
         padding = 0.1,
         pad_value = 0.0,
         resolution = (512, 512),
@@ -33,12 +15,47 @@
     )
 end
 
+"""
+    topoplot(data::Vector{<:Real}, positions::Vector{<: Point2})
+
+Creates an irregular interpolation for each `data[i]` point at `positions[i]`.
+
+# Attributes
+
+* `colormap = Reverse(:RdBu)`
+* `colorrange = automatic`
+* `labels::Vector{<:String}` = nothing: names for each data point
+* `interpolation::Interpolator = ClaughTochter()`: Applicable interpolators are $(join(subtypes(TopoPlots.Interpolator), ", "))
+* `bounding_geometry = Circle`: the geometry added to the points, to create a smooth boundary. Can be `Rect` or `Circle`.
+* `padding = 0.1`: padding applied to `bounding_geometry`
+* `pad_value = 0.0`: data value filled in for each added position from `bounding_geometry`
+* `resolution = (512, 512)`: resolution of the interpolation
+* `label_text = nothing`:
+    * true: add text plot for each position from `labels`
+    * NamedTuple: Attributes get passed to the Makie.text! call.
+* `label_scatter = nothing`:
+    * true: add point for each position with
+    * NamedTuple: Attributes get passed to the Makie.scatter! call.
+* `contours = nothing`:
+    * true: add point for each position
+    * NamedTuple: Attributes get passed to the Makie.contour! call.
+
+# Example
+
+```julia
+using TopoPlots, CairoMakie
+topoplot(rand(10), rand(Point2f, 10); contours=(color=:red, linewidth=2))
+```
+"""
+topoplot
+
 function Makie.plot!(p::TopoPlot)
     npositions = Observable(0; ignore_equal_values=true)
-    geometry = lift(enclosing_geometry, p.padding_geometry, p.positions, p.padding; ignore_equal_values=true)
+    geometry = lift(enclosing_geometry, p.bounding_geometry, p.positions, p.padding; ignore_equal_values=true)
     p.geometry = geometry # store geometry in plot object, so others can access it
-
-    padded_position = lift(p.positions, geometry, p.resolution; ignore_equal_values=true) do positions, geometry, resolution
+    # positions changes with with data together since it gets into convert_arguments
+    positions = lift(identity, p.positions; ignore_equal_values=true)
+    padded_position = lift(positions, geometry, p.resolution; ignore_equal_values=true) do positions, geometry, resolution
         points_padded = append!(copy(positions), decompose(Point2f, geometry))
         npositions[] = length(points_padded)
         return points_padded
@@ -74,18 +91,18 @@ function Makie.plot!(p::TopoPlot)
             contour!(p, xg, yg, data; attributes...)
         end
     end
+    label_scatter = to_value(p.label_scatter)
+    if !isnothing(label_scatter)
+        defaults = Attributes(markersize=5, color=p.data, colormap=p.colormap, colorrange=p.colorrange, strokecolor=:black, strokewidth=1)
+        attributes = label_scatter === true ? defaults : merge(label_scatter, defaults)
+        scatter!(p, p.positions; attributes...)
+    end
     if !isnothing(p.labels[])
         label_text = to_value(p.label_text)
         if !isnothing(label_text)
             defaults = Attributes(align=(:right, :top),)
             attributes = label_text === true ? defaults : merge(label_text, defaults)
             text!(p, p.positions, text=p.labels; attributes...)
-        end
-        label_scatter = to_value(p.label_scatter)
-        if !isnothing(label_scatter)
-            defaults = Attributes(markersize=5, color=p.data, colormap=p.colormap, colorrange=p.colorrange, strokecolor=:black, strokewidth=1)
-            attributes = label_scatter === true ? defaults : merge(label_scatter, defaults)
-            scatter!(p, p.positions; attributes...)
         end
     end
     return
