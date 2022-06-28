@@ -1,38 +1,46 @@
 
-#=
-Interface for interpolators:
 
+"""
+Interface for all types <: Interpolator:
+
+    interpolator = Interpolator(; kw_specific_to_interpolator)
     interpolator(xrange::LinRange, yrange::LinRange, positions::Vector{Point2}, data::Vector{<: Real})::Matrix{<: Real}
-=#
+"""
+abstract type Interpolator end
 
 """
-    ClaughTochter(fill_value=NaN, tol=nothing, maxiter=nothing, rescale=nothing)
+    ClaughTochter(fill_value=NaN, tol=1e-6, maxiter=400, rescale=false)
 
-Uses [SciPy.interpolate.CloughTocher2DInterpolator](https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.CloughTocher2DInterpolator.html) under the Hood.
+Piecewise cubic, C1 smooth, curvature-minimizing interpolant in 2D.
+Find more detailed docs in [SciPy.interpolate.CloughTocher2DInterpolator](https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.CloughTocher2DInterpolator.html).
+Slow, but yields the smoothest interpolation.
 """
-@with_kw struct ClaughTochter
+@with_kw struct ClaughTochter <: Interpolator
     fill_value::Float64 = NaN
-    tol::Union{Nothing, Float64} = nothing
-    maxiter::Union{Nothing, Int} = nothing
-    rescale::Union{Nothing, Bool} = nothing
+    tol::Float64 = 1e-6
+    maxiter::Int = 400
+    rescale::Bool = false
 end
 
-
-# https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.CloughTocher2DInterpolator.html
 function (ct::ClaughTochter)(
         xrange::LinRange, yrange::LinRange,
         positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number})
-    # TODO hand down parameters from ct
-    interp = SciPy.interpolate.CloughTocher2DInterpolator(Tuple.(positions), data)
+
+    params = Iterators.filter(((k, v),) -> !(v isa Nothing), Dict(:tol => ct.tol, :maxiter => ct.maxiter, :rescale => ct.rescale))
+
+    interp = SciPy.interpolate.CloughTocher2DInterpolator(
+        Tuple.(positions), data;
+        tol=ct.tol, maxiter=ct.maxiter, rescale=ct.rescale)
+
     return collect(interp(xrange' .* ones(length(yrange)), ones(length(xrange))' .* yrange)')
 end
 
 """
     SplineInterpolator(;kx=2, ky=2, smoothing=0.5)
 
-Uses Dierckx.Spline2D for interpolation.
+Uses [Dierckx.Spline2D](https://github.com/kbarbary/Dierckx.jl#2-d-splines) for interpolation.
 """
-@with_kw struct SplineInterpolator
+@with_kw struct SplineInterpolator <: Interpolator
     # spline order
     kx::Int = 2
     ky::Int = 2
@@ -53,7 +61,17 @@ end
 
 # TODO how to properly integrade delauny with the interpolation interface,
 # if the actualy interpolation happens inside the plotting framework (or even on the GPU for (W)GLMakie).
-struct DelaunayMesh
+
+"""
+    DelaunayMesh()
+
+Creates a delaunay triangulation of the points and linearly interpolates between the vertices of the triangle.
+Really fast interpolation that happens on the GPU (for GLMakie), so optimal for exploring larger timeseries.
+
+!!! warning
+    `DelaunayMesh` won't allow you to add a contour plot to the topoplot.
+"""
+struct DelaunayMesh <: Interpolator
 end
 
 (::DelaunayMesh)(positions::AbstractVector{<: Point{2}}) = delaunay_mesh(positions)
@@ -62,7 +80,6 @@ function delaunay_mesh(positions::AbstractVector{<: Point{2}})
     m = delaunay(convert(Matrix{Float64}, hcat(first.(positions), last.(positions))))
     return GeometryBasics.Mesh(Makie.to_vertices(m.points), Makie.to_triangles(m.simplices))
 end
-
 
 
 #=

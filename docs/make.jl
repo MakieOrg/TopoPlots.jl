@@ -15,6 +15,9 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "General TopoPlots" => "general.md",
+        "EEG" => "eeg.md",
+        "Function reference" => "functions.md"
     ],
     strict=true
 )

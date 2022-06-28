@@ -1,15 +1,31 @@
-@recipe(EEGTopoPlot, data, labels) do scene
+
+@recipe(EEG_TopoPlot, data, labels) do scene
     return Attributes(;
-        show_head = true,
+        head = (color=:black, linewidth=3),
         positions = Makie.automatic,
-        default_theme(scene, TopoPlot)...,
         # overwrite some topoplot defaults
+        default_theme(scene, TopoPlot)...,
         label_scatter = true,
         contours = true,
     )
 end
 
-function draw_ear_nose!(parent, circle)
+"""
+    eeg_topoplot(data::Vector{<: Real}, labels::Vector{<: AbstractString})
+
+Attributes:
+
+* `positions::Vector{<: Point} = Makie.automatic`: Can be calculated from label (channel) names. Currently, only 10/20 montage is supported.
+* `head = (color=:black, linewidth=3)`: draw the outline of the head. Set to nothing to not draw the head outline, otherwise set to a namedtuple that get passed down to the `line!` call that draws the shape.
+# Some attributes from topoplot are set to different defaults:
+* `label_scatter = true`
+* `contours = true`
+
+Otherwise the recipe just uses the [`topoplot`](@ref) defaults and passes through the attributes.
+"""
+eeg_topoplot
+
+function draw_ear_nose!(parent, circle; kw...)
     # draw circle
     head_points = lift(circle) do circle
         points = decompose(Point2f, circle)
@@ -28,7 +44,7 @@ function draw_ear_nose!(parent, circle)
         return points
     end
 
-    lines!(parent, head_points, color=:black, linewidth=3)
+    lines!(parent, head_points; kw...)
 
 end
 
@@ -58,7 +74,7 @@ function labels2positions(labels)
     end
 end
 
-function Makie.plot!(plot::EEGTopoPlot)
+function Makie.plot!(plot::EEG_TopoPlot)
     positions = lift(plot.labels, plot.positions) do labels, positions
         if positions isa Makie.Automatic
             return labels2positions(labels)
@@ -69,7 +85,9 @@ function Makie.plot!(plot::EEGTopoPlot)
     end
 
     tplot = topoplot!(plot, Attributes(plot), plot.data, positions; labels=plot.labels)
-    draw_ear_nose!(plot, tplot.geometry)
+    if to_value(plot.head) isa Attributes
+        draw_ear_nose!(plot, tplot.geometry; plot.head...)
+    end
     return
 end
 
