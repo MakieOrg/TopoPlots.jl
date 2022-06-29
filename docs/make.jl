@@ -15,10 +15,14 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "General TopoPlots" => "general.md",
+        "EEG" => "eeg.md",
+        "Function reference" => "functions.md"
     ],
+    strict=true
 )
 
 deploydocs(;
     repo="github.com/MakieOrg/TopoPlots.jl",
-    devbranch="master",
+    devbranch="master", push_preview=true
 )

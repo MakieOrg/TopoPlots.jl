@@ -3,3 +3,7 @@
 *.jl.mem
 /Manifest.toml
 /docs/build/
+test/test_images
+test/Manifest.toml
+docs/Manifest.toml
+deps/build.log

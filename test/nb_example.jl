@@ -17,7 +17,7 @@ begin
 	Pkg.add(["JLD2","CairoMakie","PyMNE","PyPlot"])
 	#Pkg.add(url="https://github.com/unfoldtoolbox/UnfoldMakie.jl",rev="topoplot")
 
-	
+
 end
 
 # ╔═╡ dcdd7a47-fd6c-4ec6-ac18-dd8fc07924bf
@@ -38,12 +38,12 @@ end;
 
 # ╔═╡ 17e7a862-ac44-4802-9449-a98894657ad0
  begin # convert x/y to mne position
-	 info = pycall(PyMNE.io.meas_info.create_info, PyObject,string.(1:size(pos,2)), sfreq=256, ch_types="eeg") # fake info 
+	 info = pycall(PyMNE.io.meas_info.create_info, PyObject,string.(1:size(pos,2)), sfreq=256, ch_types="eeg") # fake info
     raw = PyMNE.io.RawArray(data[:,:,1], info) # fake raw with fake info
 	 chname_pos_dict = Dict(string.(1:size(pos,2)) .=> [pos[:,p] for p in 1:size(pos,2)])
-montage = PyMNE.channels.make_dig_montage(ch_pos=chname_pos_dict,coord_frame="head")
+	montage = PyMNE.channels.make_dig_montage(ch_pos=chname_pos_dict,coord_frame="head")
     raw.set_montage(montage) # set montage (why??)
-	 
+
 	 layout_from_raw = PyMNE.channels.make_eeg_layout(get_info(raw))
 	 pos2 = layout_from_raw.pos
 

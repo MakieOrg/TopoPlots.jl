@@ -1,32 +1,74 @@
 using Test
-using LinearAlgebra, Statistics, TopoPlots, GLMakie, JLD2
+using LinearAlgebra, Statistics, TopoPlots, CairoMakie
 
-example_data = JLD2.load(joinpath(@__DIR__, "example.jld2"))
-pos = example_data["pos2"]
-data = example_data["data"]
-positions = Point2f.(pos[:,1], pos[:,2])
+include("percy.jl")
 
-function test()
+data, positions = TopoPlots.example_data()
+
+begin
     f = Figure(resolution=(1000, 1000))
-    interpolators = [TopoPlots.delaunay_mesh TopoPlots.claugh_tochter; TopoPlots.spline2d TopoPlots.spline2d_mne]
+    interpolators = [DelaunayMesh(), ClaughTochter(), SplineInterpolator()]
 
     s = Slider(f[:, 1], range=1:size(data, 2), startvalue=351)
     data_obs = map(s.value) do idx
         data[:, idx, 1]
     end
-    for i in CartesianIndices(interpolators)
-        interpolation = interpolators[i]
-        TopoPlots.topoplot(f[2, 1][Tuple(i)...], positions, data_obs, interpolation=interpolation, axis=(title="$interpolation",aspect=DataAspect(),), labels = string.(1:length(positions)), colorrange=(-1, 1))
+    for (i, interpolation) in enumerate(interpolators)
+        TopoPlots.topoplot(
+            f[2, 1][1, i], data_obs, positions;
+            contours=true,
+            interpolation=interpolation, labels = string.(1:length(positions)), colorrange=(-1, 1),
+            axis=(type=Axis, title="$interpolation", aspect=DataAspect(),))
     end
     f
+    @test_figure("all-interpolations", f)
 end
 
-function test2()
+begin
     f = Figure(resolution=(1000, 1000))
     s = Slider(f[:, 1], range=1:size(data, 2), startvalue=351)
     data_obs = map(s.value) do idx
         data[:, idx, 1]
     end
-    TopoPlots.topoplot(f[2, 1], positions, data_obs, interpolation=TopoPlots.delaunay_mesh, axis=(title="delaunay mesh",aspect=DataAspect(),), labels = string.(1:length(positions)), colorrange=(-1, 1))
-    f
+    TopoPlots.topoplot(
+        f[2, 1],
+        data_obs, positions,
+        interpolation=DelaunayMesh(),
+        labels = string.(1:length(positions)),
+        colorrange=(-1, 1),
+        colormap=[:red, :blue],
+        axis=(title="delaunay mesh", aspect=DataAspect(),))
+    display(f)
+    @test_figure("delaunay-with-slider", f)
+end
+
+begin
+    f, ax, pl = TopoPlots.topoplot(
+        data[:, 340, 1], positions,
+        axis=(; aspect=DataAspect()),
+        colorrange=(-1, 1),
+        bounding_geometry = Rect,
+        labels = string.(1:length(positions)),
+        label_text=(; color=:white),
+        label_scatter=(; strokewidth=2),
+        contours=(linestyle=:dot, linewidth=2))
+    @test_figure("more-parameters", f)
+end
+
+
+begin
+    labels = string.(1:length(positions))
+    f, ax, pl = TopoPlots.eeg_topoplot(data[:, 340, 1], labels; positions=positions, axis=(aspect=DataAspect(),), head=(color=:green, linewidth=3,))
+    @test_figure("eeg-topoplot", f)
+end
+
+begin
+    labels = TopoPlots.CHANNELS_10_20
+    f, ax, pl = TopoPlots.eeg_topoplot(data[1:19, 340, 1], labels; axis=(aspect=DataAspect(),), label_text=true, label_scatter=(markersize=10, strokewidth=2,))
+    @test_figure("eeg-topoplot2", f)
+end
+
+begin
+    f, ax, pl = eeg_topoplot(data[:, 340, 1]; positions=positions)
+    @test_figure("eeg-topoplot3", f)
 end
