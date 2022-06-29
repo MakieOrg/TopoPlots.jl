@@ -15,7 +15,8 @@ end
 
 Attributes:
 
-* `positions::Vector{<: Point} = Makie.automatic`: Can be calculated from label (channel) names. Currently, only 10/20 montage is supported.
+* `positions::Vector{<: Point} = Makie.automatic`: Can be calculated from label (channel) names. Currently, only 10/20 montage has default coordinates provided.
+
 * `head = (color=:black, linewidth=3)`: draw the outline of the head. Set to nothing to not draw the head outline, otherwise set to a namedtuple that get passed down to the `line!` call that draws the shape.
 # Some attributes from topoplot are set to different defaults:
 * `label_scatter = true`
@@ -74,6 +75,10 @@ function labels2positions(labels)
     end
 end
 
+function Makie.convert_arguments(::Type{<:EEG_TopoPlot}, data::AbstractVector{<: Real})
+    return (data, ["sensor $i" for i in 1:length(data)])
+end
+
 function Makie.plot!(plot::EEG_TopoPlot)
     positions = lift(plot.labels, plot.positions) do labels, positions
         if positions isa Makie.Automatic
@@ -85,8 +90,9 @@ function Makie.plot!(plot::EEG_TopoPlot)
     end
 
     tplot = topoplot!(plot, Attributes(plot), plot.data, positions; labels=plot.labels)
-    if to_value(plot.head) isa Attributes
-        draw_ear_nose!(plot, tplot.geometry; plot.head...)
+    head = plot_or_defaults(to_value(plot.head), Attributes(), :head)
+    if !isnothing(head)
+        draw_ear_nose!(plot, tplot.geometry; head...)
     end
     return
 end

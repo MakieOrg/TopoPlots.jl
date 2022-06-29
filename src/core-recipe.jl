@@ -9,9 +9,9 @@
         pad_value = 0.0,
         resolution = (512, 512),
         labels = nothing,
-        label_text = nothing,
-        label_scatter = nothing,
-        contours = nothing
+        label_text = false,
+        label_scatter = false,
+        contours = false
     )
 end
 
@@ -30,14 +30,14 @@ Creates an irregular interpolation for each `data[i]` point at `positions[i]`.
 * `padding = 0.1`: padding applied to `bounding_geometry`
 * `pad_value = 0.0`: data value filled in for each added position from `bounding_geometry`
 * `resolution = (512, 512)`: resolution of the interpolation
-* `label_text = nothing`:
+* `label_text = false`:
     * true: add text plot for each position from `labels`
     * NamedTuple: Attributes get passed to the Makie.text! call.
-* `label_scatter = nothing`:
-    * true: add point for each position with
+* `label_scatter = false`:
+    * true: add point for each position with default attributes
     * NamedTuple: Attributes get passed to the Makie.scatter! call.
-* `contours = nothing`:
-    * true: add point for each position
+* `contours = false`:
+    * true: add scatter point for each position
     * NamedTuple: Attributes get passed to the Makie.contour! call.
 
 # Example
@@ -48,6 +48,19 @@ topoplot(rand(10), rand(Point2f, 10); contours=(color=:red, linewidth=2))
 ```
 """
 topoplot
+
+# Handle the nothing/bool/attribute situation for e.g. contours/label_scatter
+plot_or_defaults(value::Bool, defaults, name) = value ? defaults : nothing
+plot_or_defaults(value::Attributes, defaults, name) = merge(value, defaults)
+function plot_or_defaults(value, defaults, name)
+    error("Attribute $(name) has the wrong type: $(typeof(value)).
+          Use either a bool to enable/disable plotting with default attributes,
+          or a NamedTuple with attributes getting passed down to the plot command.")
+end
+
+macro plot_or_defaults(var, defaults)
+    return :(plot_or_defaults($(esc(var)), $(esc(defaults)), $(QuoteNode(var))))
+end
 
 function Makie.plot!(p::TopoPlot)
     npositions = Observable(0; ignore_equal_values=true)
@@ -85,23 +98,20 @@ function Makie.plot!(p::TopoPlot)
         end
         heatmap!(p, xg, yg, data, colormap=p.colormap, colorrange=p.colorrange, interpolate=true)
         contours = to_value(p.contours)
-        if !isnothing(contours)
-            defaults = Attributes(color=(:black, 0.5), linestyle=:dot, levels=6)
-            attributes = contours === true ? defaults : merge(contours, defaults)
+        attributes = @plot_or_defaults contours Attributes(color=(:black, 0.5), linestyle=:dot, levels=6)
+        if !isnothing(attributes)
             contour!(p, xg, yg, data; attributes...)
         end
     end
     label_scatter = to_value(p.label_scatter)
-    if !isnothing(label_scatter)
-        defaults = Attributes(markersize=5, color=p.data, colormap=p.colormap, colorrange=p.colorrange, strokecolor=:black, strokewidth=1)
-        attributes = label_scatter === true ? defaults : merge(label_scatter, defaults)
+    attributes = @plot_or_defaults label_scatter Attributes(markersize=5, color=p.data, colormap=p.colormap, colorrange=p.colorrange, strokecolor=:black, strokewidth=1)
+    if !isnothing(attributes)
         scatter!(p, p.positions; attributes...)
     end
     if !isnothing(p.labels[])
         label_text = to_value(p.label_text)
-        if !isnothing(label_text)
-            defaults = Attributes(align=(:right, :top),)
-            attributes = label_text === true ? defaults : merge(label_text, defaults)
+        attributes = @plot_or_defaults label_text Attributes(align=(:right, :top))
+        if !isnothing(attributes)
             text!(p, p.positions, text=p.labels; attributes...)
         end
     end
