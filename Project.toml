@@ -17,6 +17,14 @@ Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
 julia = "1"
+Delaunay = "1.2"
+Dierckx = "0.5"
+GeometryBasics = "0.4"
+Makie = "0.17.8"
+Parameters = "0.12"
+PyCall = "1.93"
+SciPy = "0.1"
+
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
