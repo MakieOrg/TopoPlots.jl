@@ -1,13 +1,9 @@
 using Test
 using LinearAlgebra, Statistics, TopoPlots, CairoMakie
 
-data = Array{Float32}(undef, 64, 400, 3)
-read!(TopoPlots.assetpath("example-data.bin"), data)
-
-positions = Vector{Point2f}(undef, 64)
-read!(TopoPlots.assetpath("layout64.bin"), positions)
-
 include("percy.jl")
+
+data, positions = TopoPlots.example_data()
 
 begin
     f = Figure(resolution=(1000, 1000))
@@ -70,4 +66,9 @@ begin
     labels = TopoPlots.CHANNELS_10_20
     f, ax, pl = TopoPlots.eeg_topoplot(data[1:19, 340, 1], labels; axis=(aspect=DataAspect(),), label_text=true, label_scatter=(markersize=10, strokewidth=2,))
     @test_figure("eeg-topoplot2", f)
+end
+
+begin
+    f, ax, pl = eeg_topoplot(data[:, 340, 1]; positions=positions)
+    @test_figure("eeg-topoplot3", f)
 end

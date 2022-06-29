@@ -75,6 +75,10 @@ function labels2positions(labels)
     end
 end
 
+function Makie.convert_arguments(::Type{<:EEG_TopoPlot}, data::AbstractVector{<: Real})
+    return (data, ["sensor $i" for i in 1:length(data)])
+end
+
 function Makie.plot!(plot::EEG_TopoPlot)
     positions = lift(plot.labels, plot.positions) do labels, positions
         if positions isa Makie.Automatic

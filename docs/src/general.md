@@ -26,13 +26,9 @@ TopoPlots.Interpolator
 The different interpolation schemes look quite different:
 
 ```@example 1
-using LinearAlgebra, Statistics, TopoPlots, CairoMakie
+using TopoPlots, CairoMakie
 
-data = Array{Float32}(undef, 64, 400, 3)
-read!(TopoPlots.assetpath("example-data.bin"), data)
-
-positions = Vector{Point2f}(undef, 64)
-read!(TopoPlots.assetpath("layout64.bin"), positions)
+data, positions = TopoPlots.example_data()
 
 f = Figure(resolution=(1000, 1000))
 interpolators = [DelaunayMesh(), ClaughTochter(), SplineInterpolator()]

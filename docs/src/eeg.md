@@ -21,10 +21,7 @@ If the channels aren't 10/20, one can still plot them, but then the positions ne
 
 ```@example 1
 
-data = Array{Float32}(undef, 64, 400, 3)
-read!(TopoPlots.assetpath("example-data.bin"), data)
-positions = Vector{Point2f}(undef, 64)
-read!(TopoPlots.assetpath("layout64.bin"), positions)
+data, positions = TopoPlots.example_data()
 labels = ["s$i" for i in 1:size(data, 1)]
 TopoPlots.eeg_topoplot(data[:, 340, 1], labels; positions=positions, axis=(aspect=DataAspect(),))
 ```
