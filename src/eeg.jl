@@ -144,7 +144,7 @@ function plot_topoplot_series(data::DataFrame,Δbin;
 
     # cannot be made easier right now, but Simon promised a simpler solution "soonish"
     axisOptions = (aspect = 1,xgridvisible=false,xminorgridvisible=false,xminorticksvisible=false,xticksvisible=false,xticklabelsvisible=false,xlabelvisible=false,ygridvisible=false,yminorgridvisible=false,yminorticksvisible=false,yticksvisible=false,yticklabelsvisible=false,ylabelvisible=false,
-    leftspinevisible = false,rightspinevisible = false,topspinevisible = false,bottomspinevisible=false,)
+    leftspinevisible = false,rightspinevisible = false,topspinevisible = false,bottomspinevisible=false,limits=((-.5,1.5),(-.5,1.5)),)
 
     data_mean = topoplot_timebin(data,Δbin;
             col_y=col_y,
@@ -156,8 +156,8 @@ function plot_topoplot_series(data::DataFrame,Δbin;
     
     return AlgebraOfGraphics.data(data_mean)*
         mapping(col_y,col_label;mappingCfg...)*
-        visual(EEGTopoPlot;topoplotCfg...)|>
-            x->draw(x,axis=axisOptions)
+        visual(EEG_TopoPlot;topoplotCfg...)|>
+            x->draw(x,axis=axisOptions,facet=(linkxaxes = :none,linkyaxes = :none,))
 
 end
 
