@@ -86,8 +86,9 @@ function Makie.plot!(plot::EEG_TopoPlot)
     end
 
     tplot = topoplot!(plot, Attributes(plot), plot.data, positions; labels=plot.labels)
-    if to_value(plot.head) isa Attributes
-        draw_ear_nose!(plot, tplot.geometry; plot.head...)
+    head = plot_or_defaults(to_value(plot.head), Attributes(), :head)
+    if !isnothing(head)
+        draw_ear_nose!(plot, tplot.geometry; head...)
     end
     return
 end
