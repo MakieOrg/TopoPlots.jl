@@ -96,3 +96,116 @@ function Makie.plot!(plot::EEG_TopoPlot)
     end
     return
 end
+
+
+
+
+
+# if no labels are provided, just 1:nchannel
+eeg_topoplot_series(data::Matrix,Δbin;kwargs...) = 
+eeg_topoplot_series(data,string.(1:size(data,1)),Δbin;kwargs...)
+
+# convert a 2D Matrix to the dataframe
+function eeg_topoplot_series(data::Matrix,labels,Δbin;kwargs...)
+
+    df = DataFrame(data',labels)
+    df[!,:time] .= 1:nrow(df)
+    df = stack(df,variable_name=:label,value_name="erp")
+    eeg_topoplot_series(df,Δbin;kwargs...)
+end
+
+eeg_topoplot_series(data::DataFrame;Δbin,kwargs...) = eeg_topoplot_series(data,Δbin;kwargs...)
+"""
+function eeg_topoplot_series(data::DataFrame,
+    Δbin; 				 
+    col_y=:erp,
+    col_label=:label,
+    topoplotCfg=NamedTuple(),
+    mappingCfg=(col=:time,),
+    combinefun=mean
+    )
+
+Plot a series of topoplots. The function automatically takes the `combinefun=mean` over the `:time`` column of `data` in `Δbin` steps.
+
+Dataframe `data` needs columns `:time` and `col_y(=:erp)`, and `col_label(=:label)`.
+If `data` is a `Matrix`, it is automatically cast to a dataframe, time-bins are then in samples
+`
+Δbin in `:time`-units, specifise the time-steps. 
+
+Further specifications via topoplotCfg for the EEG_TopoPlot recipe. In most cases user should provide the electrode positions via
+`topoplotCFG = (positions=pos,)` # note the trailling comma to make it a NamedTuple
+
+`mappingCfg` is for the mapping command of AOG, typical usages would be `mappingCfg=(col=:time,row=:condition,)` to layout the plot. Other topoplot modifications are possible, as `topoplotCfg`` as it put to AoG.visual
+in pseudo-code:
+AoG.data(data) * mapping(col_y,col_label,mappingCfg...)*visual(EEG_TopoPlot,topoplotCfg...)
+ 
+
+# Examples
+Desc
+```julia-repl
+julia> df = DataFrame(:erp=>repeat(1:63,100),:time=>repeat(1:20,5*63),:label=>repeat(1:63,100)) # fake data
+julia> pos = [(1:63)./63 .* (sin.(range(-2*pi,2*pi,63))) (1:63)./63 .* cos.(range(-2*pi,2*pi,63))].*0.5 .+0.5 # fake electrode positions
+julia> pos = [Point2.(pos[k,1],pos[k,2]) for k in 1:size(pos,1)]
+julia> eeg_topoplot_series(df,5;topoplotCfg=(positions=pos,))
+```
+
+"""
+function eeg_topoplot_series(data::DataFrame,
+                            Δbin; 				 
+                            col_y=:erp,
+                            col_label=:label,
+                            topoplotCfg=NamedTuple(),
+                            mappingCfg=(col=:time,),
+                            combinefun=mean
+                            )
+
+
+    # cannot be made easier right now, but Simon promised a simpler solution "soonish"
+    axisOptions = (aspect = 1,xgridvisible=false,xminorgridvisible=false,xminorticksvisible=false,xticksvisible=false,xticklabelsvisible=false,xlabelvisible=false,ygridvisible=false,yminorgridvisible=false,yminorticksvisible=false,yticksvisible=false,yticklabelsvisible=false,ylabelvisible=false,
+    leftspinevisible = false,rightspinevisible = false,topspinevisible = false,bottomspinevisible=false,limits=((-.5,1.5),(-.5,1.5)),)
+
+    # aggregate the data over time-bins
+    data_mean = df_timebin(data,Δbin;
+            col_y=col_y,
+            fun=combinefun,
+            grouping=[col_label,values(mappingCfg)...]
+            )
+
+    
+    # do the AoG plot
+    return AlgebraOfGraphics.data(data_mean)*
+        mapping(col_y,col_label;mappingCfg...)*
+        visual(EEG_TopoPlot;topoplotCfg...)|>
+            x->draw(x,axis=axisOptions,facet=(linkxaxes = :none,linkyaxes = :none,))
+
+end
+
+
+"""
+function df_timebin(df,Δbin;col_y=:erp,fun=mean,grouping=[])
+
+Split/Combine dataframe according to equally spaced time-bins
+
+- `df` AbstractTable with columns `:time` and `col_y` (default `:erp`), and all columns in `grouping`
+- `Δbin` bin-size in `:time`-units
+
+- `col_y` default :erp, the column to combine (using `fun`) over
+- `fun` function to combine, default is `mean`
+- `grouping` (vector of symbols/strings) default empty vector, columns to group the data by, before aggregating
+
+"""
+function df_timebin(df,Δbin;col_y=:erp,fun=mean,grouping=[])
+    tmin = minimum(df.time)
+    tmax = maximum(df.time)
+    
+    bins = range(start=tmin,step=Δbin,stop=tmax)
+    df = deepcopy(df) # cut seems to change stuff inplace
+    df.time = cut(df.time,bins,extend=true)
+    
+    df_m = combine(groupby(df,unique([:time, grouping...])),col_y=>fun)
+    #df_m = combine(groupby(df,Not(y)),y=>fun)
+    rename!(df_m,names(df_m)[end]=>col_y) # remove the _fun part of the new column
+    return df_m
+
+end;
+

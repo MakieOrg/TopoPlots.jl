@@ -72,3 +72,22 @@ begin
     f, ax, pl = eeg_topoplot(data[:, 340, 1]; positions=positions)
     @test_figure("eeg-topoplot3", f)
 end
+
+
+begin # df_timebin
+        
+    df = DataFrame(:erp=>repeat([1],20),:time=>(0:19) ./10,:label=>repeat([1],20))
+    x = TopoPlots.df_timebin(df,1.5)
+    @test  string.(x.time[1]) == "[0.0, 1.5)"
+
+    x = TopoPlots.df_timebin(df,.5)
+    @test  string.(x.time[1]) == "[0.0, 0.5)"
+    @test  string.(x.time[4]) == "[1.5, 1.9]"
+
+    x = TopoPlots.df_timebin(df,.1)
+    @test nrow(x) == 20-1
+
+    df = DataFrame(:erp=>repeat([1],20*3),:time=>repeat((0:19) ./10,3),:label=>repeat([1,2,3],20))
+    x = TopoPlots.df_timebin(df,.1,grouping = [:label])
+    @test nrow(x) == (20-1)* 3
+end
