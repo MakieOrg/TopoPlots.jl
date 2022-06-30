@@ -1,5 +1,6 @@
 using Test
 using LinearAlgebra, Statistics, TopoPlots, CairoMakie
+using DataFrames
 
 include("percy.jl")
 
