@@ -92,3 +92,20 @@ begin # df_timebin
     x = TopoPlots.df_timebin(df,.1,grouping = [:label])
     @test nrow(x) == (20-1)* 3
 end
+
+
+begin #eeg_topoplot_series Matrix
+    f = Figure(resolution=(1000, 1000))
+    TopoPlots.eeg_topoplot_series!(f[1,1],data[:,:,1],40, topoplotCfg=(positions=positions,))
+    @test_figure("eeg_topoplot_series Matrix",f)
+end
+begin #eeg_topoplot_series DataFrame
+    f = Figure(resolution=(1000, 1000))
+    df = DataFrame(data[:,:,1]',labels)
+    df[!,:time] .= range(start=-0.3,step=1/500,length=size(data,2))
+    df = stack(df,Not([:time]),variable_name=:label,value_name="erp")
+  
+    first(df,3)
+    TopoPlots.eeg_topoplot_series!(f[1,1],df,0.1, topoplotCfg=(positions=positions,))
+    @test_figure("eeg_topoplot_series DataFrame",f)
+end

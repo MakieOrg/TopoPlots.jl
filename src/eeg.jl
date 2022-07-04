@@ -110,11 +110,16 @@ function eeg_topoplot_series(data::Matrix,labels,Δbin;kwargs...)
 
     df = DataFrame(data',labels)
     df[!,:time] .= 1:nrow(df)
-    df = stack(df,variable_name=:label,value_name="erp")
+    df = stack(df,Not([:time]),variable_name=:label,value_name="erp")
     eeg_topoplot_series(df,Δbin;kwargs...)
 end
 
 eeg_topoplot_series(data::DataFrame;Δbin,kwargs...) = eeg_topoplot_series(data,Δbin;kwargs...)
+
+
+# in place plotting
+eeg_topoplot_series(data::DataFrame,Δbin;figureCfg = NamedTuple(),kwargs...) = eeg_topoplot_series!(Figure(; figureCfg...),data,Δbin;kwargs...)
+
 """
 function eeg_topoplot_series(data::DataFrame,
     Δbin; 				 
@@ -150,7 +155,7 @@ julia> eeg_topoplot_series(df,5;topoplotCfg=(positions=pos,))
 ```
 
 """
-function eeg_topoplot_series(data::DataFrame,
+function eeg_topoplot_series!(fig,data::DataFrame,
                             Δbin; 				 
                             col_y=:erp,
                             col_label=:label,
@@ -173,10 +178,11 @@ function eeg_topoplot_series(data::DataFrame,
 
     
     # do the AoG plot
-    return AlgebraOfGraphics.data(data_mean)*
+    aogFig =  AlgebraOfGraphics.data(data_mean)*
         mapping(col_y,col_label;mappingCfg...)*
         visual(EEG_TopoPlot;topoplotCfg...)|>
-            x->draw(x,axis=axisOptions,facet=(linkxaxes = :none,linkyaxes = :none,))
+            x->draw!(fig,x,axis=axisOptions,facet=(linkxaxes = :none,linkyaxes = :none,))
+    fig
 
 end
 
