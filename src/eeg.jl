@@ -102,16 +102,22 @@ end
 
 
 # if no labels are provided, just 1:nchannel
-eeg_topoplot_series(data::Matrix,Δbin;kwargs...) = 
-eeg_topoplot_series(data,string.(1:size(data,1)),Δbin;kwargs...)
+eeg_topoplot_series(data::Matrix,Δbin;kwargs...) = eeg_topoplot_series(data,string.(1:size(data,1)),Δbin;kwargs...)
+eeg_topoplot_series!(fig,data::Matrix,Δbin;kwargs...) = eeg_topoplot_series!(fig,data,string.(1:size(data,1)),Δbin;kwargs...)
 
 # convert a 2D Matrix to the dataframe
-function eeg_topoplot_series(data::Matrix,labels,Δbin;kwargs...)
+eeg_topoplot_series(     data::Matrix,labels,Δbin;kwargs...) = eeg_topoplot_series(eeg_matrixToDataframe(data,labels),Δbin;kwargs...)
+eeg_topoplot_series!(fig,data::Matrix,labels,Δbin;kwargs...) = eeg_topoplot_series!(fig,eeg_matrixToDataframe(data,labels),Δbin;kwargs...)
 
-    df = DataFrame(data',labels)
+"""
+Helper function converting a matrix (channel x times) to a tidy dataframe
+    with columns :erp, :time and :label
+"""
+function eeg_matrixToDataframe(data,label)
+    df = DataFrame(data',label)
     df[!,:time] .= 1:nrow(df)
     df = stack(df,Not([:time]),variable_name=:label,value_name="erp")
-    eeg_topoplot_series(df,Δbin;kwargs...)
+    return df
 end
 
 eeg_topoplot_series(data::DataFrame;Δbin,kwargs...) = eeg_topoplot_series(data,Δbin;kwargs...)
@@ -119,6 +125,7 @@ eeg_topoplot_series(data::DataFrame;Δbin,kwargs...) = eeg_topoplot_series(data,
 
 # in place plotting
 eeg_topoplot_series(data::DataFrame,Δbin;figureCfg = NamedTuple(),kwargs...) = eeg_topoplot_series!(Figure(; figureCfg...),data,Δbin;kwargs...)
+eeg_topoplot_series(data::Matrix,Δbin;figureCfg = NamedTuple(),kwargs...) = eeg_topoplot_series!(Figure(; figureCfg...),data,Δbin;kwargs...)
 
 """
 function eeg_topoplot_series(data::DataFrame,
@@ -127,8 +134,11 @@ function eeg_topoplot_series(data::DataFrame,
     col_label=:label,
     topoplotCfg=NamedTuple(),
     mappingCfg=(col=:time,),
+    figureCfg = NamedTuple(),
     combinefun=mean
     )
+
+
 
 Plot a series of topoplots. The function automatically takes the `combinefun=mean` over the `:time`` column of `data` in `Δbin` steps.
 
@@ -144,6 +154,7 @@ Further specifications via topoplotCfg for the EEG_TopoPlot recipe. In most case
 in pseudo-code:
 AoG.data(data) * mapping(col_y,col_label,mappingCfg...)*visual(EEG_TopoPlot,topoplotCfg...)
  
+`figureCfg` allows to include information for the figure generation. Alternatively you can provide a fig object `eeg_topoplot_series(fig,data::DataFrame,Δbin; kwargs..)`
 
 # Examples
 Desc
