@@ -178,7 +178,7 @@ function eeg_topoplot_series!(fig,data::DataFrame,
 
     # cannot be made easier right now, but Simon promised a simpler solution "soonish"
     axisOptions = (aspect = 1,xgridvisible=false,xminorgridvisible=false,xminorticksvisible=false,xticksvisible=false,xticklabelsvisible=false,xlabelvisible=false,ygridvisible=false,yminorgridvisible=false,yminorticksvisible=false,yticksvisible=false,yticklabelsvisible=false,ylabelvisible=false,
-    leftspinevisible = false,rightspinevisible = false,topspinevisible = false,bottomspinevisible=false,limits=((-.5,1.5),(-.5,1.5)),)
+    leftspinevisible = false,rightspinevisible = false,topspinevisible = false,bottomspinevisible=false,limits=((-.25,1.25),(-.25,1.25)),)
 
     # aggregate the data over time-bins
     data_mean = df_timebin(data,Δbin;
@@ -193,6 +193,7 @@ function eeg_topoplot_series!(fig,data::DataFrame,
         mapping(col_y,col_label;mappingCfg...)*
         visual(EEG_TopoPlot;topoplotCfg...)|>
             x->draw!(fig,x,axis=axisOptions,facet=(linkxaxes = :none,linkyaxes = :none,))
+    colgap!(fig.layout,0)
     fig
 
 end
