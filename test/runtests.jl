@@ -99,6 +99,7 @@ begin #eeg_topoplot_series Matrix
     TopoPlots.eeg_topoplot_series!(f[1,1],data[:,:,1],40, topoplotCfg=(positions=positions,))
     @test_figure("eeg_topoplot_series Matrix",f)
 end
+
 begin #eeg_topoplot_series DataFrame
     f = Figure(resolution=(1000, 1000))
     df = DataFrame(data[:,:,1]',labels)
