@@ -11,7 +11,7 @@ TopoPlots.eeg_topoplot
 
 So for the standard 10/20 montage, one can drop the `positions` attribute:
 ```@example 1
-using TopoPlots, CairoMakie
+using TopoPlots, CairoMakie, DataFrames
 
 labels = TopoPlots.CHANNELS_10_20
 
@@ -47,6 +47,7 @@ TopoPlots.eeg_topoplot_series(data[:, :, 1],40, topoplotCfg=(positions=positions
 But you might want to use the DataFrames interface. This allows to specify the bin-widths of each topoplot (`Δbin`) in time instead of samples
 
 ```@example 1
+
   df = DataFrame(data[:,:,1]',labels)
   df[!,:time] .= range(start=-0.3,step=1/500,length=size(data,2))
   df = stack(df,Not([:time]),variable_name=:label,value_name="erp")
