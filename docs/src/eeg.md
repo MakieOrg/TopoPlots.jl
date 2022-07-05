@@ -59,3 +59,15 @@ This allows to run:
 # 100ms bins
 TopoPlots.eeg_topoplot_series(df,0.1, topoplotCfg=(positions=positions,))
 ```
+
+We can also provide a figure
+
+```@docs
+TopoPlots.eeg_topoplot_series!
+```
+
+```@example 1
+f = Figure()
+TopoPlots.eeg_topoplot_series!(f[1,1],df,0.3, topoplotCfg=(positions=positions,))
+TopoPlots.eeg_topoplot_series!(f[2,1],df,0.1, topoplotCfg=(positions=positions,))
+```
