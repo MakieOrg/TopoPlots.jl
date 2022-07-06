@@ -101,13 +101,6 @@ end
 
 
 
-# if no labels are provided, just 1:nchannel
-eeg_topoplot_series(data::Matrix,Δbin;kwargs...) = eeg_topoplot_series(data,string.(1:size(data,1)),Δbin;kwargs...)
-eeg_topoplot_series!(fig,data::Matrix,Δbin;kwargs...) = eeg_topoplot_series!(fig,data,string.(1:size(data,1)),Δbin;kwargs...)
-
-# convert a 2D Matrix to the dataframe
-eeg_topoplot_series(     data::Matrix,labels,Δbin;kwargs...) = eeg_topoplot_series(eeg_matrixToDataframe(data,labels),Δbin;kwargs...)
-eeg_topoplot_series!(fig,data::Matrix,labels,Δbin;kwargs...) = eeg_topoplot_series!(fig,eeg_matrixToDataframe(data,labels),Δbin;kwargs...)
 
 """
 Helper function converting a matrix (channel x times) to a tidy dataframe
@@ -120,12 +113,7 @@ function eeg_matrixToDataframe(data,label)
     return df
 end
 
-eeg_topoplot_series(data::DataFrame;Δbin,kwargs...) = eeg_topoplot_series(data,Δbin;kwargs...)
 
-
-# in place plotting
-eeg_topoplot_series(data::DataFrame,Δbin;figureCfg = NamedTuple(),kwargs...) = eeg_topoplot_series!(Figure(; figureCfg...),data,Δbin;kwargs...)
-eeg_topoplot_series(data::Matrix,Δbin;figureCfg = NamedTuple(),kwargs...) = eeg_topoplot_series!(Figure(; figureCfg...),data,Δbin;kwargs...)
 
 """
 function eeg_topoplot_series(data::DataFrame,
@@ -154,7 +142,7 @@ Further specifications via topoplotCfg for the EEG_TopoPlot recipe. In most case
 in pseudo-code:
 AoG.data(data) * mapping(col_y,col_label,mappingCfg...)*visual(EEG_TopoPlot,topoplotCfg...)
  
-`figureCfg` allows to include information for the figure generation. Alternatively you can provide a fig object `eeg_topoplot_series(fig,data::DataFrame,Δbin; kwargs..)`
+`figureCfg` allows to include information for the figure generation. Alternatively you can provide a fig object `eeg_topoplot_series!(fig,data::DataFrame,Δbin; kwargs..)`
 
 # Examples
 Desc
@@ -166,6 +154,26 @@ julia> eeg_topoplot_series(df,5;topoplotCfg=(positions=pos,))
 ```
 
 """
+eeg_topoplot_series(data::DataFrame,Δbin;figureCfg = NamedTuple(),kwargs...) = eeg_topoplot_series!(Figure(; figureCfg...),data,Δbin;kwargs...)
+eeg_topoplot_series(data::Matrix,Δbin;figureCfg = NamedTuple(),kwargs...) = eeg_topoplot_series!(Figure(; figureCfg...),data,Δbin;kwargs...)
+# allow to specify Δbin as an keyword for nicer readability
+eeg_topoplot_series(data::DataFrame;Δbin,kwargs...) = eeg_topoplot_series(data,Δbin;kwargs...)
+# if no labels are provided, just 1:nchannel
+eeg_topoplot_series(data::Matrix,Δbin;kwargs...) = eeg_topoplot_series(data,string.(1:size(data,1)),Δbin;kwargs...)
+eeg_topoplot_series!(fig,data::Matrix,Δbin;kwargs...) = eeg_topoplot_series!(fig,data,string.(1:size(data,1)),Δbin;kwargs...)
+
+# convert a 2D Matrix to the dataframe
+eeg_topoplot_series(     data::Matrix,labels,Δbin;kwargs...) = eeg_topoplot_series(eeg_matrixToDataframe(data,labels),Δbin;kwargs...)
+eeg_topoplot_series!(fig,data::Matrix,labels,Δbin;kwargs...) = eeg_topoplot_series!(fig,eeg_matrixToDataframe(data,labels),Δbin;kwargs...)
+
+
+
+"""
+eeg_topoplot_series!(fig,data::DataFrame,Δbin; kwargs..)
+In place plotting of topoplot series
+see eeg_topoplot_series(data,Δbin) for help
+""" 
+
 function eeg_topoplot_series!(fig,data::DataFrame,
                             Δbin; 				 
                             col_y=:erp,
