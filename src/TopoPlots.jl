@@ -10,6 +10,7 @@ using GeometryBasics
 using GeometryBasics: origin, radius
 using Parameters
 using InteractiveUtils
+using ScatteredInterpolation
 
 assetpath(files...) = normpath(joinpath(dirname(@__DIR__), "assets", files...))
 
@@ -28,6 +29,6 @@ include("core-recipe.jl")
 include("eeg.jl")
 
 # Interpolators
-export ClaughTochter, SplineInterpolator, DelaunayMesh
+export ClaughTochter, SplineInterpolator, DelaunayMesh, ScatteredInterpolationMethod
 
 end

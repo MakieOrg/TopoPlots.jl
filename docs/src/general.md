@@ -26,22 +26,25 @@ TopoPlots.Interpolator
 The different interpolation schemes look quite different:
 
 ```@example 1
-using TopoPlots, CairoMakie
+using TopoPlots, CairoMakie, ScatteredInterpolations
 
 data, positions = TopoPlots.example_data()
 
 f = Figure(resolution=(1000, 1000))
-interpolators = [DelaunayMesh(), ClaughTochter(), SplineInterpolator()]
+interpolators = [DelaunayMesh(), ClaughTochter(), SplineInterpolator(),ScatteredInterpolationMethod(ThinPlate()),ScatteredInterpolationMethod(Shepard(P=3))]
+
 data_slice = data[:, 360, 1]
 
 for (i, interpolation) in enumerate(interpolators)
-    j = i == 3 ? (:) : i
-    TopoPlots.topoplot(
+    j = mod(i-1,3) + 1
+    t = @elapsed TopoPlots.topoplot(
         f[((i - 1) ÷ 2) + 1, j], data_slice, positions;
         contours=true,
         interpolation=interpolation,
         labels = string.(1:length(positions)), colorrange=(-1, 1),
         axis=(type=Axis, title="$(typeof(interpolation))()",aspect=DataAspect(),))
+   ax = current_axis()
+   ax.title = ("$(typeof(interpolation))() - $(round(t,digits=1))")
 end
 f
 ```
