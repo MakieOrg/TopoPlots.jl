@@ -35,5 +35,5 @@ include("eeg.jl")
 
 # Interpolators
 export ClaughTochter, SplineInterpolator, DelaunayMesh
-
+export eeg_topoplot_series,eeg_topoplot_series!
 end

@@ -173,7 +173,6 @@ eeg_topoplot_series!(fig,data::DataFrame,Δbin; kwargs..)
 In place plotting of topoplot series
 see eeg_topoplot_series(data,Δbin) for help
 """ 
-
 function eeg_topoplot_series!(fig,data::DataFrame,
                             Δbin; 				 
                             col_y=:erp,
