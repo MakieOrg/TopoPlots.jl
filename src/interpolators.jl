@@ -82,8 +82,14 @@ function delaunay_mesh(positions::AbstractVector{<: Point{2}})
 end
 
 
+"""
+    ScatteredInterpolationMethod(InterpolationMethod)
+
+    Container to specify a `InterpolationMethod` from ScatteredInterpolation.
+    E.g. ScatteredInterpolationMethod(Shepard(P=4))
+"""
 @with_kw struct ScatteredInterpolationMethod <: Interpolator
-    method = Shepard()
+    method::InterpolationMethod = Shepard(P=4)
 end
 
 function (sim::ScatteredInterpolationMethod)(
