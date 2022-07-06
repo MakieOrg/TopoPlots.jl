@@ -16,6 +16,7 @@ The recipe supports different interpolation methods, namely:
 TopoPlots.DelaunayMesh
 TopoPlots.ClaughTochter
 TopoPlots.SplineInterpolator
+TopoPlots.ScatteredInterpolationMethod
 ```
 One can define your own interpolation by subtyping:
 
@@ -26,12 +27,12 @@ TopoPlots.Interpolator
 The different interpolation schemes look quite different:
 
 ```@example 1
-using TopoPlots, CairoMakie, ScatteredInterpolations
+using TopoPlots, CairoMakie, ScatteredInterpolation
 
 data, positions = TopoPlots.example_data()
 
 f = Figure(resolution=(1000, 1000))
-interpolators = [DelaunayMesh(), ClaughTochter(), SplineInterpolator(),ScatteredInterpolationMethod(ThinPlate()),ScatteredInterpolationMethod(Shepard(P=3))]
+interpolators = [DelaunayMesh(), ClaughTochter(), SplineInterpolator(),ScatteredInterpolationMethod(ThinPlate()),ScatteredInterpolationMethod(Shepard(3))]
 
 data_slice = data[:, 360, 1]
 

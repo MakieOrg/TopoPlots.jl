@@ -89,7 +89,7 @@ end
     E.g. ScatteredInterpolationMethod(Shepard(P=4))
 """
 @with_kw struct ScatteredInterpolationMethod <: Interpolator
-    method::InterpolationMethod = Shepard(P=4)
+    method::ScatteredInterpolation.InterpolationMethod = Shepard(4)
 end
 
 function (sim::ScatteredInterpolationMethod)(
