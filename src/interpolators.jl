@@ -82,6 +82,31 @@ function delaunay_mesh(positions::AbstractVector{<: Point{2}})
 end
 
 
+"""
+    ScatteredInterpolationMethod(InterpolationMethod)
+
+    Container to specify a `InterpolationMethod` from ScatteredInterpolation.
+    E.g. ScatteredInterpolationMethod(Shepard(P=4))
+"""
+@with_kw struct ScatteredInterpolationMethod <: Interpolator
+    method::ScatteredInterpolation.InterpolationMethod = Shepard(4)
+end
+
+function (sim::ScatteredInterpolationMethod)(
+            xrange::LinRange, yrange::LinRange,
+            positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number})
+    n = length(xrange)
+    X = repeat(xrange, n)[:]
+    Y = repeat(yrange', n)[:]
+    gridPoints = [X Y]'
+    
+    itp = ScatteredInterpolation.interpolate(sim.method, hcat(positions...), data)
+    interpolated = ScatteredInterpolation.evaluate(itp, gridPoints)
+    gridded = reshape(interpolated, n, n)
+    return gridded
+
+end
+
 #=
  MNE was too badly documented to use the internal `_GridData` interpolation struct correctly.
  Using `claugh_tochter` from SciPy, which is what `_GridData` uses internally, has been much easier.
