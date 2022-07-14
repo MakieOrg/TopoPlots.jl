@@ -194,7 +194,14 @@ function eeg_topoplot_series!(fig,data::DataFrame,
             grouping=[col_label,values(mappingCfg)...]
             )
 
-    
+    # using same colormap + contour levels for all plots
+    (q_min,q_max) = Statistics.quantile(data_mean[:,col_y],[0.001,0.999])
+    # make them symmetrical
+    q_min = q_max = max(abs(q_min),abs(q_max))
+    q_min = -q_min
+
+
+    topoplotCfg = merge((colorrange=(q_min,q_max),contour=(levels=range(q_min,q_max,length=5),),),topoplotCfg)
     # do the AoG plot
     aogFig =  AlgebraOfGraphics.data(data_mean)*
         mapping(col_y,col_label;mappingCfg...)*
