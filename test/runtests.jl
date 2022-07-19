@@ -121,7 +121,7 @@ begin # eeg_topoplot_series row/col
     df = vcat(df_collect...)
 
     f = Figure(resolution=(1000, 1000))
-    TopoPlots.eeg_topoplot_series(f,df,0.1;topoplotCfg=(positions=positions),col=:time,row=:category)
+    TopoPlots.eeg_topoplot_series!(f,df,0.1;topoplotCfg=(positions=positions),col=:time,row=:category)
     @test_figure("eeg_topoplot_series row_col",f)
 
     
