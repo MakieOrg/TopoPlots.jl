@@ -158,8 +158,7 @@ eeg_topoplot_series(data::DataFrame,Δbin;figureCfg = NamedTuple(),kwargs...) = 
 eeg_topoplot_series(data::Matrix,Δbin;figureCfg = NamedTuple(),kwargs...) = eeg_topoplot_series!(Figure(; figureCfg...),data,Δbin;kwargs...)
 # allow to specify Δbin as an keyword for nicer readability
 eeg_topoplot_series(data::DataFrame;Δbin,kwargs...) = eeg_topoplot_series(data,Δbin;kwargs...)
-# if no labels are provided, just 1:nchannel
-eeg_topoplot_series(data::Matrix,Δbin;kwargs...) = eeg_topoplot_series(data,string.(1:size(data,1)),Δbin;kwargs...)
+
 eeg_topoplot_series!(fig,data::Matrix,Δbin;kwargs...) = eeg_topoplot_series!(fig,data,string.(1:size(data,1)),Δbin;kwargs...)
 
 # convert a 2D Matrix to the dataframe
@@ -179,7 +178,8 @@ function eeg_topoplot_series!(fig,data::DataFrame,
                             col_label=:label,
                             topoplotCfg=NamedTuple(),
                             mappingCfg=(col=:time,),
-                            combinefun=mean
+                            combinefun=mean,
+                            aog = true,
                             )
 
 
@@ -203,11 +203,36 @@ function eeg_topoplot_series!(fig,data::DataFrame,
 
     topoplotCfg = merge((colorrange=(q_min,q_max),contour=(levels=range(q_min,q_max,length=5),),),topoplotCfg)
     # do the AoG plot
+
+    if aog
     aogFig =  AlgebraOfGraphics.data(data_mean)*
         mapping(col_y,col_label;mappingCfg...)*
         visual(EEG_TopoPlot;topoplotCfg...)|>
             x->draw!(fig,x,axis=axisOptions,facet=(linkxaxes = :none,linkyaxes = :none,))
     colgap!(fig.layout,0)
+
+    else
+
+	times = unique(data_mean[:,mappingCfg.col])
+
+       @show "hello" 
+
+
+       
+    for a = 1:length(times)
+        ax = Axis(fig[1,a];axisOptions...)
+        # select one topoplot
+        df_single = data_mean[data_mean[:,mappingCfg.col] .== times[a],:]
+        # select labels
+        labels = df_single[:,col_label] 
+        # select data
+        d_vec = df_single[:,col_y]
+        # plot it
+        eeg_topoplot!(ax,d_vec,labels;topoplotCfg...)
+    end
+    colgap!(fig.layout,0)
+    
+end
     fig
 
 end
