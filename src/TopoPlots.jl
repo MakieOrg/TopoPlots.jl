@@ -12,7 +12,6 @@ using Parameters
 using InteractiveUtils
 
 # for topoplot_series
-using AlgebraOfGraphics
 using DataFrames
 using CategoricalArrays
 

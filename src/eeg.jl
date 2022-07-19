@@ -131,16 +131,15 @@ function eeg_topoplot_series(data::DataFrame,
 Plot a series of topoplots. The function automatically takes the `combinefun=mean` over the `:time`` column of `data` in `Δbin` steps.
 
 Dataframe `data` needs columns `:time` and `col_y(=:erp)`, and `col_label(=:label)`.
-If `data` is a `Matrix`, it is automatically cast to a dataframe, time-bins are then in samples
+If `data` is a `Matrix`, it is automatically cast to a dataframe, time-bins are then in samples, labels are `string.(1:size(data,1))`
 `
 Δbin in `:time`-units, specifise the time-steps. 
 
 Further specifications via topoplotCfg for the EEG_TopoPlot recipe. In most cases user should provide the electrode positions via
 `topoplotCFG = (positions=pos,)` # note the trailling comma to make it a NamedTuple
 
-`mappingCfg` is for the mapping command of AOG, typical usages would be `mappingCfg=(col=:time,row=:condition,)` to layout the plot. Other topoplot modifications are possible, as `topoplotCfg`` as it put to AoG.visual
-in pseudo-code:
-AoG.data(data) * mapping(col_y,col_label,mappingCfg...)*visual(EEG_TopoPlot,topoplotCfg...)
+`col` and `row` specify the field to split by columns and rows. By default `col=:time`, to split by the time field and `row=nothing`. Useful 
+to split by a condition e.g. `...(...,col=:time, row=:condition)` would result in multiple rows of topoplot series
  
 `figureCfg` allows to include information for the figure generation. Alternatively you can provide a fig object `eeg_topoplot_series!(fig,data::DataFrame,Δbin; kwargs..)`
 
@@ -177,9 +176,9 @@ function eeg_topoplot_series!(fig,data::DataFrame,
                             col_y=:erp,
                             col_label=:label,
                             topoplotCfg=NamedTuple(),
-                            mappingCfg=(col=:time,),
+                            col =:time,
+                            row = nothing,
                             combinefun=mean,
-                            aog = true,
                             )
 
 
@@ -191,7 +190,7 @@ function eeg_topoplot_series!(fig,data::DataFrame,
     data_mean = df_timebin(data,Δbin;
             col_y=col_y,
             fun=combinefun,
-            grouping=[col_label,values(mappingCfg)...]
+            grouping=[col_label,col,row]
             )
 
     # using same colormap + contour levels for all plots
@@ -202,37 +201,35 @@ function eeg_topoplot_series!(fig,data::DataFrame,
 
 
     topoplotCfg = merge((colorrange=(q_min,q_max),contour=(levels=range(q_min,q_max,length=5),),),topoplotCfg)
-    # do the AoG plot
+    # do the col/row plot
 
-    if aog
-    aogFig =  AlgebraOfGraphics.data(data_mean)*
-        mapping(col_y,col_label;mappingCfg...)*
-        visual(EEG_TopoPlot;topoplotCfg...)|>
-            x->draw!(fig,x,axis=axisOptions,facet=(linkxaxes = :none,linkyaxes = :none,))
-    colgap!(fig.layout,0)
-
-    else
-
-	times = unique(data_mean[:,mappingCfg.col])
-
-       @show "hello" 
+	select_col = isnothing(col) ? 1 : unique(data_mean[:,col])
+    select_row = isnothing(row) ? 1 : unique(data_mean[:,row])
 
 
-       
-    for a = 1:length(times)
-        ax = Axis(fig[1,a];axisOptions...)
-        # select one topoplot
-        df_single = data_mean[data_mean[:,mappingCfg.col] .== times[a],:]
-        # select labels
-        labels = df_single[:,col_label] 
-        # select data
-        d_vec = df_single[:,col_y]
-        # plot it
-        eeg_topoplot!(ax,d_vec,labels;topoplotCfg...)
+    for r = 1:length(select_row)
+        for c = 1:length(select_col)
+            ax = Axis(fig[r,c];axisOptions...)
+            # select one topoplot
+            sel = 1 .==ones(size(data_mean,1)) # select all
+            if !isnothing(col)
+                sel = sel .&& (data_mean[:,col] .== select_col[c]) # subselect
+            end
+            if !isnothing(row)
+                sel = sel .&& (data_mean[:,row] .== select_row[r]) # subselect
+            end
+            df_single = data_mean[sel,:]
+            # select labels
+            labels = df_single[:,col_label] 
+            # select data
+            d_vec = df_single[:,col_y]
+            # plot it
+            eeg_topoplot!(ax,d_vec,labels;topoplotCfg...)
+        end
     end
     colgap!(fig.layout,0)
     
-end
+
     fig
 
 end
@@ -248,7 +245,7 @@ Split/Combine dataframe according to equally spaced time-bins
 
 - `col_y` default :erp, the column to combine (using `fun`) over
 - `fun` function to combine, default is `mean`
-- `grouping` (vector of symbols/strings) default empty vector, columns to group the data by, before aggregating
+- `grouping` (vector of symbols/strings) default empty vector, columns to group the data by, before aggregating. Values of `nothing` are ignored
 
 """
 function df_timebin(df,Δbin;col_y=:erp,fun=mean,grouping=[])
@@ -259,6 +256,8 @@ function df_timebin(df,Δbin;col_y=:erp,fun=mean,grouping=[])
     df = deepcopy(df) # cut seems to change stuff inplace
     df.time = cut(df.time,bins,extend=true)
     
+    grouping = grouping[.!isnothing.(grouping)]
+
     df_m = combine(groupby(df,unique([:time, grouping...])),col_y=>fun)
     #df_m = combine(groupby(df,Not(y)),y=>fun)
     rename!(df_m,names(df_m)[end]=>col_y) # remove the _fun part of the new column

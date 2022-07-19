@@ -109,3 +109,20 @@ begin #eeg_topoplot_series DataFrame
     TopoPlots.eeg_topoplot_series!(f,df,0.1, topoplotCfg=(positions=positions,))
     @test_figure("eeg_topoplot_series DataFrame",f)
 end
+begin # eeg_topoplot_series row/col
+   df_collect = []
+    for k = 1:2
+        df = DataFrame(data[:,:,k]',string.(1:size(positions,1)))
+        df[!,:time] .= range(start=-0.3,step=1/500,length=size(data,2))
+        df = stack(df,Not([:time]),variable_name=:label,value_name="erp")
+        df.category .= k
+        push!(df_collect,df)
+    end
+    df = vcat(df_collect...)
+
+    f = Figure(resolution=(1000, 1000))
+    TopoPlots.eeg_topoplot_series(f,df,0.1;topoplotCfg=(positions=positions),col=:time,row=:category)
+    @test_figure("eeg_topoplot_series row_col",f)
+
+    
+end
