@@ -200,7 +200,8 @@ function eeg_topoplot_series!(fig,data::DataFrame,
     q_min = -q_min
 
 
-    topoplotCfg = merge((colorrange=(q_min,q_max),contour=(levels=range(q_min,q_max,length=5),),),topoplotCfg)
+    topoplotCfg = merge((colorrange=(q_min,q_max),contours=(levels=range(q_min,q_max,length=7),),),topoplotCfg)
+    
     # do the col/row plot
 
 	select_col = isnothing(col) ? 1 : unique(data_mean[:,col])
