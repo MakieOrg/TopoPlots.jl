@@ -28,7 +28,7 @@ Creates an irregular interpolation for each `data[i]` point at `positions[i]`.
 * `interpolation::Interpolator = ClaughTochter()`: Applicable interpolators are $(join(subtypes(TopoPlots.Interpolator), ", "))
 * `bounding_geometry = Circle`: the geometry added to the points, to create a smooth boundary. Can be `Rect` or `Circle`.
 * `padding = 0.1`: padding applied to `bounding_geometry`
-* `pad_value = 0.0`: data value filled in for each added position from `bounding_geometry`
+* `pad_value = 0.0`: data value filled in for each added position from `bounding_geometry`, can also be a function (e.g. `mean`)
 * `resolution = (512, 512)`: resolution of the interpolation
 * `label_text = false`:
     * true: add text plot for each position from `labels`
@@ -85,7 +85,11 @@ function Makie.plot!(p::TopoPlot)
         return
     end
     notify(p.resolution) # trigger above (we really need `update=true` for onany)
-
+    
+    if !isempty(methods(to_value(p.pad_value)))
+        p.pad_value = p.pad_value.val(to_value(p.data))
+        
+    end
     padded_data = lift(pad_data, p.data, npositions, p.pad_value)
 
     if p.interpolation[] isa DelaunayMesh
