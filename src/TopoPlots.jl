@@ -11,6 +11,11 @@ using GeometryBasics: origin, radius
 using Parameters
 using InteractiveUtils
 
+# for topoplot_series
+using DataFrames
+using CategoricalArrays
+
+
 assetpath(files...) = normpath(joinpath(dirname(@__DIR__), "assets", files...))
 
 function example_data()
@@ -29,5 +34,5 @@ include("eeg.jl")
 
 # Interpolators
 export ClaughTochter, SplineInterpolator, DelaunayMesh
-
+export eeg_topoplot_series,eeg_topoplot_series!
 end

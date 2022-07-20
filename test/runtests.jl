@@ -1,5 +1,6 @@
 using Test
 using LinearAlgebra, Statistics, TopoPlots, CairoMakie
+using DataFrames
 
 include("percy.jl")
 
@@ -71,4 +72,57 @@ end
 begin
     f, ax, pl = eeg_topoplot(data[:, 340, 1]; positions=positions)
     @test_figure("eeg-topoplot3", f)
+end
+
+
+begin # df_timebin
+        
+    df = DataFrame(:erp=>repeat([1],20),:time=>(0:19) ./10,:label=>repeat([1],20))
+    x = TopoPlots.df_timebin(df,1.5)
+    @test  string.(x.time[1]) == "[0.0, 1.5)"
+
+    x = TopoPlots.df_timebin(df,.5)
+    @test  string.(x.time[1]) == "[0.0, 0.5)"
+    @test  string.(x.time[4]) == "[1.5, 1.9]"
+
+    x = TopoPlots.df_timebin(df,.1)
+    @test nrow(x) == 20-1
+
+    df = DataFrame(:erp=>repeat([1],20*3),:time=>repeat((0:19) ./10,3),:label=>repeat([1,2,3],20))
+    x = TopoPlots.df_timebin(df,.1,grouping = [:label])
+    @test nrow(x) == (20-1)* 3
+end
+
+
+begin #eeg_topoplot_series Matrix
+    f = Figure(resolution=(1000, 1000))
+    TopoPlots.eeg_topoplot_series!(f[1,1],data[:,:,1],40, topoplotCfg=(positions=positions,))
+    @test_figure("eeg_topoplot_series Matrix",f)
+end
+
+begin #eeg_topoplot_series DataFrame
+    df = DataFrame(data[:,:,1]',string.(1:size(positions,1)))
+    df[!,:time] .= range(start=-0.3,step=1/500,length=size(data,2))
+    df = stack(df,Not([:time]),variable_name=:label,value_name="erp")
+    
+    f = Figure(resolution=(1000, 1000))
+    TopoPlots.eeg_topoplot_series!(f,df,0.1, topoplotCfg=(positions=positions,))
+    @test_figure("eeg_topoplot_series DataFrame",f)
+end
+begin # eeg_topoplot_series row/col
+   df_collect = []
+    for k = 1:2
+        df = DataFrame(data[:,:,k]',string.(1:size(positions,1)))
+        df[!,:time] .= range(start=-0.3,step=1/500,length=size(data,2))
+        df = stack(df,Not([:time]),variable_name=:label,value_name="erp")
+        df.category .= k
+        push!(df_collect,df)
+    end
+    df = vcat(df_collect...)
+
+    f = Figure(resolution=(1000, 1000))
+    TopoPlots.eeg_topoplot_series!(f,df,0.1;topoplotCfg=(positions=positions,),col=:time,row=:category)
+    @test_figure("eeg_topoplot_series row_col",f)
+
+    
 end
