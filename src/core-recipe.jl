@@ -5,8 +5,8 @@
         sensors = true,
         interpolation = ClaughTochter(),
         bounding_geometry = Circle,
-        padding = 0.1,
-        pad_value = 0.0,
+        enlarge = 0.1,
+        enlarge_value = 0.0,
         resolution = (512, 512),
         labels = nothing,
         label_text = false,
@@ -27,8 +27,8 @@ Creates an irregular interpolation for each `data[i]` point at `positions[i]`.
 * `labels::Vector{<:String}` = nothing: names for each data point
 * `interpolation::Interpolator = ClaughTochter()`: Applicable interpolators are $(join(subtypes(TopoPlots.Interpolator), ", "))
 * `bounding_geometry = Circle`: the geometry added to the points, to create a smooth boundary. Can be `Rect` or `Circle`.
-* `padding = 0.1`: padding applied to `bounding_geometry`
-* `pad_value = 0.0`: data value filled in for each added position from `bounding_geometry`, can also be a function (e.g. `mean`)
+* `enlarge = 0.1`: enlarge applied to `bounding_geometry`
+* `enlarge_value = 0.0`: data value filled in for each added position from `bounding_geometry`, can also be a function (e.g. `mean`)
 * `resolution = (512, 512)`: resolution of the interpolation
 * `label_text = false`:
     * true: add text plot for each position from `labels`
@@ -64,7 +64,7 @@ end
 
 function Makie.plot!(p::TopoPlot)
     npositions = Observable(0; ignore_equal_values=true)
-    geometry = lift(enclosing_geometry, p.bounding_geometry, p.positions, p.padding; ignore_equal_values=true)
+    geometry = lift(enclosing_geometry, p.bounding_geometry, p.positions, p.enlarge; ignore_equal_values=true)
     p.geometry = geometry # store geometry in plot object, so others can access it
     # positions changes with with data together since it gets into convert_arguments
     positions = lift(identity, p.positions; ignore_equal_values=true)
@@ -86,11 +86,11 @@ function Makie.plot!(p::TopoPlot)
     end
     notify(p.resolution) # trigger above (we really need `update=true` for onany)
     
-    if !isempty(methods(to_value(p.pad_value)))
-        p.pad_value = p.pad_value.val(to_value(p.data))
+    if !isempty(methods(to_value(p.enlarge_value)))
+        p.enlarge_value = p.enlarge_value.val(to_value(p.data))
         
     end
-    padded_data = lift(pad_data, p.data, npositions, p.pad_value)
+    padded_data = lift(pad_data, p.data, npositions, p.enlarge_value)
 
     if p.interpolation[] isa DelaunayMesh
         # TODO, delaunay works very differently from the other interpolators, so we can't switch interactively between them
