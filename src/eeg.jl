@@ -121,7 +121,8 @@ function eeg_topoplot_series(data::DataFrame,
     col_y=:erp,
     col_label=:label,
     topoplotCfg=NamedTuple(),
-    mappingCfg=(col=:time,),
+    col=:time,
+    row=nothing,
     figureCfg = NamedTuple(),
     combinefun=mean
     )
@@ -139,7 +140,7 @@ Further specifications via topoplotCfg for the EEG_TopoPlot recipe. In most case
 `topoplotCFG = (positions=pos,)` # note the trailling comma to make it a NamedTuple
 
 `col` and `row` specify the field to split by columns and rows. By default `col=:time`, to split by the time field and `row=nothing`. Useful 
-to split by a condition e.g. `...(...,col=:time, row=:condition)` would result in multiple rows of topoplot series
+to split by a condition e.g. `...(...,col=:time, row=:condition)` would result in multiple (as many as different values in df.condition) rows of topoplot series
  
 `figureCfg` allows to include information for the figure generation. Alternatively you can provide a fig object `eeg_topoplot_series!(fig,data::DataFrame,Δbin; kwargs..)`
 
