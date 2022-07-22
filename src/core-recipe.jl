@@ -5,6 +5,7 @@
         sensors = true,
         interpolation = ClaughTochter(),
         bounding_geometry = Circle,
+        markersize = 5,
         padding = 0.1,
         pad_value = 0.0,
         resolution = (512, 512),
@@ -27,6 +28,7 @@ Creates an irregular interpolation for each `data[i]` point at `positions[i]`.
 * `labels::Vector{<:String}` = nothing: names for each data point
 * `interpolation::Interpolator = ClaughTochter()`: Applicable interpolators are $(join(subtypes(TopoPlots.Interpolator), ", "))
 * `bounding_geometry = Circle`: the geometry added to the points, to create a smooth boundary. Can be `Rect` or `Circle`.
+* `markersize = 5`: size of the points defined by positions
 * `padding = 0.1`: padding applied to `bounding_geometry`
 * `pad_value = 0.0`: data value filled in for each added position from `bounding_geometry`
 * `resolution = (512, 512)`: resolution of the interpolation
@@ -104,7 +106,7 @@ function Makie.plot!(p::TopoPlot)
         end
     end
     label_scatter = to_value(p.label_scatter)
-    attributes = @plot_or_defaults label_scatter Attributes(markersize=5, color=p.data, colormap=p.colormap, colorrange=p.colorrange, strokecolor=:black, strokewidth=1)
+    attributes = @plot_or_defaults label_scatter Attributes(markersize=p.markersize, color=p.data, colormap=p.colormap, colorrange=p.colorrange, strokecolor=:black, strokewidth=1)
     if !isnothing(attributes)
         scatter!(p, p.positions; attributes...)
     end
