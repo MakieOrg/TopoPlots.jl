@@ -1,10 +1,9 @@
 name = "TopoPlots"
 uuid = "2bdbdf9c-dbd8-403f-947b-1a4e0dd41a7a"
 authors = ["Benedikt Ehinger", "Simon Danisch", "Beacon Biosignals"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
-Delaunay = "07eb4e4e-0c6d-46ef-bc4e-83d5e5d860a9"
 Dierckx = "39dd38d3-220a-591b-8e3c-4c3a8c710a94"
 GeometryBasics = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
 InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
@@ -17,7 +16,6 @@ Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
 julia = "1"
-Delaunay = "1.2"
 Dierckx = "0.5"
 GeometryBasics = "0.4"
 Makie = "0.17.8"

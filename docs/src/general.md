@@ -13,7 +13,6 @@ TopoPlots.topoplot
 The recipe supports different interpolation methods, namely:
 
 ```@docs
-TopoPlots.DelaunayMesh
 TopoPlots.ClaughTochter
 TopoPlots.SplineInterpolator
 ```
@@ -31,7 +30,7 @@ using TopoPlots, CairoMakie
 data, positions = TopoPlots.example_data()
 
 f = Figure(resolution=(1000, 1000))
-interpolators = [DelaunayMesh(), ClaughTochter(), SplineInterpolator()]
+interpolators = [ClaughTochter(), SplineInterpolator()]
 data_slice = data[:, 360, 1]
 
 for (i, interpolation) in enumerate(interpolators)
@@ -43,27 +42,6 @@ for (i, interpolation) in enumerate(interpolators)
         labels = string.(1:length(positions)), colorrange=(-1, 1),
         axis=(type=Axis, title="$(typeof(interpolation))()",aspect=DataAspect(),))
 end
-f
-```
-
-## Interactive exploration
-
-`DelaunayMesh` is best suited for interactive data exploration, which can be done quite easily with Makie's native UI and observable framework:
-
-```@example 1
-f = Figure(resolution=(1000, 1000))
-s = Slider(f[:, 1], range=1:size(data, 2), startvalue=351)
-data_obs = map(s.value) do idx
-    data[:, idx, 1]
-end
-TopoPlots.topoplot(
-    f[2, 1],
-    data_obs, positions,
-    interpolation=DelaunayMesh(),
-    labels = string.(1:length(positions)),
-    colorrange=(-1, 1),
-    colormap=:viridis,
-    axis=(title="delaunay mesh",aspect=DataAspect(),))
 f
 ```
 
