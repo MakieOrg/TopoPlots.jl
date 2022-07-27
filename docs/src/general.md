@@ -16,6 +16,7 @@ The recipe supports different interpolation methods, namely:
 TopoPlots.DelaunayMesh
 TopoPlots.ClaughTochter
 TopoPlots.SplineInterpolator
+TopoPlots.NullInterpolator
 ```
 One can define your own interpolation by subtyping:
 
