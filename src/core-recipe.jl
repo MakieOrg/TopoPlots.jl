@@ -7,6 +7,7 @@
         bounding_geometry = Circle,
         enlarge = 0.1,
         enlarge_value = 0.0,
+        markersize = 5,
         resolution = (512, 512),
         labels = nothing,
         label_text = false,
@@ -29,6 +30,7 @@ Creates an irregular interpolation for each `data[i]` point at `positions[i]`.
 * `bounding_geometry = Circle`: the geometry added to the points, to create a smooth boundary. Can be `Rect` or `Circle`.
 * `enlarge = 0.1`: enlarge applied to `bounding_geometry`
 * `enlarge_value = 0.0`: data value filled in for each added position from `bounding_geometry`, can also be a function (e.g. `mean`)
+* `markersize = 5`: size of the points defined by positions
 * `resolution = (512, 512)`: resolution of the interpolation
 * `label_text = false`:
     * true: add text plot for each position from `labels`
@@ -108,7 +110,7 @@ function Makie.plot!(p::TopoPlot)
         end
     end
     label_scatter = to_value(p.label_scatter)
-    attributes = @plot_or_defaults label_scatter Attributes(markersize=5, color=p.data, colormap=p.colormap, colorrange=p.colorrange, strokecolor=:black, strokewidth=1)
+    attributes = @plot_or_defaults label_scatter Attributes(markersize=p.markersize, color=p.data, colormap=p.colormap, colorrange=p.colorrange, strokecolor=:black, strokewidth=1)
     if !isnothing(attributes)
         scatter!(p, p.positions; attributes...)
     end

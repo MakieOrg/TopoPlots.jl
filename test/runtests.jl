@@ -24,6 +24,12 @@ begin
     @test_figure("all-interpolations", f)
 end
 
+
+begin # empty eeg topoplot
+    f, ax, pl = TopoPlots.eeg_topoplot(1:length(TopoPlots.CHANNELS_10_20),TopoPlots.CHANNELS_10_20; interpolation=TopoPlots.NullInterpolator(),)
+    @test_figure("nullInterpolator", f)
+end
+
 begin
     f = Figure(resolution=(1000, 1000))
     s = Slider(f[:, 1], range=1:size(data, 2), startvalue=351)
@@ -72,3 +78,4 @@ begin
     f, ax, pl = eeg_topoplot(data[:, 340, 1]; positions=positions)
     @test_figure("eeg-topoplot3", f)
 end
+
