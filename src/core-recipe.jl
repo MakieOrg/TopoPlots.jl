@@ -73,8 +73,8 @@ end
 function get_bounded(rect, positions, data, padding, pad_value)
     bb_xy = decompose(Point2f, rect)
     bb_v = fill(pad_value, 4)
-    @assert padding ≥ 0 "cannot deal with negative padding"
-    @assert allunique(positions) "positions must be unique"
+    padding ≥ 0 || error("cannot deal with negative padding")
+    allunique(positions) || error("positions must be unique")
     if padding == 0
         i = findall(∈(positions), bb_xy)
         deleteat!(bb_xy, i)
