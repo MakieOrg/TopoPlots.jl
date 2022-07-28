@@ -24,6 +24,24 @@ begin
     @test_figure("all-interpolations", f)
 end
 
+# begin
+#     f = Figure(resolution=(1000, 1000))
+#     s = Slider(f[:, 1], range=1:size(data, 2), startvalue=351)
+#     data_obs = map(s.value) do idx
+#         data[:, idx, 1]
+#     end
+#     TopoPlots.topoplot(
+#         f[2, 1],
+#         data_obs, positions,
+#         interpolation=DelaunayMesh(),
+#         labels = string.(1:length(positions)),
+#         colorrange=(-1, 1),
+#         colormap=[:red, :blue],
+#         axis=(title="delaunay mesh", aspect=DataAspect(),))
+#     display(f)
+#     @test_figure("delaunay-with-slider", f)
+# end
+
 begin
     f, ax, pl = TopoPlots.topoplot(
         data[:, 340, 1], positions,

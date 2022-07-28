@@ -59,29 +59,27 @@ function (sp::SplineInterpolator)(
 end
 
 # currently, Delaunay doesn't work at all. The reason is that we can't interpolate using this mesh so we can't find the values of the data at the novel coordinates of the perimeter (geometry).
-#=
 # TODO how to properly integrade delauny with the interpolation interface,
 # if the actualy interpolation happens inside the plotting framework (or even on the GPU for (W)GLMakie).
-
-"""
-    DelaunayMesh()
-
-Creates a delaunay triangulation of the points and linearly interpolates between the vertices of the triangle.
-Really fast interpolation that happens on the GPU (for GLMakie), so optimal for exploring larger timeseries.
-
-!!! warning
-    `DelaunayMesh` won't allow you to add a contour plot to the topoplot.
-"""
-struct DelaunayMesh <: Interpolator
-end
-
-(::DelaunayMesh)(positions::AbstractVector{<: Point{2}}) = delaunay_mesh(positions)
-
-function delaunay_mesh(positions::AbstractVector{<: Point{2}})
-    m = delaunay(convert(Matrix{Float64}, hcat(first.(positions), last.(positions))))
-    return GeometryBasics.Mesh(Makie.to_vertices(m.points), Makie.to_triangles(m.simplices))
-end
-=#
+#
+# """
+#     DelaunayMesh()
+#
+# Creates a delaunay triangulation of the points and linearly interpolates between the vertices of the triangle.
+# Really fast interpolation that happens on the GPU (for GLMakie), so optimal for exploring larger timeseries.
+#
+# !!! warning
+#     `DelaunayMesh` won't allow you to add a contour plot to the topoplot.
+# """
+# struct DelaunayMesh <: Interpolator
+# end
+#
+# (::DelaunayMesh)(positions::AbstractVector{<: Point{2}}) = delaunay_mesh(positions)
+#
+# function delaunay_mesh(positions::AbstractVector{<: Point{2}})
+#     m = delaunay(convert(Matrix{Float64}, hcat(first.(positions), last.(positions))))
+#     return GeometryBasics.Mesh(Makie.to_vertices(m.points), Makie.to_triangles(m.simplices))
+# end
 
 
 #=
