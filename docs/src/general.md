@@ -15,6 +15,7 @@ The recipe supports different interpolation methods, namely:
 ```@docs
 TopoPlots.ClaughTochter
 TopoPlots.SplineInterpolator
+TopoPlots.NullInterpolator
 ```
 One can define your own interpolation by subtyping:
 
