@@ -2,7 +2,6 @@ module TopoPlots
 
 using Makie
 using SciPy
-using Delaunay
 using Dierckx
 using LinearAlgebra
 using Statistics
@@ -28,6 +27,6 @@ include("core-recipe.jl")
 include("eeg.jl")
 
 # Interpolators
-export ClaughTochter, SplineInterpolator, DelaunayMesh
+export ClaughTochter, SplineInterpolator
 
 end
