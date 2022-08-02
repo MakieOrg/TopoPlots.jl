@@ -22,3 +22,8 @@ data, positions = TopoPlots.example_data()
 eeg_topoplot(data[:, 340, 1]; positions=positions)
 ```
 ![](https://user-images.githubusercontent.com/1010467/175339668-56646201-1a1d-4484-bc44-2f0a41df98c1.png)
+
+
+
+### Funding
+Work by Benedikt Ehinger was funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) – Project-ID 251654672 – TRR 161
