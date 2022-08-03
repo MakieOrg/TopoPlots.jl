@@ -1,0 +1,7 @@
+[deps]
+CoordinateTransformations = "150eb455-5306-5404-9cee-2592286d6298"
+Distances = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
+GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
+GeoStats = "dcc97b0b-8ce5-5539-9008-bb190f959ef6"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+TopoPlots = "2bdbdf9c-dbd8-403f-947b-1a4e0dd41a7a"
