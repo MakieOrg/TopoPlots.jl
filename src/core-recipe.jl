@@ -96,7 +96,13 @@ function Makie.plot!(p::TopoPlot)
         mesh!(p, m, color=padded_data, colorrange=p.colorrange, colormap=p.colormap, shading=false)
     else
         data = lift(p.interpolation, xg, yg, padded_position, padded_data) do interpolation, xg, yg, points, data
-            return interpolation(xg, yg, points, data)
+            z = interpolation(xg, yg, points, data)
+            if geometry isa Circle
+                c = geometry.center
+                r = geometry.r
+                out = [norm(Point2f(x, y) - c) > r for x in xg, y in yg]
+                z[out] .= NaN
+            end
         end
         heatmap!(p, xg, yg, data, colormap=p.colormap, colorrange=p.colorrange, interpolate=true)
         contours = to_value(p.contours)
