@@ -1,12 +1,48 @@
 using Test
-using LinearAlgebra, Statistics, TopoPlots, CairoMakie
+using LinearAlgebra, Statistics, TopoPlots, CairoMakie, FileIO
+import PyPlot, PyMNE
+PyPlot.pygui(false)
 
 include("percy.jl")
 
 data, positions = TopoPlots.example_data()
 
+function mne_topoplot(fig, data, positions)
+    circle = TopoPlots.enclosing_geometry(Circle, positions)
+    # Seems like the only way to plot positions with matching head is to norm the positions..
+    # Anything else leads to anarchy!
+    positions_normed = map(positions) do pos
+        (pos .- circle.center) ./ (circle.r)
+    end
+    x, y = first.(positions_normed), last.(positions_normed)
+    posmat = hcat(first.(positions_normed), last.(positions_normed))
+    f = PyPlot.figure()
+    PyMNE.viz.plot_topomap(data, posmat, sphere=1.1, extrapolate="box", cmap="RdBu_r", sensors=false, contours=6)
+    PyPlot.scatter(x, y, c=data, cmap="RdBu_r")
+    PyPlot.savefig("test.png", bbox_inches="tight", pad_inches = 0, dpi = 200)
+    img = load("test.png")
+    s = Axis(fig; aspect=DataAspect())
+    hidedecorations!(s)
+    p = image!(s, rotr90(img))
+    return s, p
+end
+
+function compare_to_mne(data, positions)
+    f, ax, pl = TopoPlots.eeg_topoplot(data, nothing;
+        interpolation=ClaughTochter(
+            fill_value = NaN,
+            tol = 0.001,
+            maxiter = 1000,
+            rescale = false),
+        positions=positions, axis=(aspect=DataAspect(),), contours=(levels=6,),
+        label_scatter=(markersize=10, strokewidth=0,))
+    hidedecorations!(ax)
+    mne_topoplot(f[1,2], data, positions)
+    return f
+end
+
 begin
-    f = Figure(resolution=(1000, 1000))
+    f = Makie.Figure(resolution=(1000, 1000))
     interpolators = [DelaunayMesh(), ClaughTochter(), SplineInterpolator()]
 
     s = Slider(f[:, 1], range=1:size(data, 2), startvalue=351)
@@ -20,7 +56,6 @@ begin
             interpolation=interpolation, labels = string.(1:length(positions)), colorrange=(-1, 1),
             axis=(type=Axis, title="$interpolation", aspect=DataAspect(),))
     end
-    f
     @test_figure("all-interpolations", f)
 end
 
@@ -30,9 +65,10 @@ begin # empty eeg topoplot
     @test_figure("nullInterpolator", f)
 end
 
+
 begin
-    f = Figure(resolution=(1000, 1000))
-    s = Slider(f[:, 1], range=1:size(data, 2), startvalue=351)
+    f = Makie.Figure(resolution=(1000, 1000))
+    s = Makie.Slider(f[:, 1], range=1:size(data, 2), startvalue=351)
     data_obs = map(s.value) do idx
         data[:, idx, 1]
     end
@@ -42,7 +78,6 @@ begin
         interpolation=DelaunayMesh(),
         labels = string.(1:length(positions)),
         colorrange=(-1, 1),
-        colormap=[:red, :blue],
         axis=(title="delaunay mesh", aspect=DataAspect(),))
     display(f)
     @test_figure("delaunay-with-slider", f)
@@ -62,20 +97,41 @@ begin
 end
 
 
+
 begin
-    labels = string.(1:length(positions))
-    f, ax, pl = TopoPlots.eeg_topoplot(data[:, 340, 1], labels; positions=positions, axis=(aspect=DataAspect(),), head=(color=:green, linewidth=3,))
+    f = compare_to_mne(data[:, 340, 1], positions)
     @test_figure("eeg-topoplot", f)
 end
 
 begin
     labels = TopoPlots.CHANNELS_10_20
-    f, ax, pl = TopoPlots.eeg_topoplot(data[1:19, 340, 1], labels; axis=(aspect=DataAspect(),), label_text=true, label_scatter=(markersize=10, strokewidth=2,))
+    pos = TopoPlots.labels2positions(TopoPlots.CHANNELS_10_20)
+    f = compare_to_mne(data[1:19, 340, 1], pos)
     @test_figure("eeg-topoplot2", f)
 end
 
 begin
-    f, ax, pl = eeg_topoplot(data[:, 340, 1]; positions=positions)
+    f = compare_to_mne(data[:, 340, 1], positions)
     @test_figure("eeg-topoplot3", f)
 end
 
+begin
+    positions = Point2f[(-1, 0), (0, -1), (1, 0), (0, 1), (0, 0)]
+    posmat = hcat(first.(positions), last.(positions))
+    data = zeros(length(positions))
+    data[1] = 1.0
+    f = compare_to_mne(data, positions)
+    @test_figure("eeg-topoplot4", f)
+end
+
+begin
+    data, positions = TopoPlots.example_data()
+    rect = Rect(positions[1:19])
+    pos_extra, rect_extended, data_extra = TopoPlots.extrapolate_data(rect, positions[1:19], data[1:19, 340, 1])
+
+    f, ax, p = Makie.scatter(pos_extra, color=data_extra, axis=(aspect=DataAspect(),), markersize=10)
+    scatter!(ax, positions[1:19]; color=data[1:19, 340, 1], markersize=5, strokecolor=:white, strokewidth=0.5)
+    lines!(ax, rect)
+    lines!(ax, rect_extended, color=:red)
+    @test_figure("test-extrapolate-data", f)
+end

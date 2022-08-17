@@ -16,5 +16,6 @@ macro test_figure(name, figlike)
         end
         save(path, $(esc(figlike)))
         @test true
+        $(esc(figlike))
     end
 end

@@ -64,20 +64,43 @@ macro plot_or_defaults(var, defaults)
     return :(plot_or_defaults($(esc(var)), $(esc(defaults)), $(QuoteNode(var))))
 end
 
+get_bounding_rect(rect::Rect) = rect
+
+function get_bounding_rect(circ::Circle)
+    xmin, ymin = minimum(circ)
+    xmax, ymax = maximum(circ)
+    Rect2f(xmin, ymin, xmax - xmin, ymax - ymin)
+end
+
+points2mat(points) = vcat(first.(points)', last.(points)')
+mat2points(mat) = Point2f.(mat[1, :], mat[2, :])
+
+function extrapolate_data(rect, positions, data)
+    mini, maxi = extrema(rect)
+    rect_extended = Rect(Circle(Point2f((mini .+ maxi) ./ 2), maximum(widths(rect)) * 3))
+    bb_points = decompose(Point2f, rect_extended)
+    pointmat = points2mat(positions)
+    #
+    data_f64 = convert(Vector{Float64}, data)
+    itp = ScatteredInterpolation.interpolate(Shepard(), pointmat, data_f64)
+    bb_values = vec(ScatteredInterpolation.evaluate(itp, points2mat(decompose(Point2f, rect))))
+    append!(bb_points, positions)
+    append!(bb_values, data_f64)
+    return bb_points, rect_extended, bb_values
+end
+
+
 function Makie.plot!(p::TopoPlot)
-    npositions = Observable(0; ignore_equal_values=true)
+    Obs(x) = Observable(x; ignore_equal_values=true) # we almost never want to trigger updates if value stay the same
+    npositions = Obs(0)
     geometry = lift(enclosing_geometry, p.bounding_geometry, p.positions, p.padding; ignore_equal_values=true)
     p.geometry = geometry # store geometry in plot object, so others can access it
+
     # positions changes with with data together since it gets into convert_arguments
     positions = lift(identity, p.positions; ignore_equal_values=true)
-    padded_position = lift(positions, geometry, p.resolution; ignore_equal_values=true) do positions, geometry, resolution
-        points_padded = append!(copy(positions), decompose(Point2f, geometry))
-        npositions[] = length(points_padded)
-        return points_padded
-    end
 
-    xg = Observable(LinRange(0f0, 1f0, p.resolution[][1]); ignore_equal_values=true)
-    yg = Observable(LinRange(0f0, 1f0, p.resolution[][2]); ignore_equal_values=true)
+    xg = Obs(LinRange(0f0, 1f0, p.resolution[][1]))
+    yg = Obs(LinRange(0f0, 1f0, p.resolution[][2]))
 
     f = onany(geometry, p.resolution) do geom, resolution
         xmin, ymin = minimum(geom)
@@ -87,15 +110,21 @@ function Makie.plot!(p::TopoPlot)
         return
     end
     notify(p.resolution) # trigger above (we really need `update=true` for onany)
-
-    padded_data = lift(pad_data, p.data, npositions, p.pad_value)
-
+    bounding_box = lift(get_bounding_rect, geometry)
+    padded_pos_rect_data = lift(extrapolate_data, bounding_box, p.positions, p.data)
+    colorrange = lift(p.data, p.colorrange) do data, crange
+        if crange isa Makie.Automatic
+            return Makie.extrema_nan(data)
+        else
+            return crange
+        end
+    end
     if p.interpolation[] isa DelaunayMesh
         # TODO, delaunay works very differently from the other interpolators, so we can't switch interactively between them
-        m = lift(delaunay_mesh, padded_position)
-        mesh!(p, m, color=padded_data, colorrange=p.colorrange, colormap=p.colormap, shading=false)
+        m = lift(delaunay_mesh, p.positions)
+        mesh!(p, m, color=p.data, colorrange=colorrange, colormap=p.colormap, shading=false)
     else
-        data = lift(p.interpolation, xg, yg, padded_position, padded_data) do interpolation, xg, yg, points, data
+        data = lift(p.interpolation, xg, yg, padded_pos_rect_data, geometry) do interpolation, xg, yg, (points, _, data), geometry
             z = interpolation(xg, yg, points, data)
             if geometry isa Circle
                 c = geometry.center
@@ -103,16 +132,18 @@ function Makie.plot!(p::TopoPlot)
                 out = [norm(Point2f(x, y) - c) > r for x in xg, y in yg]
                 z[out] .= NaN
             end
+            return z
         end
-        heatmap!(p, xg, yg, data, colormap=p.colormap, colorrange=p.colorrange, interpolate=true)
+
+        heatmap!(p, xg, yg, data, colormap=p.colormap, colorrange=colorrange, interpolate=true)
         contours = to_value(p.contours)
         attributes = @plot_or_defaults contours Attributes(color=(:black, 0.5), linestyle=:dot, levels=6)
-        if !isnothing(attributes)
+        if !isnothing(attributes) && !(p.interpolation[] isa NullInterpolator)
             contour!(p, xg, yg, data; attributes...)
         end
     end
     label_scatter = to_value(p.label_scatter)
-    attributes = @plot_or_defaults label_scatter Attributes(markersize=p.markersize, color=p.data, colormap=p.colormap, colorrange=p.colorrange, strokecolor=:black, strokewidth=1)
+    attributes = @plot_or_defaults label_scatter Attributes(markersize=p.markersize, color=p.data, colormap=p.colormap, colorrange=colorrange, strokecolor=:black, strokewidth=1)
     if !isnothing(attributes)
         scatter!(p, p.positions; attributes...)
     end
