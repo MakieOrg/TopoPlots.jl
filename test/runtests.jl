@@ -1,5 +1,12 @@
 using Test
 using LinearAlgebra, Statistics, TopoPlots, CairoMakie, FileIO
+using PyCall
+try
+    PyCall.pyimport("mne")
+catch e
+    # Hmpf
+    run(PyCall.python_cmd(`-m pip install mne`))
+end
 import PyPlot, PyMNE
 PyPlot.pygui(false)
 
