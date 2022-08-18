@@ -152,5 +152,5 @@ begin
     scatter!(ax, positions[1:19]; color=data[1:19, 340, 1], markersize=5, strokecolor=:white, strokewidth=0.5)
     lines!(ax, rect)
     lines!(ax, rect_extended, color=:red)
-    @test_figure("test-extrapolate-data", f)
+    @test_figure("test-extrapolate-data-circle", f)
 end
