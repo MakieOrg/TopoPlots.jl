@@ -27,7 +27,7 @@ function mne_topoplot(fig, data, positions)
     return s, p
 end
 
-function compare_to_mne(data, positions)
+function compare_to_mne(data, positions; kw...)
     f, ax, pl = TopoPlots.eeg_topoplot(data, nothing;
         interpolation=ClaughTochter(
             fill_value = NaN,
@@ -35,7 +35,7 @@ function compare_to_mne(data, positions)
             maxiter = 1000,
             rescale = false),
         positions=positions, axis=(aspect=DataAspect(),), contours=(levels=6,),
-        label_scatter=(markersize=10, strokewidth=0,))
+        label_scatter=(markersize=10, strokewidth=0,), kw...)
     hidedecorations!(ax)
     mne_topoplot(f[1,2], data, positions)
     return f
@@ -96,8 +96,6 @@ begin
     @test_figure("more-parameters", f)
 end
 
-
-
 begin
     f = compare_to_mne(data[:, 340, 1], positions)
     @test_figure("eeg-topoplot", f)
@@ -125,9 +123,30 @@ begin
 end
 
 begin
+    positions = Point2f[(-1, 0), (0, -1), (1, 0), (0, 1), (0, 0)]
+    posmat = hcat(first.(positions), last.(positions))
+    data = zeros(length(positions))
+    data[1] = 1.0
+    f = compare_to_mne(data, positions; extrapolation=TopoPlots.GeomExtrapolation(geometry=Circle))
+    @test_figure("eeg-topoplot5", f)
+end
+
+begin
     data, positions = TopoPlots.example_data()
-    rect = Rect(positions[1:19])
-    pos_extra, rect_extended, data_extra = TopoPlots.extrapolate_data(rect, positions[1:19], data[1:19, 340, 1])
+    extra = TopoPlots.GeomExtrapolation()
+    pos_extra, data_extra, rect, rect_extended = extra(positions[1:19], data[1:19, 340, 1])
+
+    f, ax, p = Makie.scatter(pos_extra, color=data_extra, axis=(aspect=DataAspect(),), markersize=10)
+    scatter!(ax, positions[1:19]; color=data[1:19, 340, 1], markersize=5, strokecolor=:white, strokewidth=0.5)
+    lines!(ax, rect)
+    lines!(ax, rect_extended, color=:red)
+    @test_figure("test-extrapolate-data", f)
+end
+
+begin
+    data, positions = TopoPlots.example_data()
+    extra = TopoPlots.GeomExtrapolation(geometry=Circle)
+    pos_extra, data_extra, rect, rect_extended = extra(positions[1:19], data[1:19, 340, 1])
 
     f, ax, p = Makie.scatter(pos_extra, color=data_extra, axis=(aspect=DataAspect(),), markersize=10)
     scatter!(ax, positions[1:19]; color=data[1:19, 340, 1], markersize=5, strokecolor=:white, strokewidth=0.5)

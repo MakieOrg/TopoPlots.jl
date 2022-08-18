@@ -25,6 +25,7 @@ end
 
 # Write your package code here.
 include("interpolators.jl")
+include("extrapolation.jl")
 include("core-recipe.jl")
 include("eeg.jl")
 
