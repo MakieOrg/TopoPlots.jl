@@ -47,7 +47,7 @@ for (i, interpolation) in enumerate(interpolators)
         labels = string.(1:length(positions)), colorrange=(-1, 1),
         axis=(type=Axis, title="$(typeof(interpolation))()",aspect=DataAspect(),))
 end
-f[1, ]
+f
 ```
 
 ## Extrapolation

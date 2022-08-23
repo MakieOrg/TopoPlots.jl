@@ -30,7 +30,7 @@ include("core-recipe.jl")
 include("eeg.jl")
 
 # Interpolators
-export ClaughTochter, SplineInterpolator, DelaunayMesh
+export ClaughTochter, SplineInterpolator, DelaunayMesh, NullInterpolator
 # Extrapolators
 export GeomExtrapolation, NullExtrapolation
 
