@@ -33,18 +33,19 @@ data, positions = TopoPlots.example_data()
 f = Figure(resolution=(1000, 1000))
 
 interpolators = [
-    DelaunayMesh(), ClaughTochter(),
-    SplineInterpolator(), NullInterpolator()]
+    DelaunayMesh() ClaughTochter();
+    SplineInterpolator() NullInterpolator()]
 
 data_slice = data[:, 360, 1]
 
-for (i, interpolation) in enumerate(interpolators)
-    j = i == 3 ? (:) : i
+for idx in CartesianIndices(interpolators)
+    interpolation = interpolators[idx]
     TopoPlots.topoplot(
-        f[((i - 1) ÷ 2) + 1, j], data_slice, positions;
+        f[Tuple(idx)...], data_slice, positions;
         contours=true,
         interpolation=interpolation,
         labels = string.(1:length(positions)), colorrange=(-1, 1),
+        label_scatter=(markersize=10,),
         axis=(type=Axis, title="$(typeof(interpolation))()",aspect=DataAspect(),))
 end
 f
@@ -75,6 +76,7 @@ for (i, extra) in enumerate([NullExtrapolation(), GeomExtrapolation(enlarge=3.0)
     lines!(ax, rect_extended, color=:black, linewidth=4)
     lines!(ax, rect, color=:red, linewidth=1)
 end
+resize_to_layout!(f)
 f
 ```
 
