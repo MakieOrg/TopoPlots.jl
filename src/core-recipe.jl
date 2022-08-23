@@ -30,7 +30,7 @@ Creates an irregular interpolation for each `data[i]` point at `positions[i]`.
 * `interpolation::Interpolator = ClaughTochter()`: Applicable interpolators are $(join(subtypes(TopoPlots.Interpolator), ", "))
 * `extrapolation = GeomExtrapolation()`: Extrapolation method for adding additional points to get less border artifacts
 * `bounding_geometry = Circle`: A geometry that defines what to mask and the x/y extend of the interpolation. E.g. `Rect(0, 0, 100, 200)`, will create a `heatmap(0..100, 0..200, ...)`. By default, a circle enclosing the `positions` points will be used.
-* `enlarge` = 1.2`
+* `enlarge` = 1.2`, enlarges the area that is being drawn. E.g., if `bounding_geometry` is `Circle`, a circle will be fitted to the points and the interpolation area that gets drawn will be 1.2x that bounding circle.
 * `resolution = (512, 512)`: resolution of the interpolation
 * `label_text = false`:
     * true: add text plot for each position from `labels`
@@ -88,8 +88,7 @@ function Makie.plot!(p::TopoPlot)
     yg = Obs(LinRange(0f0, 1f0, p.resolution[][2]))
 
     f = onany(geometry, p.resolution) do geometry, resolution
-        xmin, ymin = minimum(geometry)
-        xmax, ymax = maximum(geometry)
+        (xmin, ymin), (xmax, ymax) = extrema(geometry)
         xg[] = LinRange(xmin, xmax, resolution[1])
         yg[] = LinRange(ymin, ymax, resolution[2])
         return
@@ -100,7 +99,7 @@ function Makie.plot!(p::TopoPlot)
     p.geometry = geometry # store geometry in plot object, so others can access it
 
 
-    padded_pos_rect_data = lift(p.extrapolation, p.positions, p.data) do extrapolation, positions, data
+    padded_pos_data_bb = lift(p.extrapolation, p.positions, p.data) do extrapolation, positions, data
         return extrapolation(positions, data)
     end
 
@@ -111,12 +110,13 @@ function Makie.plot!(p::TopoPlot)
             return crange
         end
     end
+
     if p.interpolation[] isa DelaunayMesh
         # TODO, delaunay works very differently from the other interpolators, so we can't switch interactively between them
         m = lift(delaunay_mesh, p.positions)
         mesh!(p, m, color=p.data, colorrange=colorrange, colormap=p.colormap, shading=false)
     else
-        data = lift(p.interpolation, xg, yg, padded_pos_rect_data, geometry) do interpolation, xg, yg, (points, data, _, _), geometry
+        data = lift(p.interpolation, xg, yg, padded_pos_data_bb, geometry) do interpolation, xg, yg, (points, data, _, _), geometry
             z = interpolation(xg, yg, points, data)
             for xy_idx in CartesianIndices(z)
                 xi, yi = Tuple(xy_idx)

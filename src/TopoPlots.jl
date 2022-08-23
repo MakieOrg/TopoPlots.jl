@@ -31,5 +31,7 @@ include("eeg.jl")
 
 # Interpolators
 export ClaughTochter, SplineInterpolator, DelaunayMesh
+# Extrapolators
+export GeomExtrapolation, NullExtrapolation
 
 end

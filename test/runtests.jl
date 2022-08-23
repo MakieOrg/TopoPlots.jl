@@ -4,7 +4,9 @@ using PyCall
 try
     PyCall.pyimport("mne")
 catch e
-    # Hmpf
+    # Hmpf, how else can we make sure a test dependency exists?
+    # I tried adding Conda for PyPlot, which then installs matplotlib automatically.
+    # It looks like this messed with mne, so one of those will need to have an ugly install?!
     run(PyCall.python_cmd(`-m pip install mne`))
 end
 import PyPlot, PyMNE
@@ -26,8 +28,9 @@ function mne_topoplot(fig, data, positions)
     f = PyPlot.figure()
     PyMNE.viz.plot_topomap(data, posmat, sphere=1.1, extrapolate="box", cmap="RdBu_r", sensors=false, contours=6)
     PyPlot.scatter(x, y, c=data, cmap="RdBu_r")
-    PyPlot.savefig("test.png", bbox_inches="tight", pad_inches = 0, dpi = 200)
-    img = load("test.png")
+    PyPlot.savefig("pymne_plot.png", bbox_inches="tight", pad_inches = 0, dpi = 200)
+    img = load("pymne_plot.png")
+    rm("pymne_plot.png")
     s = Axis(fig; aspect=DataAspect())
     hidedecorations!(s)
     p = image!(s, rotr90(img))
