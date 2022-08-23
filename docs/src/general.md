@@ -65,7 +65,7 @@ The extrapolations in action:
 data, positions = TopoPlots.example_data()
 titles = ["No Extrapolation", "Rect", "Circle"]
 data_slice = data[:, 340, 1]
-f = Figure()
+f = Figure(resolution=(900, 300))
 for (i, extra) in enumerate([NullExtrapolation(), GeomExtrapolation(enlarge=3.0), GeomExtrapolation(enlarge=3.0, geometry=Circle)])
     pos_extra, data_extra, rect_extended, rect = extra(positions, data_slice)
     geom = extra isa NullExtrapolation ? Rect : extra.geometry
