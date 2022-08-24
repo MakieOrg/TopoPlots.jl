@@ -6,8 +6,6 @@ on:
     tags: '*'
   pull_request:
 
-env:
-  PYTHON: "" # for PyCall + Conda
 concurrency:
   # Skip intermediate builds: always.
   # Cancel intermediate builds: only if it is a pull request build.

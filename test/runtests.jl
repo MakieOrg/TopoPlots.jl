@@ -2,12 +2,13 @@ using Test
 using LinearAlgebra, Statistics, TopoPlots, CairoMakie, FileIO
 using PyCall
 try
-    PyCall.pyimport("mne")
+    PyCall.pyimport("matplotlib")
 catch e
-    # Hmpf, how else can we make sure a test dependency exists?
     # I tried adding Conda for PyPlot, which then installs matplotlib automatically.
-    # It looks like this messed with mne, so one of those will need to have an ugly install?!
-    run(PyCall.python_cmd(`-m pip install mne`))
+    # It looks like this messed with mne, so that then needed manual installation...
+    # Now, Conda started making problems (in a fresh CI env?!) https://github.com/MakieOrg/TopoPlots.jl/pull/20#issuecomment-1224822002
+    # So, lets go back to install matplotlib manually, and let mne install automatically!
+    run(PyCall.python_cmd(`-m pip install matplotlib`))
 end
 import PyPlot, PyMNE
 PyPlot.pygui(false)
