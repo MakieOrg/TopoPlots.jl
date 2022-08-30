@@ -89,7 +89,6 @@ function Makie.plot!(p::TopoPlot)
 
     p.geometry = geometry # store geometry in plot object, so others can access it
 
-
     padded_pos_data_bb = lift(p.extrapolation, p.positions, p.data) do extrapolation, positions, data
         return extrapolation(positions, data)
     end
