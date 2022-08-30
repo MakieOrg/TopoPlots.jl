@@ -10,7 +10,15 @@ catch e
     # So, lets go back to install matplotlib manually, and let mne install automatically!
     run(PyCall.python_cmd(`-m pip install matplotlib`))
 end
-import PyPlot, PyMNE
+try
+    # XXX The hidden Conda.jl installation and the way dependency resolution works
+    # means that PyMNE sometimes needs to be rebuilt to use the correct Python.
+    using PyMNE
+catch
+    using Pkg
+    Pkg.build()
+end
+using PyPlot
 PyPlot.pygui(false)
 
 include("percy.jl")
