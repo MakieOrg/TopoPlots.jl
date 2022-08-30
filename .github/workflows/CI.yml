@@ -5,6 +5,7 @@ on:
       - master
     tags: '*'
   pull_request:
+
 concurrency:
   # Skip intermediate builds: always.
   # Cancel intermediate builds: only if it is a pull request build.
@@ -30,10 +31,12 @@ jobs:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
       - uses: julia-actions/cache@v1
+        with:
+          cache-registries: "true"
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
       - name: Percy Upload
-        run: "npx percy upload ./test/test_images"
+        run: 'npx @percy/cli upload ./test/test_images'
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
       - uses: julia-actions/julia-processcoverage@v1
@@ -53,4 +56,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
-

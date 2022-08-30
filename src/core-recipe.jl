@@ -4,9 +4,10 @@
         colorrange = Makie.automatic,
         sensors = true,
         interpolation = ClaughTochter(),
+        extrapolation = GeomExtrapolation(),
         bounding_geometry = Circle,
+        enlarge = 1.2,
         markersize = 5,
-        padding = 0.1,
         pad_value = 0.0,
         resolution = (512, 512),
         labels = nothing,
@@ -27,10 +28,9 @@ Creates an irregular interpolation for each `data[i]` point at `positions[i]`.
 * `colorrange = automatic`
 * `labels::Vector{<:String}` = nothing: names for each data point
 * `interpolation::Interpolator = ClaughTochter()`: Applicable interpolators are $(join(subtypes(TopoPlots.Interpolator), ", "))
-* `bounding_geometry = Circle`: the geometry added to the points, to create a smooth boundary. Can be `Rect` or `Circle`.
-* `markersize = 5`: size of the points defined by positions
-* `padding = 0.1`: padding applied to `bounding_geometry`
-* `pad_value = 0.0`: data value filled in for each added position from `bounding_geometry`
+* `extrapolation = GeomExtrapolation()`: Extrapolation method for adding additional points to get less border artifacts
+* `bounding_geometry = Circle`: A geometry that defines what to mask and the x/y extend of the interpolation. E.g. `Rect(0, 0, 100, 200)`, will create a `heatmap(0..100, 0..200, ...)`. By default, a circle enclosing the `positions` points will be used.
+* `enlarge` = 1.2`, enlarges the area that is being drawn. E.g., if `bounding_geometry` is `Circle`, a circle will be fitted to the points and the interpolation area that gets drawn will be 1.2x that bounding circle.
 * `resolution = (512, 512)`: resolution of the interpolation
 * `label_text = false`:
     * true: add text plot for each position from `labels`
@@ -38,6 +38,8 @@ Creates an irregular interpolation for each `data[i]` point at `positions[i]`.
 * `label_scatter = false`:
     * true: add point for each position with default attributes
     * NamedTuple: Attributes get passed to the Makie.scatter! call.
+* `markersize = 5`: size of the points defined by positions, shortcut for label_scatter=(markersize=5,)
+
 * `contours = false`:
     * true: add scatter point for each position
     * NamedTuple: Attributes get passed to the Makie.contour! call.
@@ -54,6 +56,7 @@ topoplot
 # Handle the nothing/bool/attribute situation for e.g. contours/label_scatter
 plot_or_defaults(value::Bool, defaults, name) = value ? defaults : nothing
 plot_or_defaults(value::Attributes, defaults, name) = merge(value, defaults)
+
 function plot_or_defaults(value, defaults, name)
     error("Attribute $(name) has the wrong type: $(typeof(value)).
           Use either a bool to enable/disable plotting with default attributes,
@@ -65,48 +68,65 @@ macro plot_or_defaults(var, defaults)
 end
 
 function Makie.plot!(p::TopoPlot)
-    npositions = Observable(0; ignore_equal_values=true)
-    geometry = lift(enclosing_geometry, p.bounding_geometry, p.positions, p.padding; ignore_equal_values=true)
-    p.geometry = geometry # store geometry in plot object, so others can access it
+    Obs(x) = Observable(x; ignore_equal_values=true) # we almost never want to trigger updates if value stay the same
+    npositions = Obs(0)
+
     # positions changes with with data together since it gets into convert_arguments
     positions = lift(identity, p.positions; ignore_equal_values=true)
-    padded_position = lift(positions, geometry, p.resolution; ignore_equal_values=true) do positions, geometry, resolution
-        points_padded = append!(copy(positions), decompose(Point2f, geometry))
-        npositions[] = length(points_padded)
-        return points_padded
-    end
+    geometry = lift(enclosing_geometry, p.bounding_geometry, positions, p.enlarge; ignore_equal_values=true)
 
-    xg = Observable(LinRange(0f0, 1f0, p.resolution[][1]); ignore_equal_values=true)
-    yg = Observable(LinRange(0f0, 1f0, p.resolution[][2]); ignore_equal_values=true)
+    xg = Obs(LinRange(0f0, 1f0, p.resolution[][1]))
+    yg = Obs(LinRange(0f0, 1f0, p.resolution[][2]))
 
-    f = onany(geometry, p.resolution) do geom, resolution
-        xmin, ymin = minimum(geom)
-        xmax, ymax = maximum(geom)
+    f = onany(geometry, p.resolution) do geometry, resolution
+        (xmin, ymin), (xmax, ymax) = extrema(geometry)
         xg[] = LinRange(xmin, xmax, resolution[1])
         yg[] = LinRange(ymin, ymax, resolution[2])
         return
     end
+
     notify(p.resolution) # trigger above (we really need `update=true` for onany)
 
-    padded_data = lift(pad_data, p.data, npositions, p.pad_value)
+    p.geometry = geometry # store geometry in plot object, so others can access it
+
+    padded_pos_data_bb = lift(p.extrapolation, p.positions, p.data) do extrapolation, positions, data
+        return extrapolation(positions, data)
+    end
+
+    colorrange = lift(p.data, p.colorrange) do data, crange
+        if crange isa Makie.Automatic
+            return Makie.extrema_nan(data)
+        else
+            return crange
+        end
+    end
 
     if p.interpolation[] isa DelaunayMesh
         # TODO, delaunay works very differently from the other interpolators, so we can't switch interactively between them
-        m = lift(delaunay_mesh, padded_position)
-        mesh!(p, m, color=padded_data, colorrange=p.colorrange, colormap=p.colormap, shading=false)
+        m = lift(delaunay_mesh, p.positions)
+        mesh!(p, m, color=p.data, colorrange=colorrange, colormap=p.colormap, shading=false)
     else
-        data = lift(p.interpolation, xg, yg, padded_position, padded_data) do interpolation, xg, yg, points, data
-            return interpolation(xg, yg, points, data)
+        data = lift(p.interpolation, xg, yg, padded_pos_data_bb, geometry) do interpolation, xg, yg, (points, data, _, _), geometry
+            z = interpolation(xg, yg, points, data)
+            for xy_idx in CartesianIndices(z)
+                xi, yi = Tuple(xy_idx)
+                xy = Point2f(xg[xi], yg[yi])
+                if !(xy in geometry)
+                    z[xy_idx] = NaN
+                end
+            end
+            return z
         end
-        heatmap!(p, xg, yg, data, colormap=p.colormap, colorrange=p.colorrange, interpolate=true)
+
+        heatmap!(p, xg, yg, data, colormap=p.colormap, colorrange=colorrange, interpolate=true)
         contours = to_value(p.contours)
         attributes = @plot_or_defaults contours Attributes(color=(:black, 0.5), linestyle=:dot, levels=6)
-        if !isnothing(attributes)
+        if !isnothing(attributes) && !(p.interpolation[] isa NullInterpolator)
             contour!(p, xg, yg, data; attributes...)
         end
     end
     label_scatter = to_value(p.label_scatter)
-    attributes = @plot_or_defaults label_scatter Attributes(markersize=p.markersize, color=p.data, colormap=p.colormap, colorrange=p.colorrange, strokecolor=:black, strokewidth=1)
+    attributes = @plot_or_defaults label_scatter Attributes(markersize=p.markersize, color=p.data, colormap=p.colormap, colorrange=colorrange, strokecolor=:black, strokewidth=1)
     if !isnothing(attributes)
         scatter!(p, p.positions; attributes...)
     end
@@ -118,50 +138,4 @@ function Makie.plot!(p::TopoPlot)
         end
     end
     return
-end
-
-"""
-    enclosing_geometry(G::Type{<: Geometry}, positions, enlarge=0.0)
-
-Returns the Geometry of Type `G`, that best fits all positions.
-The Geometry can be enlarged by 1.x, so e.g. `enclosing_geometry(Circle, positions, 0.1)` will return a Circle that encloses all positions with a padding of 10%.
-"""
-function enclosing_geometry(::Type{Circle}, positions, enlarge=0.0)
-    middle = mean(positions)
-    radius, idx = findmax(x-> norm(x .- middle), positions)
-    return Circle(middle, radius * (1 + enlarge))
-end
-
-function enclosing_geometry(::Type{Rect}, positions, enlarge=0.0)
-    rect = Rect2f(positions)
-    w = widths(rect)
-    padded_w = w .* (1 + 2enlarge)
-    mini = minimum(rect) .- ((padded_w .- w) ./ 2)
-    return Rect2f(mini, padded_w)
-end
-
-"""
-    pad_boundary(::Type{Geometry}, positions, enlarge=0.2) where Geometry
-
-Adds new points to positions, adding the boundary from enclosing all positions with `Geometry`.
-See [`TopoPlots.enclosing_geometry`](@ref) for more details about the boundary.
-"""
-function pad_boundary!(::Type{Geometry}, positions, enlarge=0.2) where Geometry
-    c = enclosing_geometry(Geometry, positions, enlarge)
-    return append!(positions, decompose(Point2f, c))
-end
-
-function pad_data(data::AbstractVector, positions::AbstractVector, value::Number)
-    pad_data(data, length(positions), value)
-end
-
-function pad_data(data::AbstractVector, npositions::Integer, value::Number)
-    ndata = length(data)
-    if npositions == ndata
-        return data
-    elseif npositions < ndata
-        error("To pad the data for new positions, we need more positions than data points")
-    else
-        vcat(data, fill(value, npositions - ndata))
-    end
 end

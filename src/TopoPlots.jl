@@ -2,14 +2,15 @@ module TopoPlots
 
 using Makie
 using SciPy
-using Delaunay
-using Dierckx
 using LinearAlgebra
 using Statistics
 using GeometryBasics
 using GeometryBasics: origin, radius
 using Parameters
 using InteractiveUtils
+using Delaunay
+using Dierckx
+using ScatteredInterpolation
 
 assetpath(files...) = normpath(joinpath(dirname(@__DIR__), "assets", files...))
 
@@ -24,10 +25,13 @@ end
 
 # Write your package code here.
 include("interpolators.jl")
+include("extrapolation.jl")
 include("core-recipe.jl")
 include("eeg.jl")
 
 # Interpolators
-export ClaughTochter, SplineInterpolator, DelaunayMesh
+export ClaughTochter, SplineInterpolator, DelaunayMesh, NullInterpolator
+# Extrapolators
+export GeomExtrapolation, NullExtrapolation
 
 end
