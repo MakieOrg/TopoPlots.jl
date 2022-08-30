@@ -15,8 +15,10 @@ try
     # means that PyMNE sometimes needs to be rebuilt to use the correct Python.
     using PyMNE
 catch
+    @info "PyMNE failed to load; trying to rebuild for current Python."
     using Pkg
-    Pkg.build()
+    Pkg.build("PyMNE")
+    Pkg.precompile()
     using PyMNE
 end
 using PyPlot
