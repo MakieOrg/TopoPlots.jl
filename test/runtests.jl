@@ -16,9 +16,7 @@ try
     using PyMNE
 catch
     @info "PyMNE failed to load; trying to rebuild for current Python."
-    using Pkg
-    Pkg.build("PyMNE")
-    Pkg.precompile()
+    run(PyCall.python_cmd(`-m pip install mne`))
     using PyMNE
 end
 using PyPlot
