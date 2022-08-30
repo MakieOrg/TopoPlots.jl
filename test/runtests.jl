@@ -17,6 +17,7 @@ try
 catch
     using Pkg
     Pkg.build()
+    using PyMNE
 end
 using PyPlot
 PyPlot.pygui(false)
