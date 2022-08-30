@@ -15,9 +15,9 @@ try
     # means that PyMNE sometimes needs to be rebuilt to use the correct Python.
     using PyMNE
 catch
-    @info "PyMNE failed to load; trying to rebuild for current Python."
+    @info "PyMNE failed to load; trying to the manual way."
     run(PyCall.python_cmd(`-m pip install mne`))
-    using PyMNE
+    const PyMNE = pyimport("mne")
 end
 using PyPlot
 PyPlot.pygui(false)
