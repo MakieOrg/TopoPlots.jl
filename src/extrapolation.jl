@@ -20,6 +20,15 @@ function enclosing_geometry(::Type{Rect}, positions, enlarge=1.0)
     return Rect2f(middle .- (scaled_w ./ 2), scaled_w)
 end
 
+function enclosing_geometry(geometry::GeometryPrimitive, positions, enlarge=1.0)
+    # ignore positions/enlarge, since we already have a concrete geometry
+    return geometry
+end
+
+function enclosing_geometry(type, positions, enlarge=1.0)
+    error("Wrong type for `bounding_geometry`: $(type)")
+end
+
 points2mat(points) = vcat(first.(points)', last.(points)')
 mat2points(mat) = Point2f.(view(mat, 1, :), view(mat, 2, :))
 

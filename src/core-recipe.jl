@@ -73,16 +73,7 @@ function Makie.plot!(p::TopoPlot)
 
     # positions changes with with data together since it gets into convert_arguments
     positions = lift(identity, p.positions; ignore_equal_values=true)
-
-    geometry = lift(p.bounding_geometry, positions, p.enlarge; ignore_equal_values=true) do bounding_geometry, positions, enlarge
-        if bounding_geometry isa Type{<:GeometryPrimitive}
-            return enclosing_geometry(bounding_geometry, positions, enlarge)
-        elseif bounding_geometry isa GeometryPrimitive
-            return bounding_geometry
-        else
-            error("Wrong type for `bounding_geometry`: $(bounding_geometry)")
-        end
-    end
+    geometry = lift(enclosing_geometry, p.bounding_geometry, positions, p.enlarge; ignore_equal_values=true)
 
     xg = Obs(LinRange(0f0, 1f0, p.resolution[][1]))
     yg = Obs(LinRange(0f0, 1f0, p.resolution[][2]))
