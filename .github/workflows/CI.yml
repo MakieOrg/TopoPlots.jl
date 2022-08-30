@@ -36,6 +36,7 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
       - name: Percy Upload
+        run: "npm install @percy/cli"
         run: "npx percy upload ./test/test_images"
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
