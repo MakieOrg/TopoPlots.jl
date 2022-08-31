@@ -185,7 +185,7 @@ begin # eeg_topoplot_series row/col
     f = Makie.Figure(resolution=(1000, 1000))
     TopoPlots.eeg_topoplot_series!(f,df,0.1;topoplotCfg=(positions=positions,),col=:time,row=:category)
     @test_figure("eeg_topoplot_series row_col",f)
-
+end
     
 
 begin
