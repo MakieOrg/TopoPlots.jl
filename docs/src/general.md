@@ -7,8 +7,7 @@ At the core of TopoPlots.jl is the `topoplot` recipe, which takes an array of me
 TopoPlots.topoplot
 ```
 
-
-## Interpolators
+## Interpolation
 
 The recipe supports different interpolation methods, namely:
 
@@ -16,6 +15,7 @@ The recipe supports different interpolation methods, namely:
 TopoPlots.DelaunayMesh
 TopoPlots.ClaughTochter
 TopoPlots.SplineInterpolator
+TopoPlots.NullInterpolator
 ```
 One can define your own interpolation by subtyping:
 
@@ -31,20 +31,55 @@ using TopoPlots, CairoMakie
 data, positions = TopoPlots.example_data()
 
 f = Figure(resolution=(1000, 1000))
-interpolators = [DelaunayMesh(), ClaughTochter(), SplineInterpolator()]
+
+interpolators = [
+    DelaunayMesh() ClaughTochter();
+    SplineInterpolator() NullInterpolator()]
+
 data_slice = data[:, 360, 1]
 
-for (i, interpolation) in enumerate(interpolators)
-    j = i == 3 ? (:) : i
+for idx in CartesianIndices(interpolators)
+    interpolation = interpolators[idx]
     TopoPlots.topoplot(
-        f[((i - 1) ÷ 2) + 1, j], data_slice, positions;
+        f[Tuple(idx)...], data_slice, positions;
         contours=true,
         interpolation=interpolation,
         labels = string.(1:length(positions)), colorrange=(-1, 1),
+        label_scatter=(markersize=10,),
         axis=(type=Axis, title="$(typeof(interpolation))()",aspect=DataAspect(),))
 end
 f
 ```
+
+## Extrapolation
+
+There are currently just two extrapolations: None (`NullExtrapolation()`) and a geometry based one:
+
+```@docs
+TopoPlots.GeomExtrapolation
+```
+
+The extrapolations in action:
+
+```@example 1
+data, positions = TopoPlots.example_data()
+titles = ["No Extrapolation", "Rect", "Circle"]
+data_slice = data[:, 340, 1]
+f = Figure(resolution=(900, 300))
+for (i, extra) in enumerate([NullExtrapolation(), GeomExtrapolation(enlarge=3.0), GeomExtrapolation(enlarge=3.0, geometry=Circle)])
+    pos_extra, data_extra, rect_extended, rect = extra(positions, data_slice)
+    geom = extra isa NullExtrapolation ? Rect : extra.geometry
+    # Note, that enlarge doesn't match (the default), the additional points won't be seen and masked by `bounding_geometry` and `enlarge`.
+    enlarge = extra isa NullExtrapolation ? 1.0 : extra.enlarge
+    ax, p = topoplot(f[1, i], data_slice, positions; extrapolation=extra, bounding_geometry=geom, enlarge=enlarge, axis=(aspect=DataAspect(), title=titles[i]))
+    scatter!(ax, pos_extra, color=data_extra, markersize=10, strokewidth=0.5, strokecolor=:white, colormap = p.colormap, colorrange = p.colorrange)
+    lines!(ax, rect_extended, color=:black, linewidth=4)
+    lines!(ax, rect, color=:red, linewidth=1)
+end
+resize_to_layout!(f)
+f
+```
+
 
 ## Interactive exploration
 
