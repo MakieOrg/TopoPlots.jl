@@ -157,7 +157,7 @@ end
 
 
 begin #eeg_topoplot_series Matrix
-    f = Figure(resolution=(1000, 1000))
+    f = Makie.Figure(resolution=(1000, 1000))
     TopoPlots.eeg_topoplot_series!(f[1,1],data[:,:,1],40, topoplotCfg=(positions=positions,))
     @test_figure("eeg_topoplot_series Matrix",f)
 end
@@ -167,7 +167,7 @@ begin #eeg_topoplot_series DataFrame
     df[!,:time] .= range(start=-0.3,step=1/500,length=size(data,2))
     df = stack(df,Not([:time]),variable_name=:label,value_name="erp")
     
-    f = Figure(resolution=(1000, 1000))
+    f = Makie.Figure(resolution=(1000, 1000))
     TopoPlots.eeg_topoplot_series!(f,df,0.1, topoplotCfg=(positions=positions,))
     @test_figure("eeg_topoplot_series DataFrame",f)
 end
@@ -182,7 +182,7 @@ begin # eeg_topoplot_series row/col
     end
     df = vcat(df_collect...)
 
-    f = Figure(resolution=(1000, 1000))
+    f = Makie.Figure(resolution=(1000, 1000))
     TopoPlots.eeg_topoplot_series!(f,df,0.1;topoplotCfg=(positions=positions,),col=:time,row=:category)
     @test_figure("eeg_topoplot_series row_col",f)
 
@@ -212,9 +212,9 @@ begin
     pos_extra, data_extra, rect, rect_extended = extra(positions[1:19], data[1:19, 340, 1])
 
     f, ax, p = Makie.scatter(pos_extra, color=data_extra, axis=(aspect=DataAspect(),), markersize=10)
-    scatter!(ax, positions[1:19]; color=data[1:19, 340, 1], markersize=5, strokecolor=:white, strokewidth=0.5)
-    lines!(ax, rect)
-    lines!(ax, rect_extended, color=:red)
+    Makie.scatter!(ax, positions[1:19]; color=data[1:19, 340, 1], markersize=5, strokecolor=:white, strokewidth=0.5)
+    Makie.lines!(ax, rect)
+    Makie.lines!(ax, rect_extended, color=:red)
     @test_figure("test-extrapolate-data", f)
 end
 
