@@ -71,4 +71,5 @@ TopoPlots.eeg_topoplot_series!
 f = Figure()
 TopoPlots.eeg_topoplot_series!(f[1,1],df,0.3, topoplotCfg=(positions=positions,))
 TopoPlots.eeg_topoplot_series!(f[2,1],df,0.1, topoplotCfg=(positions=positions,))
+f
 ```
