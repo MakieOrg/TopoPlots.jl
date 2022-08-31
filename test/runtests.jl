@@ -1,6 +1,6 @@
 using Test
 using LinearAlgebra, Statistics, TopoPlots, CairoMakie, FileIO
-using DataFrame
+using DataFrames
 using PyCall
 try
     PyCall.pyimport("matplotlib")
