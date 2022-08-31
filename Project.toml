@@ -4,7 +4,6 @@ authors = ["Benedikt Ehinger", "Simon Danisch", "Beacon Biosignals, Inc."]
 version = "0.1.1"
 
 [deps]
-AlgebraOfGraphics = "cbdf2221-f076-402e-a563-3d30da359d67"
 CategoricalArrays = "324d7699-5711-5eae-9e2f-1d82baa6b597"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Delaunay = "07eb4e4e-0c6d-46ef-bc4e-83d5e5d860a9"
