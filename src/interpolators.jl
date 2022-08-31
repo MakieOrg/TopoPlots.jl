@@ -126,3 +126,19 @@ end
 #     # the xg' * ones is a shorthand for np.meshgrid
 #     return xg, yg, interp.set_locations( ones(length(xg))' .* yg, xg' .* ones(length(yg)))()
 # end
+
+
+"""
+    NullInterpolator()
+
+Interpolator that returns "0", which is useful to display only the electrode locations + labels
+"""
+struct NullInterpolator <: TopoPlots.Interpolator
+
+end
+
+function (ni::NullInterpolator)(
+        xrange::LinRange, yrange::LinRange,
+        positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number})
+    return fill(NaN, length(xrange), length(yrange))
+end

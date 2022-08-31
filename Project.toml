@@ -1,7 +1,7 @@
 name = "TopoPlots"
 uuid = "2bdbdf9c-dbd8-403f-947b-1a4e0dd41a7a"
-authors = ["Benedikt Ehinger", "Simon Danisch", "Beacon Biosignals"]
-version = "0.1.0"
+authors = ["Benedikt Ehinger", "Simon Danisch", "Beacon Biosignals, Inc."]
+version = "0.1.1"
 
 [deps]
 Delaunay = "07eb4e4e-0c6d-46ef-bc4e-83d5e5d860a9"
@@ -23,7 +23,7 @@ GeometryBasics = "0.4"
 Makie = "0.17.8"
 Parameters = "0.12"
 PyCall = "1.93"
-ScatteredInterpolation = "0.3"
+ScatteredInterpolation = "0.3.6"
 SciPy = "0.1"
 julia = "1"
 
