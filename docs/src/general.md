@@ -42,15 +42,25 @@ data_slice = data[:, 360, 1]
 
 for idx in CartesianIndices(interpolators)
     interpolation = interpolators[idx]
+
+    # precompile to get accurate measurements
     TopoPlots.topoplot(
+        data_slice, positions;
+        contours=true, interpolation=interpolation,
+        labels = string.(1:length(positions)), colorrange=(-1, 1),
+        label_scatter=(markersize=10,),
+        axis=(type=Axis, title="...", aspect=DataAspect(),))
+
+    # measure time, to give an idea of what speed to expect from the different interpolators
+    t = @elapsed ax, pl = TopoPlots.topoplot(
         f[Tuple(idx)...], data_slice, positions;
         contours=true,
         interpolation=interpolation,
         labels = string.(1:length(positions)), colorrange=(-1, 1),
         label_scatter=(markersize=10,),
         axis=(type=Axis, title="$(typeof(interpolation))()",aspect=DataAspect(),))
-   ax = current_axis()
-   ax.title = ("$(typeof(interpolation))() - $(round(t,digits=1))")
+
+   ax.title = ("$(typeof(interpolation))() - $(round(t, digits=2))s")
 end
 f
 ```
