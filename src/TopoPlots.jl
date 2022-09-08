@@ -36,7 +36,7 @@ include("eeg.jl")
 
 # Interpolators
 export eeg_topoplot_series,eeg_topoplot_series!
-export ClaughTochter, SplineInterpolator, DelaunayMesh, NullInterpolator
+export ClaughTochter, SplineInterpolator, DelaunayMesh, NullInterpolator, ScatteredInterpolationMethod
 # Extrapolators
 export GeomExtrapolation, NullExtrapolation
 
