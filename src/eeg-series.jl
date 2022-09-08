@@ -52,21 +52,21 @@ julia> eeg_topoplot_series(df,5; positions=pos)
 function eeg_topoplot_series(data::DataFrame, Δbin; figure=NamedTuple(), kwargs...)
     return eeg_topoplot_series!(Figure(; figure...), data, Δbin; kwargs...)
 end
-function eeg_topoplot_series(data::Matrix, Δbin; figure=NamedTuple(), kwargs...)
+function eeg_topoplot_series(data::AbstractMatrix, Δbin; figure=NamedTuple(), kwargs...)
     return eeg_topoplot_series!(Figure(; figure...), data, Δbin; kwargs...)
 end
 # allow to specify Δbin as an keyword for nicer readability
 eeg_topoplot_series(data::DataFrame; Δbin, kwargs...) = eeg_topoplot_series(data, Δbin; kwargs...)
-
-function eeg_topoplot_series!(fig, data::Matrix, Δbin; kwargs...)
+AbstractMatrix
+function eeg_topoplot_series!(fig, data::AbstractMatrix, Δbin; kwargs...)
     return eeg_topoplot_series!(fig, data, string.(1:size(data, 1)), Δbin; kwargs...)
 end
 
 # convert a 2D Matrix to the dataframe
-function eeg_topoplot_series(data::Matrix, labels, Δbin; kwargs...)
+function eeg_topoplot_series(data::AbstractMatrix, labels, Δbin; kwargs...)
     return eeg_topoplot_series(eeg_matrix_to_dataframe(data, labels), Δbin; kwargs...)
 end
-function eeg_topoplot_series!(fig, data::Matrix, labels, Δbin; kwargs...)
+function eeg_topoplot_series!(fig, data::AbstractMatrix, labels, Δbin; kwargs...)
     return eeg_topoplot_series!(fig, eeg_matrix_to_dataframe(data, labels), Δbin; kwargs...)
 end
 
