@@ -15,6 +15,7 @@ The recipe supports different interpolation methods, namely:
 TopoPlots.DelaunayMesh
 TopoPlots.ClaughTochter
 TopoPlots.SplineInterpolator
+TopoPlots.ScatteredInterpolationMethod
 TopoPlots.NullInterpolator
 ```
 One can define your own interpolation by subtyping:
@@ -26,7 +27,7 @@ TopoPlots.Interpolator
 The different interpolation schemes look quite different:
 
 ```@example 1
-using TopoPlots, CairoMakie
+using TopoPlots, CairoMakie, ScatteredInterpolation
 
 data, positions = TopoPlots.example_data()
 
@@ -34,19 +35,32 @@ f = Figure(resolution=(1000, 1000))
 
 interpolators = [
     DelaunayMesh() ClaughTochter();
-    SplineInterpolator() NullInterpolator()]
+    SplineInterpolator() NullInterpolator();
+    ScatteredInterpolationMethod(ThinPlate()) ScatteredInterpolationMethod(Shepard(3))]
 
 data_slice = data[:, 360, 1]
 
 for idx in CartesianIndices(interpolators)
     interpolation = interpolators[idx]
+
+    # precompile to get accurate measurements
     TopoPlots.topoplot(
+        data_slice, positions;
+        contours=true, interpolation=interpolation,
+        labels = string.(1:length(positions)), colorrange=(-1, 1),
+        label_scatter=(markersize=10,),
+        axis=(type=Axis, title="...", aspect=DataAspect(),))
+
+    # measure time, to give an idea of what speed to expect from the different interpolators
+    t = @elapsed ax, pl = TopoPlots.topoplot(
         f[Tuple(idx)...], data_slice, positions;
         contours=true,
         interpolation=interpolation,
         labels = string.(1:length(positions)), colorrange=(-1, 1),
         label_scatter=(markersize=10,),
         axis=(type=Axis, title="$(typeof(interpolation))()",aspect=DataAspect(),))
+
+   ax.title = ("$(typeof(interpolation))() - $(round(t, digits=2))s")
 end
 f
 ```
