@@ -10,5 +10,5 @@ TopoPlots.df_timebin
 ```
 
 ```@docs
-TopoPlots.eeg_matrixToDataframe
+TopoPlots.eeg_matrix_to_dataframe
 ```
