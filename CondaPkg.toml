@@ -1,0 +1,9 @@
+channels = ["anaconda", "conda-forge"]
+
+[deps]
+# Conda package names and versions
+python = ">=3.7,<4"
+# CondaPkg uses mamba by default
+scipy =  ">=1.9"
+[pip.deps]
+# Pip package names and versions

@@ -1,16 +1,31 @@
 module TopoPlots
 
+using PythonCall
+
+const SciPy = PythonCall.pynew()
+const SciPy_Spatial = PythonCall.pynew()
+
+
+# taken from https://github.com/beacon-biosignals/PyMNE.jl/blob/main/src/PyMNE.jl
+function __init__()
+    # all of this is __init__() so that it plays nice with precompilation
+    # see https://github.com/cjdoris/PythonCall.jl/blob/5ea63f13c291ed97a8bacad06400acb053829dd4/src/Py.jl#L85-L96
+    PythonCall.pycopy!(SciPy, pyimport("scipy"))
+    PythonCall.pycopy!(SciPy_Spatial, pyimport("scipy.spatial"))
+    return nothing
+end
+
+
 using Makie
-using SciPy
 using LinearAlgebra
 using Statistics
 using GeometryBasics
 using GeometryBasics: origin, radius
 using Parameters
 using InteractiveUtils
-using Delaunay
 using Dierckx
 using ScatteredInterpolation
+
 
 assetpath(files...) = normpath(joinpath(dirname(@__DIR__), "assets", files...))
 
