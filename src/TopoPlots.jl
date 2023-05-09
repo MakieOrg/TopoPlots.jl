@@ -26,7 +26,7 @@ using InteractiveUtils
 using Dierckx
 using ScatteredInterpolation
 
-
+import CloughTocher2DInterpolation
 assetpath(files...) = normpath(joinpath(dirname(@__DIR__), "assets", files...))
 
 function example_data()
@@ -45,7 +45,7 @@ include("core-recipe.jl")
 include("eeg.jl")
 
 # Interpolators
-export ClaughTochter, SplineInterpolator, DelaunayMesh, NullInterpolator, ScatteredInterpolationMethod
+export CloughTocher, ClaughTochter, SplineInterpolator, DelaunayMesh, NullInterpolator, ScatteredInterpolationMethod
 # Extrapolators
 export GeomExtrapolation, NullExtrapolation
 

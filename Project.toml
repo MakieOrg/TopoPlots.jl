@@ -4,6 +4,7 @@ authors = ["Benedikt Ehinger", "Simon Danisch", "Beacon Biosignals, Inc."]
 version = "0.1.3"
 
 [deps]
+CloughTocher2DInterpolation = "b70b374f-000b-463f-88dc-37030f004bd0"
 Dierckx = "39dd38d3-220a-591b-8e3c-4c3a8c710a94"
 GeometryBasics = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
 InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"

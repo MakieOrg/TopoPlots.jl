@@ -20,6 +20,33 @@ Slow, but yields the smoothest interpolation.
     rescale::Bool = false
 end
 
+
+
+@with_kw struct CloughTocher <: Interpolator
+    fill_value::Float64 = NaN
+    tol::Float64 = 1e-6
+    maxiter::Int = 400
+    rescale::Bool = false
+end
+
+function (ct::CloughTocher)(
+        xrange::LinRange, yrange::LinRange,
+        positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number})
+
+    	posMat = Float64.(vcat([[p[1],p[2]] for p in positions]...))
+        interp = CloughTocher2DInterpolation.CloughTocher2DInterpolator(posMat, data,tol=ct.tol, maxiter=ct.maxiter, rescale=ct.rescale)
+x = (xrange)' .* ones(length(yrange))
+	y = ones(length(xrange))' .* (yrange)
+
+	icoords = hcat(x[:],y[:])'
+	o = interp(icoords)
+    return reshape(o,length(xrange),length(yrange))'
+end
+
+
+"""
+python version, deprecated
+"""
 function (ct::ClaughTochter)(
         xrange::LinRange, yrange::LinRange,
         positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number})
