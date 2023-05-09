@@ -13,7 +13,7 @@ The recipe supports different interpolation methods, namely:
 
 ```@docs
 TopoPlots.DelaunayMesh
-TopoPlots.ClaughTochter
+TopoPlots.CloughTocher
 TopoPlots.SplineInterpolator
 TopoPlots.ScatteredInterpolationMethod
 TopoPlots.NullInterpolator
@@ -34,7 +34,7 @@ data, positions = TopoPlots.example_data()
 f = Figure(resolution=(1000, 1000))
 
 interpolators = [
-    DelaunayMesh() ClaughTochter();
+    DelaunayMesh() CloughTocher();
     SplineInterpolator() NullInterpolator();
     ScatteredInterpolationMethod(ThinPlate()) ScatteredInterpolationMethod(Shepard(3))]
 
