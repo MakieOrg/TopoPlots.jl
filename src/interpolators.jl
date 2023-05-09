@@ -1,5 +1,3 @@
-
-
 """
 Interface for all types <: Interpolator:
 
@@ -29,10 +27,10 @@ function (ct::ClaughTochter)(
     params = Iterators.filter(((k, v),) -> !(v isa Nothing), Dict(:tol => ct.tol, :maxiter => ct.maxiter, :rescale => ct.rescale))
 
     interp = SciPy.interpolate.CloughTocher2DInterpolator(
-        Tuple.(positions), data;
+        convert(Matrix{Float64},hcat(first.(positions), last.(positions))), data;
         tol=ct.tol, maxiter=ct.maxiter, rescale=ct.rescale)
 
-    return collect(interp(xrange' .* ones(length(yrange)), ones(length(xrange))' .* yrange)')
+    return collect(pyconvert(Matrix,interp(xrange' .* ones(length(yrange)), ones(length(xrange))' .* yrange))')
 end
 
 """
@@ -77,8 +75,30 @@ end
 (::DelaunayMesh)(positions::AbstractVector{<: Point{2}}) = delaunay_mesh(positions)
 
 function delaunay_mesh(positions::AbstractVector{<: Point{2}})
-    m = delaunay(convert(Matrix{Float64}, hcat(first.(positions), last.(positions))))
-    return GeometryBasics.Mesh(Makie.to_vertices(m.points), Makie.to_triangles(m.simplices))
+    simplices = delaunay(convert(Matrix{Float64}, hcat(first.(positions), last.(positions))))
+    return GeometryBasics.Mesh(Makie.to_vertices(positions), Makie.to_triangles(simplices))
+
+  # Test using VoronoiDelaunay.jl
+  #  tess = DelaunayTessellation(length(positions))
+  #  
+  #  push!(tess,[Point2D((a.+1)...) for a in positions])
+  #  simp = []
+  #  extr = x->[geta(x),getb(x),getc(x)]
+  #  p2p = x->(Point2f(getx(x),gety(x)))
+  #  for t in tess
+  #      push!(simp, GeometryBasics.Ngon(SVector{3,Point2f}(p2p.(extr(t)))))
+  #  end
+  #  
+  #  v = Vector{typeof(simp[1])}(simp) # probably a better way to initialize the list directly ;)
+  #  return GeometryBasics.Mesh(v)
+end
+
+function delaunay(vertices)
+    pydelaunay = SciPy_Spatial.Delaunay(vertices)
+    simplices = pyconvert(Array{Int,2}, pydelaunay.simplices)
+    simplices .= simplices .+1
+    return simplices
+
 end
 
 
