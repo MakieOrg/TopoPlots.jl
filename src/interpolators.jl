@@ -112,7 +112,7 @@ end
 
 function (sim::ScatteredInterpolationMethod)(
             xrange::LinRange, yrange::LinRange,
-            positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number})
+            positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number};mask=nothing)
     n = length(xrange)
     X = repeat(xrange, n)[:]
     Y = repeat(yrange', n)[:]
@@ -121,6 +121,10 @@ function (sim::ScatteredInterpolationMethod)(
     itp = ScatteredInterpolation.interpolate(sim.method, hcat(positions...), data)
     interpolated = ScatteredInterpolation.evaluate(itp, gridPoints)
     gridded = reshape(interpolated, n, n)
+
+    if .!isnothing(mask)
+        gridded[.!mask] .= NaN
+    end
     return gridded
 
 end
@@ -137,6 +141,6 @@ end
 
 function (ni::NullInterpolator)(
         xrange::LinRange, yrange::LinRange,
-        positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number})
+        positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number};mask=nothing)
     return fill(NaN, length(xrange), length(yrange))
 end
