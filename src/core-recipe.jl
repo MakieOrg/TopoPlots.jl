@@ -27,7 +27,7 @@ Creates an irregular interpolation for each `data[i]` point at `positions[i]`.
 * `colormap = Reverse(:RdBu)`
 * `colorrange = automatic`
 * `labels::Vector{<:String}` = nothing: names for each data point
-* `interpolation::Interpolator = ClaughTochter()`: Applicable interpolators are $(join(subtypes(TopoPlots.Interpolator), ", "))
+* `interpolation::Interpolator = CloughTocher()`: Applicable interpolators are $(join(subtypes(TopoPlots.Interpolator), ", "))
 * `extrapolation = GeomExtrapolation()`: Extrapolation method for adding additional points to get less border artifacts
 * `bounding_geometry = Circle`: A geometry that defines what to mask and the x/y extend of the interpolation. E.g. `Rect(0, 0, 100, 200)`, will create a `heatmap(0..100, 0..200, ...)`. By default, a circle enclosing the `positions` points will be used.
 * `enlarge` = 1.2`, enlarges the area that is being drawn. E.g., if `bounding_geometry` is `Circle`, a circle will be fitted to the points and the interpolation area that gets drawn will be 1.2x that bounding circle.

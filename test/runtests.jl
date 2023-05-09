@@ -45,7 +45,7 @@ end
 
 function compare_to_mne(data, positions; kw...)
     f, ax, pl = TopoPlots.eeg_topoplot(data, nothing;
-        interpolation=ClaughTochter(
+        interpolation=CloughTocher(
             fill_value = NaN,
             tol = 0.001,
             maxiter = 1000,
@@ -59,7 +59,7 @@ end
 
 begin
     f = Makie.Figure(resolution=(1000, 1000))
-    interpolators = [DelaunayMesh(), ClaughTochter(), SplineInterpolator()]
+    interpolators = [DelaunayMesh(), CloughTocher(), SplineInterpolator()]
 
     s = Slider(f[:, 1], range=1:size(data, 2), startvalue=351)
     data_obs = map(s.value) do idx
