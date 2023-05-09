@@ -26,8 +26,6 @@ function (ct::ClaughTochter)(
         xrange::LinRange, yrange::LinRange,
         positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number})
 
-    params = Iterators.filter(((k, v),) -> !(v isa Nothing), Dict(:tol => ct.tol, :maxiter => ct.maxiter, :rescale => ct.rescale))
-
     interp = SciPy.interpolate.CloughTocher2DInterpolator(
         Tuple.(positions), data;
         tol=ct.tol, maxiter=ct.maxiter, rescale=ct.rescale)
