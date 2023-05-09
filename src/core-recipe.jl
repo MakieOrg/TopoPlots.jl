@@ -106,9 +106,9 @@ function Makie.plot!(p::TopoPlot)
         m = lift(delaunay_mesh, p.positions)
         mesh!(p, m, color=p.data, colorrange=colorrange, colormap=p.colormap, shading=false)
     else
-        mask = lift(xg,yg,geometry) do xg,yg,geometry
+        mask = lift(xg, yg, geometry) do xg, yg, geometry
             pts = Point2f.(xg' .* ones(length(yg)), ones(length(xg))' .* yg)
-            return .!(in.(pts,Ref(geometry)))
+            return @. !(in(pts, Ref(geometry)))
         end
         
         data = lift(p.interpolation, xg, yg, padded_pos_data_bb,mask) do interpolation, xg, yg, (points, data, _, _),mask
