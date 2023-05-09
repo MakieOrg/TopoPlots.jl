@@ -10,7 +10,9 @@ A package for creating topoplots from data that were measured on arbitrarily pos
 
 ```@example 1
 using TopoPlots, CairoMakie
-topoplot(rand(10), rand(Point2f, 10); contours=(color=:white, linewidth=2), label_scatter=true)
+f = Figure()
+topoplot(f[1,1],rand(10), rand(Point2f, 10); contours=(color=:white, linewidth=2), label_scatter=true)
+topoplot(f[1,1],rand(10), rand(Point2f, 10); contours=(color=:white, linewidth=2), label_scatter=true,boundary_geometry=Rectangle)
 ```
 
 Find more documentation for `topoplot` in [Recipe for General TopoPlots](@ref).
