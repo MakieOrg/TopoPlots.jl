@@ -117,13 +117,6 @@ function Makie.plot!(p::TopoPlot)
         data = lift(p.interpolation, xg, yg, padded_pos_data_bb,mask) do interpolation, xg, yg, (points, data, _, _),mask
             z = interpolation(xg, yg, points, data)
             z[mask] .= NaN
-            #for xy_idx in CartesianIndices(z)
-            #    xi, yi = Tuple(xy_idx)
-                #xy = Point2f(xg[xi], yg[yi])
-                #if !(xy in geometry)
-                #    z[xy_idx] = NaN
-                #end
-            #end
             return z
         end
 
