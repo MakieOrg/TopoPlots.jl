@@ -1,4 +1,3 @@
-
 @recipe(EEG_TopoPlot, data, labels) do scene
     return Attributes(;
         head = (color=:black, linewidth=3),

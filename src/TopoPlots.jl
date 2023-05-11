@@ -12,6 +12,11 @@ using Delaunay
 using Dierckx
 using ScatteredInterpolation
 
+# for topoplot_series
+using DataFrames
+using CategoricalArrays
+
+
 assetpath(files...) = normpath(joinpath(dirname(@__DIR__), "assets", files...))
 
 function example_data()
@@ -28,8 +33,10 @@ include("interpolators.jl")
 include("extrapolation.jl")
 include("core-recipe.jl")
 include("eeg.jl")
+include("eeg-series.jl")
 
 # Interpolators
+export eeg_topoplot_series, eeg_topoplot_series!
 export ClaughTochter, SplineInterpolator, DelaunayMesh, NullInterpolator, ScatteredInterpolationMethod
 # Extrapolators
 export GeomExtrapolation, NullExtrapolation
