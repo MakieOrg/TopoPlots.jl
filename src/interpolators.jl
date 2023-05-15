@@ -33,7 +33,8 @@ function (ct::CloughTocher)(
     out = fill(NaN,size(mask))
 
     x = (xrange)' .* ones(length(yrange))
-	y = ones(length(xrange))' .* (yrange)
+	  y = ones(length(xrange))' .* (yrange)
+
 
 	icoords = hcat(x[:],y[:])'
     if isnothing(mask)
