@@ -77,11 +77,11 @@ end
 
 let
     f = Makie.Figure(resolution=(1000, 1000))
-    @test_deprecated interpolation = ClaughTocher()
+    @test_deprecated interpolation = ClaughTochter()
 
     f, ax, pl = TopoPlots.eeg_topoplot(1:length(TopoPlots.CHANNELS_10_20),
                                        TopoPlots.CHANNELS_10_20; interpolation)
-    @test_figure("claughtocher", f)
+    @test_figure("ClaughTochter", f)
 end
 
 begin # empty eeg topoplot

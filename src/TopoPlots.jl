@@ -31,7 +31,7 @@ include("eeg.jl")
 
 # Interpolators
 export CloughTocher, SplineInterpolator, DelaunayMesh, NullInterpolator, ScatteredInterpolationMethod
-@deprecate ClaughTocher(args...; kwargs...) CloughTocher(args...; kwargs...) true
+@deprecate ClaughTochter(args...; kwargs...) CloughTocher(args...; kwargs...) true
 # Extrapolators
 export GeomExtrapolation, NullExtrapolation
 
