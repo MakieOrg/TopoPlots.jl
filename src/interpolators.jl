@@ -14,8 +14,6 @@ Find more detailed docs in CloughTocher2DInterpolator.jl, which is a reimplement
 
 This is the default interpolator in MNE-Python
 """
-
-
 @with_kw struct CloughTocher <: Interpolator
     fill_value::Float64 = NaN
     tol::Float64 = 1e-6
@@ -43,7 +41,7 @@ function (ct::CloughTocher)(
 	    out[mask[:]] .= interp(icoords[:,mask[:]])
     end
     return out'
-    
+
 end
 
 """
@@ -92,11 +90,11 @@ end
 (::DelaunayMesh)(positions::AbstractVector{<: Point{2}}) = delaunay_mesh(positions)
 
 function delaunay_mesh(positions::AbstractVector{<: Point{2}})
-    
-    t = triangulate(positions) # triangulate them!   #  
+
+    t = triangulate(positions) # triangulate them!   #
     simp = Int.(collect(reshape(t._triangles,3,:)'))
     m = GeometryBasics.Mesh(Makie.to_vertices(positions), Makie.to_triangles(simp))
-    
+
     return m
 end
 
@@ -118,7 +116,7 @@ function (sim::ScatteredInterpolationMethod)(
     X = repeat(xrange, n)[:]
     Y = repeat(yrange', n)[:]
     gridPoints = [X Y]'
-    
+
     itp = ScatteredInterpolation.interpolate(sim.method, hcat(positions...), data)
     interpolated = ScatteredInterpolation.evaluate(itp, gridPoints)
     gridded = reshape(interpolated, n, n)

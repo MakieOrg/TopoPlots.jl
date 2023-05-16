@@ -4,7 +4,7 @@ using TopoPlots
 using LinearAlgebra, Statistics, CairoMakie, FileIO
 try
     matplotlib = PythonCall.pyimport("matplotlib")
-    
+
 catch e
     # I tried adding Conda for PyPlot, which then installs matplotlib automatically.
     # It looks like this messed with mne, so that then needed manual installation...
@@ -75,6 +75,14 @@ begin
     @test_figure("all-interpolations", f)
 end
 
+let
+    f = Makie.Figure(resolution=(1000, 1000))
+    @test_deprecated interpolation = ClaughTocher()
+
+    f, ax, pl = TopoPlots.eeg_topoplot(1:length(TopoPlots.CHANNELS_10_20),
+                                       TopoPlots.CHANNELS_10_20; interpolation)
+    @test_figure("claughtocher", f)
+end
 
 begin # empty eeg topoplot
     f, ax, pl = TopoPlots.eeg_topoplot(1:length(TopoPlots.CHANNELS_10_20),TopoPlots.CHANNELS_10_20; interpolation=TopoPlots.NullInterpolator(),)

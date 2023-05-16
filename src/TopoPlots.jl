@@ -24,7 +24,6 @@ function example_data()
     return data, positions
 end
 
-# Write your package code here.
 include("interpolators.jl")
 include("extrapolation.jl")
 include("core-recipe.jl")
@@ -32,6 +31,7 @@ include("eeg.jl")
 
 # Interpolators
 export CloughTocher, SplineInterpolator, DelaunayMesh, NullInterpolator, ScatteredInterpolationMethod
+@deprecate ClaughTocher(args...; kwargs...) CloughTocher(args...; kwargs...) true
 # Extrapolators
 export GeomExtrapolation, NullExtrapolation
 

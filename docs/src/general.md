@@ -13,7 +13,7 @@ The recipe supports different interpolation methods, namely:
 
 ```@docs
 TopoPlots.DelaunayMesh
-# TopoPlots.CloughTocher
+TopoPlots.CloughTocher
 TopoPlots.SplineInterpolator
 TopoPlots.ScatteredInterpolationMethod
 TopoPlots.NullInterpolator
