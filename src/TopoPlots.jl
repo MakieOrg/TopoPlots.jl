@@ -11,7 +11,7 @@ using Dierckx
 using ScatteredInterpolation
 
 using Delaunator # DelaunayMesh
-import CloughTocher2DInterpolation  # pure julia implementation
+using CloughTocher2DInterpolation  # pure julia implementation
 
 assetpath(files...) = normpath(joinpath(dirname(@__DIR__), "assets", files...))
 

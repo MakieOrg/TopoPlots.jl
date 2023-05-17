@@ -10,7 +10,7 @@ abstract type Interpolator end
     CloughTocher(fill_value=NaN, tol=1e-6, maxiter=400, rescale=false)
 
 Piecewise cubic, C1 smooth, curvature-minimizing interpolant in 2D.
-Find more detailed docs in CloughTocher2DInterpolator.jl, which is a reimplementation of  [SciPy.interpolate.CloughTocher2DInterpolator](https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.CloughTocher2DInterpolator.html).
+Find more detailed docs in CloughTocher2DInterpolator.jl.
 
 This is the default interpolator in MNE-Python
 """
@@ -58,7 +58,7 @@ end
 
 function (sp::SplineInterpolator)(
         xrange::LinRange, yrange::LinRange,
-        positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number};mask=nothing)
+        positions::AbstractVector{<:Point{2}}, data::AbstractVector{<:Number}; mask=nothing)
     # calculate 2D spline (Dierckx)
     # get extrema and extend by 20%
     x, y = first.(positions), last.(positions)
@@ -111,7 +111,7 @@ end
 
 function (sim::ScatteredInterpolationMethod)(
             xrange::LinRange, yrange::LinRange,
-            positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number};mask=nothing)
+            positions::AbstractVector{<:Point{2}}, data::AbstractVector{<:Number}; mask=nothing)
     n = length(xrange)
     X = repeat(xrange, n)[:]
     Y = repeat(yrange', n)[:]
@@ -140,6 +140,6 @@ end
 
 function (ni::NullInterpolator)(
         xrange::LinRange, yrange::LinRange,
-        positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number};mask=nothing)
+        positions::AbstractVector{<:Point{2}}, data::AbstractVector{<:Number}; mask=nothing)
     return fill(NaN, length(xrange), length(yrange))
 end

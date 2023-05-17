@@ -104,7 +104,6 @@ function Makie.plot!(p::TopoPlot)
     if p.interpolation[] isa DelaunayMesh
         # TODO, delaunay works very differently from the other interpolators, so we can't switch interactively between them
         m = lift(delaunay_mesh, p.positions)
-        @show typeof(m.val)
         mesh!(p, m, color=p.data, colorrange=colorrange, colormap=p.colormap, shading=false)
     else
         mask = lift(xg,yg,geometry) do xg,yg,geometry

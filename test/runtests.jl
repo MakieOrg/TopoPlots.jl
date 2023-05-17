@@ -15,7 +15,7 @@ catch e
 end
 
 using PyMNE
-import PythonPlot
+using PythonPlot
 PythonPlot.pygui(false)
 
 include("percy.jl")
