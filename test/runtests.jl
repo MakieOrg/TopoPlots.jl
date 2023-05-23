@@ -1,27 +1,22 @@
 using Test
-using LinearAlgebra, Statistics, TopoPlots, CairoMakie, FileIO
-using PyCall
+using PythonCall
+using TopoPlots
+using LinearAlgebra, Statistics, CairoMakie, FileIO
 try
-    PyCall.pyimport("matplotlib")
+    matplotlib = PythonCall.pyimport("matplotlib")
+
 catch e
     # I tried adding Conda for PyPlot, which then installs matplotlib automatically.
     # It looks like this messed with mne, so that then needed manual installation...
     # Now, Conda started making problems (in a fresh CI env?!) https://github.com/MakieOrg/TopoPlots.jl/pull/20#issuecomment-1224822002
     # So, lets go back to install matplotlib manually, and let mne install automatically!
-    run(PyCall.python_cmd(`-m pip install matplotlib`))
+    #run(PyCall.python_cmd(`-m pip install matplotlib`))#
+    error("to be adressed")
 end
-const PyMNE = try
-    # XXX The hidden Conda.jl installation and the way dependency resolution works
-    # means that PyMNE sometimes needs to be rebuilt to use the correct Python.
-    using PyMNE
-    PyMNE
-catch
-    @info "PyMNE failed to load; trying to the manual way."
-    run(PyCall.python_cmd(`-m pip install mne`))
-    pyimport("mne")
-end
-using PyPlot
-PyPlot.pygui(false)
+
+using PyMNE
+using PythonPlot
+PythonPlot.pygui(false)
 
 include("percy.jl")
 
@@ -35,11 +30,11 @@ function mne_topoplot(fig, data, positions)
         (pos .- circle.center) ./ (circle.r)
     end
     x, y = first.(positions_normed), last.(positions_normed)
-    posmat = hcat(first.(positions_normed), last.(positions_normed))
-    f = PyPlot.figure()
-    PyMNE.viz.plot_topomap(data, posmat, sphere=1.1, extrapolate="box", cmap="RdBu_r", sensors=false, contours=6)
-    PyPlot.scatter(x, y, c=data, cmap="RdBu_r")
-    PyPlot.savefig("pymne_plot.png", bbox_inches="tight", pad_inches = 0, dpi = 200)
+    posmat = hcat(x, y)
+    f = PythonPlot.figure()
+    PyMNE.viz.plot_topomap(data, Py(posmat).to_numpy(), sphere=1.1, extrapolate="box", cmap="RdBu_r", sensors=false, contours=6)
+    PythonPlot.scatter(x, y, c=data, cmap="RdBu_r")
+    PythonPlot.savefig("pymne_plot.png", bbox_inches="tight", pad_inches = 0, dpi = 200)
     img = load("pymne_plot.png")
     rm("pymne_plot.png")
     s = Axis(fig; aspect=DataAspect())
@@ -50,7 +45,7 @@ end
 
 function compare_to_mne(data, positions; kw...)
     f, ax, pl = TopoPlots.eeg_topoplot(data, nothing;
-        interpolation=ClaughTochter(
+        interpolation=CloughTocher(
             fill_value = NaN,
             tol = 0.001,
             maxiter = 1000,
@@ -64,7 +59,7 @@ end
 
 begin
     f = Makie.Figure(resolution=(1000, 1000))
-    interpolators = [DelaunayMesh(), ClaughTochter(), SplineInterpolator()]
+    interpolators = [DelaunayMesh(), CloughTocher(), SplineInterpolator()]
 
     s = Slider(f[:, 1], range=1:size(data, 2), startvalue=351)
     data_obs = map(s.value) do idx
@@ -80,6 +75,14 @@ begin
     @test_figure("all-interpolations", f)
 end
 
+let
+    f = Makie.Figure(resolution=(1000, 1000))
+    @test_deprecated interpolation = ClaughTochter()
+
+    f, ax, pl = TopoPlots.eeg_topoplot(1:length(TopoPlots.CHANNELS_10_20),
+                                       TopoPlots.CHANNELS_10_20; interpolation)
+    @test_figure("ClaughTochter", f)
+end
 
 begin # empty eeg topoplot
     f, ax, pl = TopoPlots.eeg_topoplot(1:length(TopoPlots.CHANNELS_10_20),TopoPlots.CHANNELS_10_20; interpolation=TopoPlots.NullInterpolator(),)

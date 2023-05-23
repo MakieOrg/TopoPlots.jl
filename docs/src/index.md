@@ -10,7 +10,12 @@ A package for creating topoplots from data that were measured on arbitrarily pos
 
 ```@example 1
 using TopoPlots, CairoMakie
-topoplot(rand(10), rand(Point2f, 10); contours=(color=:white, linewidth=2), label_scatter=true)
+f = Figure(;resolution=(800,280))
+topoplot(f[1,1],rand(20), rand(Point2f, 20))
+topoplot(f[1,2],rand(20), rand(Point2f, 20); contours=(color=:white, linewidth=2),
+         label_scatter=true, bounding_geometry=Rect(0,0,1,1), colormap=:viridis)
+eeg_topoplot(f[1,3],rand(20),1:20;positions=rand(Point2f, 20),colormap=:Oranges)
+
 ```
 
 Find more documentation for `topoplot` in [Recipe for General TopoPlots](@ref).

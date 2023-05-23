@@ -3,13 +3,13 @@
         colormap = Reverse(:RdBu),
         colorrange = Makie.automatic,
         sensors = true,
-        interpolation = ClaughTochter(),
+        interpolation = CloughTocher(),
         extrapolation = GeomExtrapolation(),
         bounding_geometry = Circle,
         enlarge = 1.2,
         markersize = 5,
         pad_value = 0.0,
-        resolution = (512, 512),
+        interp_resolution = (512, 512),
         labels = nothing,
         label_text = false,
         label_scatter = false,
@@ -27,11 +27,11 @@ Creates an irregular interpolation for each `data[i]` point at `positions[i]`.
 * `colormap = Reverse(:RdBu)`
 * `colorrange = automatic`
 * `labels::Vector{<:String}` = nothing: names for each data point
-* `interpolation::Interpolator = ClaughTochter()`: Applicable interpolators are $(join(subtypes(TopoPlots.Interpolator), ", "))
+* `interpolation::Interpolator = CloughTocher()`: Applicable interpolators are $(join(subtypes(TopoPlots.Interpolator), ", "))
 * `extrapolation = GeomExtrapolation()`: Extrapolation method for adding additional points to get less border artifacts
 * `bounding_geometry = Circle`: A geometry that defines what to mask and the x/y extend of the interpolation. E.g. `Rect(0, 0, 100, 200)`, will create a `heatmap(0..100, 0..200, ...)`. By default, a circle enclosing the `positions` points will be used.
 * `enlarge` = 1.2`, enlarges the area that is being drawn. E.g., if `bounding_geometry` is `Circle`, a circle will be fitted to the points and the interpolation area that gets drawn will be 1.2x that bounding circle.
-* `resolution = (512, 512)`: resolution of the interpolation
+* `interp_resolution = (512, 512)`: resolution of the interpolation
 * `label_text = false`:
     * true: add text plot for each position from `labels`
     * NamedTuple: Attributes get passed to the Makie.text! call.
@@ -75,17 +75,17 @@ function Makie.plot!(p::TopoPlot)
     positions = lift(identity, p.positions; ignore_equal_values=true)
     geometry = lift(enclosing_geometry, p.bounding_geometry, positions, p.enlarge; ignore_equal_values=true)
 
-    xg = Obs(LinRange(0f0, 1f0, p.resolution[][1]))
-    yg = Obs(LinRange(0f0, 1f0, p.resolution[][2]))
+    xg = Obs(LinRange(0f0, 1f0, p.interp_resolution[][1]))
+    yg = Obs(LinRange(0f0, 1f0, p.interp_resolution[][2]))
 
-    f = onany(geometry, p.resolution) do geometry, resolution
+    f = onany(geometry, p.interp_resolution) do geometry, interp_resolution
         (xmin, ymin), (xmax, ymax) = extrema(geometry)
-        xg[] = LinRange(xmin, xmax, resolution[1])
-        yg[] = LinRange(ymin, ymax, resolution[2])
+        xg[] = LinRange(xmin, xmax, interp_resolution[1])
+        yg[] = LinRange(ymin, ymax, interp_resolution[2])
         return
     end
 
-    notify(p.resolution) # trigger above (we really need `update=true` for onany)
+    notify(p.interp_resolution) # trigger above (we really need `update=true` for onany)
 
     p.geometry = geometry # store geometry in plot object, so others can access it
 
@@ -106,15 +106,14 @@ function Makie.plot!(p::TopoPlot)
         m = lift(delaunay_mesh, p.positions)
         mesh!(p, m, color=p.data, colorrange=colorrange, colormap=p.colormap, shading=false)
     else
-        data = lift(p.interpolation, xg, yg, padded_pos_data_bb, geometry) do interpolation, xg, yg, (points, data, _, _), geometry
-            z = interpolation(xg, yg, points, data)
-            for xy_idx in CartesianIndices(z)
-                xi, yi = Tuple(xy_idx)
-                xy = Point2f(xg[xi], yg[yi])
-                if !(xy in geometry)
-                    z[xy_idx] = NaN
-                end
-            end
+        mask = lift(xg,yg,geometry) do xg,yg,geometry
+            pts = Point2f.(xg' .* ones(length(yg)), ones(length(xg))' .* yg)
+            return in.(pts,Ref(geometry))
+        end
+        
+        data = lift(p.interpolation, xg, yg, padded_pos_data_bb,mask) do interpolation, xg, yg, (points, data, _, _),mask
+            z = interpolation(xg, yg, points, data;mask=mask)
+#            z[mask] .= NaN
             return z
         end
 

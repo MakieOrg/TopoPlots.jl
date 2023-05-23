@@ -1,16 +1,17 @@
 module TopoPlots
 
 using Makie
-using SciPy
 using LinearAlgebra
 using Statistics
 using GeometryBasics
 using GeometryBasics: origin, radius
 using Parameters
 using InteractiveUtils
-using Delaunay
 using Dierckx
 using ScatteredInterpolation
+
+using Delaunator # DelaunayMesh
+using CloughTocher2DInterpolation  # pure julia implementation
 
 assetpath(files...) = normpath(joinpath(dirname(@__DIR__), "assets", files...))
 
@@ -23,14 +24,14 @@ function example_data()
     return data, positions
 end
 
-# Write your package code here.
 include("interpolators.jl")
 include("extrapolation.jl")
 include("core-recipe.jl")
 include("eeg.jl")
 
 # Interpolators
-export ClaughTochter, SplineInterpolator, DelaunayMesh, NullInterpolator, ScatteredInterpolationMethod
+export CloughTocher, SplineInterpolator, DelaunayMesh, NullInterpolator, ScatteredInterpolationMethod
+@deprecate ClaughTochter(args...; kwargs...) CloughTocher(args...; kwargs...) true
 # Extrapolators
 export GeomExtrapolation, NullExtrapolation
 
