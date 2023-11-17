@@ -6,7 +6,7 @@ using Statistics
 using GeometryBasics
 using GeometryBasics: origin, radius
 using Parameters
-using InteractiveUtils
+using InteractiveUtils # needed for subtypes
 using Dierckx
 using ScatteredInterpolation
 using PrecompileTools
