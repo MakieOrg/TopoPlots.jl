@@ -9,6 +9,7 @@ using Parameters
 using InteractiveUtils
 using Dierckx
 using ScatteredInterpolation
+using PrecompileTools
 
 using Delaunator # DelaunayMesh
 using CloughTocher2DInterpolation  # pure julia implementation
@@ -34,5 +35,19 @@ export CloughTocher, SplineInterpolator, DelaunayMesh, NullInterpolator, Scatter
 @deprecate ClaughTochter(args...; kwargs...) CloughTocher(args...; kwargs...) true
 # Extrapolators
 export GeomExtrapolation, NullExtrapolation
+
+
+eeg_topoplot(data[:, 340, 1]; positions=positions)
+
+@setup_workload begin
+    # Putting some things in `@setup_workload` instead of `@compile_workload` can reduce the size of the
+    # precompile file and potentially make loading faster.
+    data, positions = TopoPlots.example_data()
+    @compile_workload begin
+        # all calls in this block will be precompiled, regardless of whether
+        # they belong to your package or not (on Julia 1.8 and higher)
+        eeg_topoplot(data[:, 340, 1]; positions=positions)
+    end
+end
 
 end
