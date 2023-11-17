@@ -23,6 +23,7 @@ Dierckx = "0.5"
 GeometryBasics = "0.4"
 Makie = "0.17.8, 0.18, 0.19"
 Parameters = "0.12"
+PrecompileTools = "1"
 ScatteredInterpolation = "0.3.6"
 julia = "1"
 
