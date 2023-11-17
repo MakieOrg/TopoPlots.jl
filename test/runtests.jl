@@ -1,4 +1,5 @@
 using Test
+using Aqua
 using PythonCall
 using TopoPlots
 using LinearAlgebra, Statistics, CairoMakie, FileIO
