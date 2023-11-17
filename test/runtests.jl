@@ -20,6 +20,10 @@ PythonPlot.pygui(false)
 
 include("percy.jl")
 
+@testset "Aqua" begin
+    Aqua.test_all(TopoPlots; ambiguities=false)
+end
+
 data, positions = TopoPlots.example_data()
 
 function mne_topoplot(fig, data, positions)
