@@ -6,7 +6,6 @@ DocMeta.setdocmeta!(TopoPlots, :DocTestSetup, :(using TopoPlots); recursive=true
 makedocs(;
     modules=[TopoPlots],
     authors="Benedikt Ehinger, Simon Danisch, Beacon Biosignals",
-    repo="https://github.com/MakieOrg/TopoPlots.jl/blob/{commit}{path}#{line}",
     sitename="TopoPlots.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
@@ -19,7 +18,6 @@ makedocs(;
         "EEG" => "eeg.md",
         "Function reference" => "functions.md"
     ],
-    strict=true
 )
 
 deploydocs(;
