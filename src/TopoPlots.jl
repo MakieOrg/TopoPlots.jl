@@ -6,9 +6,10 @@ using Statistics
 using GeometryBasics
 using GeometryBasics: origin, radius
 using Parameters
-using InteractiveUtils
+using InteractiveUtils # needed for subtypes
 using Dierckx
 using ScatteredInterpolation
+using PrecompileTools
 
 using Delaunator # DelaunayMesh
 using CloughTocher2DInterpolation  # pure julia implementation
@@ -34,5 +35,17 @@ export CloughTocher, SplineInterpolator, DelaunayMesh, NullInterpolator, Scatter
 @deprecate ClaughTochter(args...; kwargs...) CloughTocher(args...; kwargs...) true
 # Extrapolators
 export GeomExtrapolation, NullExtrapolation
+
+@setup_workload begin
+    # Putting some things in `@setup_workload` instead of `@compile_workload` can reduce the size of the
+    # precompile file and potentially make loading faster.
+    data, positions = TopoPlots.example_data()
+    @compile_workload begin
+        # all calls in this block will be precompiled, regardless of whether
+        # they belong to your package or not (on Julia 1.8 and higher)
+        eeg_topoplot(view(data, :, 340, 1); positions)
+        eeg_topoplot(data[:, 340, 1]; positions)
+    end
+end
 
 end
