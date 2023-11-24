@@ -1,4 +1,5 @@
 using Test
+using Aqua
 using PythonCall
 using TopoPlots
 using LinearAlgebra, Statistics, CairoMakie, FileIO
@@ -19,6 +20,10 @@ using PythonPlot
 PythonPlot.pygui(false)
 
 include("percy.jl")
+
+@testset "Aqua" begin
+    Aqua.test_all(TopoPlots; ambiguities=false)
+end
 
 data, positions = TopoPlots.example_data()
 
