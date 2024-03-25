@@ -28,7 +28,9 @@ Returns a two-tuple:
     For demonstration purposes, the first stat dimension is generally the most applicable.
   - positions: a length-64 Point2f vector of positions for each channel in data.
 
-Data are from:
+
+# Data source
+
 Ehinger, B. V., König, P., & Ossandón, J. P. (2015).
 Predictions of Visual Content across Eye Movements and Their Modulation by Inferred Information.
 The Journal of Neuroscience, 35(19), 7403–7413. https://doi.org/10.1523/JNEUROSCI.5114-14.2015
