@@ -16,6 +16,23 @@ using CloughTocher2DInterpolation  # pure julia implementation
 
 assetpath(files...) = normpath(joinpath(dirname(@__DIR__), "assets", files...))
 
+"""
+    example_data()
+
+Load EEG example data.
+
+Returns a two-tuple:
+  - data: a (64, 400, 3) Float32 array of channel x timepoint x stat array.
+    Timepoints correponds to samples at 500Hz from -0.3s to 0.5s relative to stimulus onset.
+    Stats are mean over subjects, standard errors over subjects, and associated p-value from a t-test.
+    For demonstration purposes, the first stat dimension is generally the most applicable.
+  - positions: a length-64 Point2f vector of positions for each channel in data.
+
+Data are from:
+Ehinger, B. V., König, P., & Ossandón, J. P. (2015).
+Predictions of Visual Content across Eye Movements and Their Modulation by Inferred Information.
+The Journal of Neuroscience, 35(19), 7403–7413. https://doi.org/10.1523/JNEUROSCI.5114-14.2015
+"""
 function example_data()
     data = Array{Float32}(undef, 64, 400, 3)
     read!(TopoPlots.assetpath("example-data.bin"), data)
