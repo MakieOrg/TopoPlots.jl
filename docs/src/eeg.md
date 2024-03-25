@@ -20,8 +20,11 @@ TopoPlots.eeg_topoplot(rand(19), labels; axis=(aspect=DataAspect(),), label_text
 If the channels aren't 10/20, one can still plot them, but then the positions need to be passed as well:
 
 ```@example 1
-
 data, positions = TopoPlots.example_data()
 labels = ["s$i" for i in 1:size(data, 1)]
 TopoPlots.eeg_topoplot(data[:, 340, 1], labels; positions=positions, axis=(aspect=DataAspect(),))
+```
+
+```@docs
+TopoPlots.example_data
 ```
