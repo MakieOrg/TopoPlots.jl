@@ -25,6 +25,6 @@ labels = ["s$i" for i in 1:size(data, 1)]
 TopoPlots.eeg_topoplot(data[:, 340, 1], labels; positions=positions, axis=(aspect=DataAspect(),))
 ```
 
-```docs
+```@docs
 TopoPlots.example_data
 ```
