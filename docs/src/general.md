@@ -38,16 +38,18 @@ and making your interpolator `SomeInterpolator` callable with the signature
 The different interpolation schemes look quite different:
 
 ```@example 1
-using TopoPlots, CairoMakie, ScatteredInterpolation
+using TopoPlots, CairoMakie, ScatteredInterpolation, NaturalNeighbours
 
 data, positions = TopoPlots.example_data()
 
-f = Figure(resolution=(1000, 1000))
+f = Figure(resolution=(1000, 1250))
 
 interpolators = [
     DelaunayMesh() CloughTocher();
     SplineInterpolator() NullInterpolator();
-    ScatteredInterpolationMethod(ThinPlate()) ScatteredInterpolationMethod(Shepard(3))]
+    ScatteredInterpolationMethod(ThinPlate()) ScatteredInterpolationMethod(Shepard(3));
+    NaturalNeighboursMethod(Sibson(1)) NaturalNeighboursMethod(Triangle());
+    ]
 
 data_slice = data[:, 360, 1]
 
@@ -111,7 +113,7 @@ f
 `DelaunayMesh` is best suited for interactive data exploration, which can be done quite easily with Makie's native UI and observable framework:
 
 ```@example 1
-f = Figure(resolution=(1000, 1000))
+f = Figure(resolution=(1000, 1250))
 s = Slider(f[:, 1], range=1:size(data, 2), startvalue=351)
 data_obs = map(s.value) do idx
     data[:, idx, 1]
