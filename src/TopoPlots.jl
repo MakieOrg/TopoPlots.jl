@@ -7,12 +7,13 @@ using GeometryBasics
 using GeometryBasics: origin, radius
 using Parameters
 using InteractiveUtils # needed for subtypes
+using PrecompileTools
+# Import the various interpolation packages
 using Dierckx
 using ScatteredInterpolation
-using PrecompileTools
-
+using NaturalNeighbours # voronoi tessellation based methods
 using Delaunator # DelaunayMesh
-using CloughTocher2DInterpolation  # pure julia implementation
+using CloughTocher2DInterpolation  # pure julia implementation of the algorithm used by scipy etc.
 
 assetpath(files...) = normpath(joinpath(dirname(@__DIR__), "assets", files...))
 
@@ -50,7 +51,7 @@ include("core-recipe.jl")
 include("eeg.jl")
 
 # Interpolators
-export CloughTocher, SplineInterpolator, DelaunayMesh, NullInterpolator, ScatteredInterpolationMethod
+export CloughTocher, SplineInterpolator, DelaunayMesh, NullInterpolator, ScatteredInterpolationMethod, NaturalNeighboursMethod
 @deprecate ClaughTochter(args...; kwargs...) CloughTocher(args...; kwargs...) true
 # Extrapolators
 export GeomExtrapolation, NullExtrapolation
