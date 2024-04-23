@@ -194,8 +194,13 @@ function (alg::NaturalNeighboursMethod)(
         parallel = isnothing(alg.parallel) ? false : alg.parallel,
         project = alg.project, 
     )
-    # Finally, we return the interpolated values as a matrix, in the form Makie expects.
-    return reshape(z_values, nx, ny)
+    # Reshape the data into a matrix.
+    gridded = reshape(z_values, nx, ny)
+    # Mask off if necessary.
+    if .!isnothing(mask)
+        gridded[.!mask] .= NaN
+    end
+    return gridded
 end
 
 """
