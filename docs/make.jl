@@ -16,7 +16,8 @@ makedocs(;
         "Home" => "index.md",
         "General TopoPlots" => "general.md",
         "EEG" => "eeg.md",
-        "Function reference" => "functions.md"
+        "Function reference" => "functions.md",
+        "Interpolator reference images" => "interpolator_reference.md"
     ],
 )
 
