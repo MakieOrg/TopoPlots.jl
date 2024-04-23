@@ -74,6 +74,9 @@ for idx in CartesianIndices(interpolators)
         axis=(type=Axis, title="$(typeof(interpolation))()",aspect=DataAspect(),))
 
    ax.title = ("$(typeof(interpolation))() - $(round(t, digits=2))s")
+   if interpolation isa Union{NaturalNeighboursMethod, ScatteredInterpolationMethod}
+       ax.title = "$(typeof(interpolation))($(typeof(interpolation.method))) - $(round(t, digits=2))s"
+   end
 end
 f
 ```
