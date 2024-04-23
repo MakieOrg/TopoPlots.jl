@@ -136,6 +136,11 @@ to interpolate the data.  This uses Delaunay triangulations and
 the corresponding Voronoi diagram to interpolate the data, and offers
 a variety of methods like `Sibson(::Int)`, `Nearest()`, and `Triangle()`.
 
+The advantage of Voronoi-diagram based methods is that they are more robust to 
+irregularly distributed datasets and some discontinuities, which may throw off 
+some polynomial based methods as well as independant distance weighting (kriging). 
+See [this Discourse post](https://discourse.julialang.org/t/ann-naturalneighbours-jl-natural-neighbour-interpolation-and-derivative-generation/99164/11) for more information on why NaturalNeighbours are cool! 
+
 To access the methods easily, you should run `using NearestNeighbours`.
 
 See the [NaturalNeighbours documentation](https://github.com/DanielVandH/NaturalNeighbours.jl) for more details.
