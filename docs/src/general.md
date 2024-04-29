@@ -9,14 +9,13 @@ TopoPlots.topoplot
 
 ## Interpolation
 
-TopoPlots provides access to interpolators from several different Julia packages through its [`Interpolator`](@ref) interface.
+TopoPlots provides access to interpolators from several different Julia packages through its [`TopoPlots.Interpolator`](@ref) interface.
 
 They can be accessed via plotting, or directly by calling the instantiated interpolator object as is shown below, namely with the arguments `(::Interpolator)(xrange::LinRange, yrange::LinRange, positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number})`.  This is similar to using things like Matlab's `regrid` function.  You can find more details in the [Interpolation](@ref) section.
 
 The recipe supports different interpolation methods, namely:
 
 ```@docs
-TopoPlots.Interpolator
 TopoPlots.DelaunayMesh
 TopoPlots.CloughTocher
 TopoPlots.SplineInterpolator
