@@ -57,7 +57,7 @@ f
 
 ```@example 1
 using TopoPlots, CairoMakie, ScatteredInterpolation, NaturalNeighbours
-using Makie.Random: randsubseq
+using TopoPlots.Makie.Random: randsubseq
 
 data = Makie.peaks(100)
 sampling_points = randsubseq(CartesianIndices(data), 0.011)
