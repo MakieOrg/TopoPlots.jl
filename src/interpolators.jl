@@ -134,7 +134,7 @@ function (sim::ScatteredInterpolationMethod)(
 end
 
 """
-    NearestNeighbourMethod(; method=Sibson(1), kwargs...)
+    NaturalNeighboursMethod(; method=Sibson(1), kwargs...)
 
 Interpolator that uses the [NaturalNeighbours.jl](https://github.com/DanielVandH/NaturalNeighbours.jl) package
 to interpolate the data.  This uses Delaunay triangulations and 

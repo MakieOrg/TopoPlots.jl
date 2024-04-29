@@ -56,6 +56,7 @@ f
 ### Randomly sampled function
 
 ```@example 1
+using TopoPlots, CairoMakie, ScatteredInterpolation, NaturalNeighbours
 using Makie.Random: randsubseq
 
 data = Makie.peaks(100)

@@ -20,7 +20,7 @@ TopoPlots.DelaunayMesh
 TopoPlots.CloughTocher
 TopoPlots.SplineInterpolator
 TopoPlots.ScatteredInterpolationMethod
-TopoPlots.NaturalNeighbourMethod
+TopoPlots.NaturalNeighboursMethod
 TopoPlots.NullInterpolator
 ```
 
