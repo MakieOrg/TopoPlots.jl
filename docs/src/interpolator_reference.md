@@ -56,8 +56,10 @@ f
 ### Randomly sampled function
 
 ```@example 1
+using Makie.Random: randsubseq
+
 data = Makie.peaks(100)
-sampling_points = rand(CartesianIndices(data), 100)
+sampling_points = randsubseq(CartesianIndices(data), 0.011)
 data_slice = data[sampling_points]
 positions = Point2f.(Tuple.(sampling_points))
 
