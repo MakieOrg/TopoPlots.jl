@@ -65,7 +65,7 @@ data_slice = data[sampling_points]
 positions = Point2f.(Tuple.(sampling_points))
 
 interpolators = [
-    SplineInterpolator(; smoothing = 5) NullInterpolator() DelaunayMesh();
+    SplineInterpolator(; smoothing = 7) NullInterpolator() DelaunayMesh();
     CloughTocher() ScatteredInterpolationMethod(ThinPlate()) ScatteredInterpolationMethod(Shepard(3));
     ScatteredInterpolationMethod(Multiquadratic()) ScatteredInterpolationMethod(InverseMultiquadratic()) ScatteredInterpolationMethod(Gaussian());
     NaturalNeighboursMethod(Hiyoshi(2)) NaturalNeighboursMethod(Sibson()) NaturalNeighboursMethod(Laplace());

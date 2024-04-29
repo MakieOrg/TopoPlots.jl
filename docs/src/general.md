@@ -16,6 +16,7 @@ They can be accessed via plotting, or directly by calling the instantiated inter
 The recipe supports different interpolation methods, namely:
 
 ```@docs
+TopoPlots.Interpolator
 TopoPlots.DelaunayMesh
 TopoPlots.CloughTocher
 TopoPlots.SplineInterpolator
