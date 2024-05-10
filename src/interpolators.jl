@@ -192,6 +192,7 @@ function (alg::NaturalNeighboursMethod)(
         first.(positions), last.(positions), data; 
         derivatives = true, method = alg.derivative_method, 
         use_cubic_terms = alg.use_cubic_terms, alpha = alg.alpha,
+        parallel = alg.parallel,
     )
     # Then, interpolate the data at the grid points.
     nx, ny = length(xrange), length(yrange)
