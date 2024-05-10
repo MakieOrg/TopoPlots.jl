@@ -164,8 +164,8 @@ $(Makie.DocStringExtensions.FIELDS)
 @with_kw struct NaturalNeighboursMethod <: Interpolator
     "The method to use for the interpolation.  Defaults to `Sibson(1)."
     method::NaturalNeighbours.AbstractInterpolator = NaturalNeighbours.Sibson{1}()
-    "Whether to use multithreading when interpolating.  Defaults to `nothing`, meaning that triangulation is multithreaded but interpolation is not.  May otherwise be `true` or `false`."
-    parallel::Union{Nothing, Bool} = nothing
+    "Whether to use multithreading when interpolating.  Defaults to `true`."
+    parallel::Bool = true
     "Whether to project the data onto the Delaunay triangulation.  Defaults to `true`."
     project::Bool = true
     "The method to use for the differentiation.  Defaults to `Direct()`.  May be `Direct()` or `Iterative()`."
@@ -192,7 +192,6 @@ function (alg::NaturalNeighboursMethod)(
         first.(positions), last.(positions), data; 
         derivatives = true, method = alg.derivative_method, 
         use_cubic_terms = alg.use_cubic_terms, alpha = alg.alpha,
-        parallel = isnothing(alg.parallel) ? true : alg.parallel
     )
     # Then, interpolate the data at the grid points.
     nx, ny = length(xrange), length(yrange)
@@ -201,7 +200,7 @@ function (alg::NaturalNeighboursMethod)(
     z_values = interpolator(
         x_values, y_values; 
         method = alg.method, 
-        parallel = isnothing(alg.parallel) ? false : alg.parallel,
+        parallel = alg.parallel,
         project = alg.project, 
     )
     # Reshape the data into a matrix.
