@@ -2,6 +2,7 @@
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+NaturalNeighbours = "f16ad982-4edb-46b1-8125-78e5a8b5a9e6"
 ScatteredInterpolation = "3f865c0f-6dca-5f4d-999b-29fe1e7e3c92"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 TopoPlots = "2bdbdf9c-dbd8-403f-947b-1a4e0dd41a7a"

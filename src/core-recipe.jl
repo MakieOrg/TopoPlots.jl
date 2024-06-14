@@ -72,13 +72,13 @@ function Makie.plot!(p::TopoPlot)
     npositions = Obs(0)
 
     # positions changes with with data together since it gets into convert_arguments
-    positions = lift(identity, p.positions; ignore_equal_values=true)
-    geometry = lift(enclosing_geometry, p.bounding_geometry, positions, p.enlarge; ignore_equal_values=true)
+    positions = lift(identity, p, p.positions; ignore_equal_values=true)
+    geometry = lift(enclosing_geometry, p, p.bounding_geometry, positions, p.enlarge; ignore_equal_values=true)
 
     xg = Obs(LinRange(0f0, 1f0, p.interp_resolution[][1]))
     yg = Obs(LinRange(0f0, 1f0, p.interp_resolution[][2]))
 
-    f = onany(geometry, p.interp_resolution) do geometry, interp_resolution
+    f = onany(p, geometry, p.interp_resolution) do geometry, interp_resolution
         (xmin, ymin), (xmax, ymax) = extrema(geometry)
         xg[] = LinRange(xmin, xmax, interp_resolution[1])
         yg[] = LinRange(ymin, ymax, interp_resolution[2])
@@ -89,11 +89,11 @@ function Makie.plot!(p::TopoPlot)
 
     p.geometry = geometry # store geometry in plot object, so others can access it
 
-    padded_pos_data_bb = lift(p.extrapolation, p.positions, p.data) do extrapolation, positions, data
+    padded_pos_data_bb = lift(p, p.extrapolation, p.positions, p.data) do extrapolation, positions, data
         return extrapolation(positions, data)
     end
 
-    colorrange = lift(p.data, p.colorrange) do data, crange
+    colorrange = lift(p, p.data, p.colorrange) do data, crange
         if crange isa Makie.Automatic
             return Makie.extrema_nan(data)
         else
@@ -103,15 +103,15 @@ function Makie.plot!(p::TopoPlot)
 
     if p.interpolation[] isa DelaunayMesh
         # TODO, delaunay works very differently from the other interpolators, so we can't switch interactively between them
-        m = lift(delaunay_mesh, p.positions)
-        mesh!(p, m, color=p.data, colorrange=colorrange, colormap=p.colormap, shading=false)
+        m = lift(delaunay_mesh, p, p.positions)
+        mesh!(p, m, color=p.data, colorrange=colorrange, colormap=p.colormap, shading=NoShading)
     else
-        mask = lift(xg,yg,geometry) do xg,yg,geometry
+        mask = lift(p, xg, yg, geometry) do xg,yg,geometry
             pts = Point2f.(xg' .* ones(length(yg)), ones(length(xg))' .* yg)
-            return in.(pts,Ref(geometry))
+            return in.(pts, Ref(geometry))
         end
         
-        data = lift(p.interpolation, xg, yg, padded_pos_data_bb,mask) do interpolation, xg, yg, (points, data, _, _),mask
+        data = lift(p, p.interpolation, xg, yg, padded_pos_data_bb,mask) do interpolation, xg, yg, (points, data, _, _),mask
             z = interpolation(xg, yg, points, data;mask=mask)
 #            z[mask] .= NaN
             return z

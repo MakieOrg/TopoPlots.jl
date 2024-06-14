@@ -21,3 +21,5 @@ f
 Find more documentation for `topoplot` in [Recipe for General TopoPlots](@ref).
 
 It also contains some more convenience methods for EEG data, which is explained in [EEG Topoplots](@ref).
+
+You can also use TopoPlots' interpolators as a simple interface to regrid irregular data.  See [Interpolation](@ref) for more details.

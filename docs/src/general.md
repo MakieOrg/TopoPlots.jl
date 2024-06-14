@@ -9,6 +9,10 @@ TopoPlots.topoplot
 
 ## Interpolation
 
+TopoPlots provides access to interpolators from several different Julia packages through its [`TopoPlots.Interpolator`](@ref) interface.
+
+They can be accessed via plotting, or directly by calling the instantiated interpolator object as is shown below, namely with the arguments `(::Interpolator)(xrange::LinRange, yrange::LinRange, positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number})`.  This is similar to using things like Matlab's `regrid` function.  You can find more details in the [Interpolation](@ref) section.
+
 The recipe supports different interpolation methods, namely:
 
 ```@docs
@@ -16,27 +20,36 @@ TopoPlots.DelaunayMesh
 TopoPlots.CloughTocher
 TopoPlots.SplineInterpolator
 TopoPlots.ScatteredInterpolationMethod
+TopoPlots.NaturalNeighboursMethod
 TopoPlots.NullInterpolator
 ```
-One can define your own interpolation by subtyping:
+
+You can define your own interpolation by subtyping:
 
 ```@docs
 TopoPlots.Interpolator
 ```
 
+and making your interpolator `SomeInterpolator` callable with the signature 
+```julia        
+(::SomeInterpolator)(xrange::LinRange, yrange::LinRange, positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number}; mask=nothing)
+```
+
 The different interpolation schemes look quite different:
 
 ```@example 1
-using TopoPlots, CairoMakie, ScatteredInterpolation
+using TopoPlots, CairoMakie, ScatteredInterpolation, NaturalNeighbours
 
 data, positions = TopoPlots.example_data()
 
-f = Figure(resolution=(1000, 1000))
+f = Figure(resolution=(1000, 1250))
 
 interpolators = [
     DelaunayMesh() CloughTocher();
     SplineInterpolator() NullInterpolator();
-    ScatteredInterpolationMethod(ThinPlate()) ScatteredInterpolationMethod(Shepard(3))]
+    ScatteredInterpolationMethod(ThinPlate()) ScatteredInterpolationMethod(Shepard(3));
+    NaturalNeighboursMethod(Sibson(1)) NaturalNeighboursMethod(Triangle());
+    ]
 
 data_slice = data[:, 360, 1]
 
@@ -61,6 +74,9 @@ for idx in CartesianIndices(interpolators)
         axis=(type=Axis, title="$(typeof(interpolation))()",aspect=DataAspect(),))
 
    ax.title = ("$(typeof(interpolation))() - $(round(t, digits=2))s")
+   if interpolation isa Union{NaturalNeighboursMethod, ScatteredInterpolationMethod}
+       ax.title = "$(typeof(interpolation))($(typeof(interpolation.method))) - $(round(t, digits=2))s"
+   end
 end
 f
 ```
@@ -100,7 +116,7 @@ f
 `DelaunayMesh` is best suited for interactive data exploration, which can be done quite easily with Makie's native UI and observable framework:
 
 ```@example 1
-f = Figure(resolution=(1000, 1000))
+f = Figure(resolution=(1000, 1250))
 s = Slider(f[:, 1], range=1:size(data, 2), startvalue=351)
 data_obs = map(s.value) do idx
     data[:, idx, 1]
