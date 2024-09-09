@@ -59,8 +59,8 @@ f
 using TopoPlots, CairoMakie, ScatteredInterpolation, NaturalNeighbours
 using TopoPlots.Makie.Random: randsubseq
 
-data = Makie.peaks(100)
-sampling_points = randsubseq(CartesianIndices(data), 0.011)
+data = Makie.peaks(20)
+sampling_points = randsubseq(CartesianIndices(data), 0.25)
 data_slice = data[sampling_points]
 positions = Point2f.(Tuple.(sampling_points))
 
