@@ -146,3 +146,25 @@ TopoPlots.topoplot(
     label_scatter=(; strokewidth=2),
     contours=(linewidth=2, color=:white))
 ```
+
+
+## Different plotfunctions
+
+It is possible to exchange the plotting function, from `heatmap!` to `contourf!` or `surface!`. Due to different keyword arguments, one needs to filter which keywords are passed to the plotting function manually.
+
+```@example 1
+f = Figure()
+
+TopoPlots.topoplot(f[1,1],
+    rand(10), rand(Point2f, 10),
+    axis=(; aspect=DataAspect()),
+    plotfnc! = contourf!, plotfnc_kwargs_filter=[:colormap])
+
+TopoPlots.topoplot(f[1,2],
+    rand(10), rand(Point2f, 10),
+    axis=(; aspect=DataAspect()),
+    plotfnc! = surface!) # surface can take all default kwargs similar to heatmap!
+
+f
+        
+```
