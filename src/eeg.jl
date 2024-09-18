@@ -78,7 +78,7 @@ const CHANNEL_TO_POSITION_10_05 = begin
 end
 
 # even though these are not actively used, sometimes they can be helpful just to plot a default subset of channels. Therefore we havent deleted them yet (because 10_05 is a superset)
-const CHANNELS_10_20 = ["fp1", "f3", "c3", "p3", "o1", "f7", "t3", "t5", "fz", "cz", "pz", "fp2", "f4", "c4", "p4", "o2", "f8", "t4", "t6"]
+const CHANNELS_10_20 = ["fp1", "f3", "c3", "p3", "o1", "f7", "t7", "p7", "fz", "cz", "pz", "fp2", "f4", "c4", "p4", "o2", "f8", "t8", "p8"]
 
 const CHANNEL_TO_POSITION_10_20 = begin
     # We load this during precompilation, so that this gets stored as a global
@@ -91,7 +91,7 @@ end
 
 """
     labels2positions(labels)
-Currently only supports 10/20 layout, by looking it up in `TopoPlots.CHANNEL_TO_POSITION_10_20`.
+Currently supports 10/05 layout, by looking it up in `TopoPlots.CHANNEL_TO_POSITION_10_05`.
 """
 function labels2positions(labels)
     return map(labels) do label
@@ -99,7 +99,7 @@ function labels2positions(labels)
         if haskey(CHANNEL_TO_POSITION_10_05, key)
             return CHANNEL_TO_POSITION_10_05[key]
         else
-            error("Currently only 10_20 is supported. Found label: $(label)")
+            error("Currently only 10_05 is supported. Found label: $(label)")
         end
     end
 end
