@@ -183,3 +183,10 @@ begin
     lines!(ax, rect_extended, color=:red)
     @test_figure("test-extrapolate-data-circle", f)
 end
+
+let
+    data, positions = TopoPlots.example_data()
+    f, ax, pl = topoplot(1:10,positions[1:10];plotfnc! = contourf!,plotfnc_kwargs_filter=[:colormap])
+    f, ax, pl = topoplot(1:10,positions[1:10];plotfnc! = (args...;kwargs...)->heatmap!(args...;alpha=0.3,kwargs...))
+    #@test_figure("ClaughTochter", f)
+end

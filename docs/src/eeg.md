@@ -9,12 +9,12 @@ TopoPlots.eeg_topoplot
 
 
 
-So for the standard 10/20 montage, one can drop the `positions` attribute:
+For the standard 10/20 montage, one can drop the `positions` attribute:
 ```@example 1
 using TopoPlots, CairoMakie
 
 labels = TopoPlots.CHANNELS_10_20
-TopoPlots.eeg_topoplot(rand(19), labels; axis=(aspect=DataAspect(),), label_text=true, label_scatter=(markersize=10, strokewidth=2,))
+TopoPlots.eeg_topoplot(rand(19); labels=labels, axis=(aspect=DataAspect(),), label_text=true, label_scatter=(markersize=10, strokewidth=2,))
 ```
 
 If the channels aren't 10/20, one can still plot them, but then the positions need to be passed as well:
@@ -22,8 +22,26 @@ If the channels aren't 10/20, one can still plot them, but then the positions ne
 ```@example 1
 data, positions = TopoPlots.example_data()
 labels = ["s$i" for i in 1:size(data, 1)]
-TopoPlots.eeg_topoplot(data[:, 340, 1], labels; positions=positions, axis=(aspect=DataAspect(),))
+TopoPlots.eeg_topoplot(data[:, 340, 1]; labels = labels, label_text = true, positions=positions, axis=(aspect=DataAspect(),))
 ```
+
+
+## Subset of channels
+If you only ask to plot a subset of channels, we highly recommend to define your bounding geometry yourself. We follow MNE functionality and normalize the positions prior to interpolation / plotting. If you only use a subset of channels, the positions will be relative to eachother, not at absolute coordinates.
+
+```@example 1
+f = Figure()
+ax1 = f[1,1] = Axis(f;aspect=DataAspect())
+ax2 = f[1,2] = Axis(f;aspect=DataAspect())
+kwlist = (;label_text=true,label_scatter=(markersize=10, strokewidth=2,color=:white))
+TopoPlots.eeg_topoplot!(ax1,[1,0.5,0]; labels=["Cz","Fz","Fp1"],kwlist...)
+TopoPlots.eeg_topoplot!(ax2,[1,0.5,05]; labels=["Cz","Fz","Fp1"], bounding_geometry=Circle(Point2f(0.5,0.5), 0.5),kwlist...)
+
+f
+```
+As visible in the left plot, the positions are normalized to the bounding geometry. The right plot shows the same data, but with Cz correctly centered.
+
+
 
 ```@docs
 TopoPlots.example_data
