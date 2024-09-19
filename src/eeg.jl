@@ -79,13 +79,14 @@ const CHANNEL_TO_POSITION_10_05 = begin
     d["t4"] = d["t8"]
     d["t5"] = d["p7"]
     d["t6"] = d["p8"]
+     d
 
 end
 
 # even though these are not actively used, sometimes they can be helpful just to plot a default subset of channels. Therefore we havent deleted them yet (because 10_05 is a superset)
 const CHANNELS_10_20 = ["fp1", "f3", "c3", "p3", "o1", "f7", "t3", "t5", "fz", "cz", "pz", "fp2", "f4", "c4", "p4", "o2", "f8", "t4", "t6"]
 
-const CHANNEL_TO_POSITION_10_20 = begin
+#=const CHANNEL_TO_POSITION_10_20 = begin
     # We load this during precompilation, so that this gets stored as a global
     # that's immediately loaded when loading the package
     result = Matrix{Float64}(undef, 19, 2)
@@ -93,6 +94,7 @@ const CHANNEL_TO_POSITION_10_20 = begin
     positions = Point2f.(result[:, 1], result[:, 2])
     Dict{String,Point2f}(zip(CHANNELS_10_20, positions))
 end
+=#
 
 """
     labels2positions(labels)
