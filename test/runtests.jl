@@ -191,3 +191,13 @@ let
     #@test_figure("ClaughTochter", f)
 end
 
+
+let 
+    pos = TopoPlots.labels2positions(TopoPlots.CHANNELS_10_20)
+    pos10_05 = TopoPlots.labels2positions(TopoPlots.CHANNELS_10_05)
+    @test pos[TopoPlots.CHANNELS_10_20 .== "t3"] == pos10_05[TopoPlots.CHANNELS_10_05 .== "t7"]
+    @test pos[TopoPlots.CHANNELS_10_20 .== "t4"] == pos10_05[TopoPlots.CHANNELS_10_05 .== "t8"]
+    @test pos[TopoPlots.CHANNELS_10_20 .== "t5"] == pos10_05[TopoPlots.CHANNELS_10_05 .== "p7"]
+    @test pos[TopoPlots.CHANNELS_10_20 .== "t6"] == pos10_05[TopoPlots.CHANNELS_10_05 .== "p8"]
+end
+    
