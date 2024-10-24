@@ -183,3 +183,8 @@ begin
     lines!(ax, rect_extended, color=:red)
     @test_figure("test-extrapolate-data-circle", f)
 end
+
+
+begin
+    TopoPlots.eeg_topoplot(1:10; labels=TopoPlots.CHANNELS_10_20[1:10])
+end

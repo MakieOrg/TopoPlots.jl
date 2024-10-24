@@ -26,14 +26,9 @@ Attributes:
 Otherwise the recipe just uses the [`topoplot`](@ref) defaults and passes through the attributes.
 """
 eeg_topoplot
- function eeg_topoplot(data,labels;kwargs...) 
-    @warn "labels as positional arguments have been deprecated. Please provide them as keyword arguments"
-    eeg_topoplot(data;labels=labels,kwargs...)
- end
- function eeg_topoplot!(fig, data,labels;kwargs...) 
-    @warn "labels as positional arguments have been deprecated. Please provide them as keyword arguments"
-    eeg_topoplot!(fig,data;labels=labels,kwargs...)
- end
+
+@deprecate eeg_topoplot(data::AbstractVector{<:Real}, labels::Vector{<:AbstractString}) eeg_topoplot(data; labels)
+@deprecate eeg_topoplot!(fig, data::AbstractVector{<:Real}, labels::Vector{<:AbstractString}) eeg_topoplot!(fig, data; labels)
  
 function draw_ear_nose!(parent, circle; kw...)
     # draw circle
