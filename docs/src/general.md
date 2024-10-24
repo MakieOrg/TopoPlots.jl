@@ -42,13 +42,13 @@ using TopoPlots, CairoMakie, ScatteredInterpolation, NaturalNeighbours
 
 data, positions = TopoPlots.example_data()
 
-f = Figure(resolution=(1000, 1250))
+f = Figure(size=(1000, 1250))
 
 interpolators = [
     DelaunayMesh() CloughTocher();
     SplineInterpolator() NullInterpolator();
     ScatteredInterpolationMethod(ThinPlate()) ScatteredInterpolationMethod(Shepard(3));
-    NaturalNeighboursMethod(Sibson(1)) NaturalNeighboursMethod(Triangle());
+    #NaturalNeighboursMethod(Sibson(1)) NaturalNeighboursMethod(Triangle());
     ]
 
 data_slice = data[:, 360, 1]
