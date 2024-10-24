@@ -17,7 +17,7 @@ end
 Attributes:
 
 * `positions::Vector{<: Point} = Makie.automatic`: Can be calculated from label (channel) names. Currently, only 10/20 montage has default coordinates provided.
-* `labels::Vector{<: String} = Makie.automatic`: Add custom labels, in case `label_text` is set to true. If `positions` is not specified, `labels` are used to look up the 10/20 coordinates.
+* `labels::AbstractVector{<:AbstractString} = Makie.automatic`: Add custom labels, in case `label_text` is set to true. If `positions` is not specified, `labels` are used to look up the 10/20 coordinates.
 * `head = (color=:black, linewidth=3)`: draw the outline of the head. Set to nothing to not draw the head outline, otherwise set to a namedtuple that get passed down to the `line!` call that draws the shape.
 # Some attributes from topoplot are set to different defaults:
 * `label_scatter = true`
@@ -82,7 +82,8 @@ function labels2positions(labels)
         if haskey(CHANNEL_TO_POSITION_10_20, key)
             return CHANNEL_TO_POSITION_10_20[key]
         else
-            error("Currently only 10_20 is supported. Found label: $(label)")
+            error("Currently only 10/20 is supported. Found label: $(label)")
+
         end
     end
 end
@@ -98,7 +99,8 @@ function Makie.plot!(plot::EEG_TopoPlot)
     positions = lift(plot.labels, plot.positions) do labels, positions
         
         if positions isa Makie.Automatic
-            @assert !isnothing(labels) && labels != Makie.Automatic "Either positions or labels (10/20-lookup) have to be specified"
+            (!isnothing(labels) && labels != Makie.Automatic) || error("Either positions or labels (10/20-lookup) have to be specified")
+
             return labels2positions(labels)
         else
             # apply same conversion as for e.g. the scatter arguments
