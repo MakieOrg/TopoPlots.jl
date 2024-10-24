@@ -85,25 +85,25 @@ let
     @test_deprecated interpolation = ClaughTochter()
 
     f, ax, pl = TopoPlots.eeg_topoplot(1:length(TopoPlots.CHANNELS_10_20);
-                                       labels = TopoPlots.CHANNELS_10_20 interpolation)
+        labels=TopoPlots.CHANNELS_10_20, interpolation)
     @test_figure("ClaughTochter", f)
 end
 
 begin # empty eeg topoplot
-    f, ax, pl = TopoPlots.eeg_topoplot(1:length(TopoPlots.CHANNELS_10_20);labels=TopoPlots.CHANNELS_10_20; interpolation=TopoPlots.NullInterpolator(),)
+    f, ax, pl = TopoPlots.eeg_topoplot(1:length(TopoPlots.CHANNELS_10_20); labels=TopoPlots.CHANNELS_10_20, interpolation=TopoPlots.NullInterpolator(),)
     @test_figure("nullInterpolator", f)
 end
 
 
 begin
-    f = Makie.Figure(resolution=(1000, 1000))
+    f = Makie.Figure(size=(1000, 1000))
     s = Makie.Slider(f[:, 1], range=1:size(data, 2), startvalue=351)
     data_obs = map(s.value) do idx
         data[:, idx, 1]
     end
     TopoPlots.topoplot(
         f[2, 1],
-        data_obs; positions,
+        data_obs, positions;
         interpolation=DelaunayMesh(),
         labels = string.(1:length(positions)),
         colorrange=(-1, 1),
@@ -114,7 +114,7 @@ end
 
 begin
     f, ax, pl = TopoPlots.topoplot(
-        data[:, 340, 1]; positions,
+        data[:, 340, 1], positions;
         axis=(; aspect=DataAspect()),
         colorrange=(-1, 1),
         bounding_geometry = Rect,
