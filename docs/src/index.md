@@ -8,7 +8,7 @@ Documentation for [TopoPlots](https://github.com/MakieOrg/TopoPlots.jl).
 
 A package for creating topoplots from data that were measured on arbitrarily positioned sensors:
 
-```@example 1
+```@example intro
 using TopoPlots, CairoMakie
 f = Figure(;resolution=(800,280))
 topoplot(f[1,1],rand(20), rand(Point2f, 20))
