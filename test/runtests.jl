@@ -49,7 +49,7 @@ function mne_topoplot(fig, data, positions)
 end
 
 function compare_to_mne(data, positions; kw...)
-    f, ax, pl = TopoPlots.eeg_topoplot(data, nothing;
+    f, ax, pl = TopoPlots.eeg_topoplot(data;
         interpolation=CloughTocher(
             fill_value = NaN,
             tol = 0.001,
@@ -84,26 +84,26 @@ let
     f = Makie.Figure(resolution=(1000, 1000))
     @test_deprecated interpolation = ClaughTochter()
 
-    f, ax, pl = TopoPlots.eeg_topoplot(1:length(TopoPlots.CHANNELS_10_20),
-                                       TopoPlots.CHANNELS_10_20; interpolation)
+    f, ax, pl = TopoPlots.eeg_topoplot(1:length(TopoPlots.CHANNELS_10_20);
+        labels=TopoPlots.CHANNELS_10_20, interpolation)
     @test_figure("ClaughTochter", f)
 end
 
 begin # empty eeg topoplot
-    f, ax, pl = TopoPlots.eeg_topoplot(1:length(TopoPlots.CHANNELS_10_20),TopoPlots.CHANNELS_10_20; interpolation=TopoPlots.NullInterpolator(),)
+    f, ax, pl = TopoPlots.eeg_topoplot(1:length(TopoPlots.CHANNELS_10_20); labels=TopoPlots.CHANNELS_10_20, interpolation=TopoPlots.NullInterpolator(),)
     @test_figure("nullInterpolator", f)
 end
 
 
 begin
-    f = Makie.Figure(resolution=(1000, 1000))
+    f = Makie.Figure(size=(1000, 1000))
     s = Makie.Slider(f[:, 1], range=1:size(data, 2), startvalue=351)
     data_obs = map(s.value) do idx
         data[:, idx, 1]
     end
     TopoPlots.topoplot(
         f[2, 1],
-        data_obs, positions,
+        data_obs, positions;
         interpolation=DelaunayMesh(),
         labels = string.(1:length(positions)),
         colorrange=(-1, 1),
@@ -114,7 +114,7 @@ end
 
 begin
     f, ax, pl = TopoPlots.topoplot(
-        data[:, 340, 1], positions,
+        data[:, 340, 1], positions;
         axis=(; aspect=DataAspect()),
         colorrange=(-1, 1),
         bounding_geometry = Rect,
@@ -189,4 +189,9 @@ let
     f, ax, pl = topoplot(1:10,positions[1:10];plotfnc! = contourf!,plotfnc_kwargs_filter=[:colormap])
     f, ax, pl = topoplot(1:10,positions[1:10];plotfnc! = (args...;kwargs...)->heatmap!(args...;alpha=0.3,kwargs...))
     #@test_figure("ClaughTochter", f)
+end
+
+begin
+    f = TopoPlots.eeg_topoplot(1:10; labels=TopoPlots.CHANNELS_10_20[1:10], label_text=true)
+    @test_figure("test-eeg-channel-labels", f)
 end
