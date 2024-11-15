@@ -110,7 +110,7 @@ TopoPlots.topoplot(
 
 It is possible to exchange the plotting function, from `heatmap!` to `contourf!` or `surface!`. Due to different keyword arguments, one needs to filter which keywords are passed to the plotting function manually.
 
-```@example 1
+```@example general
 f = Figure()
 
 TopoPlots.topoplot(f[1,1],
