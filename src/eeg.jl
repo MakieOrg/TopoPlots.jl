@@ -81,14 +81,12 @@ function labels2positions(labels)
             return CHANNEL_TO_POSITION_10_20[key]
         else
             error("Currently only 10/20 is supported. Found label: $(label)")
-
         end
     end
 end
 
 #function Makie.convert_arguments(::Type{<:EEG_TopoPlot}, data::AbstractVector{<:Real})
 #    return (data, labels2positions(labels))#
-
     #
 #end
 
@@ -113,7 +111,6 @@ function Makie.plot!(plot::EEG_TopoPlot)
             return labels
         end
     end
-
     tplot = topoplot!(plot, Attributes(plot), plot.data, positions;)
     head = plot_or_defaults(to_value(plot.head), Attributes(), :head)
     if !isnothing(head)
