@@ -186,5 +186,6 @@ end
 
 
 begin
-    TopoPlots.eeg_topoplot(1:10; labels=TopoPlots.CHANNELS_10_20[1:10])
+    f = TopoPlots.eeg_topoplot(1:10; labels=TopoPlots.CHANNELS_10_20[1:10])
+    @test_figure("test-eeg-channel-labels", f)
 end
