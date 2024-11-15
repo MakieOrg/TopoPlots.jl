@@ -13,7 +13,7 @@ TopoPlots provides access to interpolators from several different Julia packages
 
 They can be accessed via plotting, or directly by calling the instantiated interpolator object as is shown below, namely with the arguments `(::Interpolator)(xrange::LinRange, yrange::LinRange, positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number})`.  This is similar to using things like Matlab's `regrid` function.  You can find more details in the [Interpolation](@ref) section.
 
-The recipe supports different interpolation methods, namely:
+The recipe supports [different interpolation methods](@ref "Interpolator Comparison"), namely:
 
 ```@docs
 TopoPlots.DelaunayMesh
@@ -30,56 +30,12 @@ You can define your own interpolation by subtyping:
 TopoPlots.Interpolator
 ```
 
-and making your interpolator `SomeInterpolator` callable with the signature 
-```julia        
+and making your interpolator `SomeInterpolator` callable with the signature
+```julia
 (::SomeInterpolator)(xrange::LinRange, yrange::LinRange, positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number}; mask=nothing)
 ```
 
-The different interpolation schemes look quite different:
-
-```@example 1
-using TopoPlots, CairoMakie, ScatteredInterpolation, NaturalNeighbours
-
-data, positions = TopoPlots.example_data()
-
-f = Figure(size=(1000, 1250))
-
-interpolators = [
-    DelaunayMesh() CloughTocher();
-    SplineInterpolator() NullInterpolator();
-    ScatteredInterpolationMethod(ThinPlate()) ScatteredInterpolationMethod(Shepard(3));
-    #NaturalNeighboursMethod(Sibson(1)) NaturalNeighboursMethod(Triangle());
-    ]
-
-data_slice = data[:, 360, 1]
-
-for idx in CartesianIndices(interpolators)
-    interpolation = interpolators[idx]
-
-    # precompile to get accurate measurements
-    TopoPlots.topoplot(
-        data_slice, positions;
-        contours=true, interpolation=interpolation,
-        labels = string.(1:length(positions)), colorrange=(-1, 1),
-        label_scatter=(markersize=10,),
-        axis=(type=Axis, title="...", aspect=DataAspect(),))
-
-    # measure time, to give an idea of what speed to expect from the different interpolators
-    t = @elapsed ax, pl = TopoPlots.topoplot(
-        f[Tuple(idx)...], data_slice, positions;
-        contours=true,
-        interpolation=interpolation,
-        labels = string.(1:length(positions)), colorrange=(-1, 1),
-        label_scatter=(markersize=10,),
-        axis=(type=Axis, title="$(typeof(interpolation))()",aspect=DataAspect(),))
-
-   ax.title = ("$(typeof(interpolation))() - $(round(t, digits=2))s")
-   if interpolation isa Union{NaturalNeighboursMethod, ScatteredInterpolationMethod}
-       ax.title = "$(typeof(interpolation))($(typeof(interpolation.method))) - $(round(t, digits=2))s"
-   end
-end
-f
-```
+See also [Interpolator Comparison](@ref).
 
 ## Extrapolation
 
@@ -91,7 +47,9 @@ TopoPlots.GeomExtrapolation
 
 The extrapolations in action:
 
-```@example 1
+```@example general
+using CairoMakie, TopoPlots
+
 data, positions = TopoPlots.example_data()
 titles = ["No Extrapolation", "Rect", "Circle"]
 data_slice = data[:, 340, 1]
@@ -115,7 +73,7 @@ f
 
 `DelaunayMesh` is best suited for interactive data exploration, which can be done quite easily with Makie's native UI and observable framework:
 
-```@example 1
+```@example general
 f = Figure(resolution=(1000, 1250))
 s = Slider(f[:, 1], range=1:size(data, 2), startvalue=351)
 data_obs = map(s.value) do idx
@@ -137,7 +95,7 @@ f
 The bounding geometry pads the input data with more points in the form of the geometry.
 So e.g. for maps, one can use `Rect` as the bounding geometry:
 
-```@example 1
+```@example general
 TopoPlots.topoplot(
     rand(10), rand(Point2f, 10),
     axis=(; aspect=DataAspect()),
@@ -166,5 +124,5 @@ TopoPlots.topoplot(f[1,2],
     plotfnc! = surface!) # surface can take all default kwargs similar to heatmap!
 
 f
-        
+
 ```

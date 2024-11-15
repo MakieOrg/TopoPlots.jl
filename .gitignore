@@ -2,9 +2,11 @@
 *.jl.cov
 *.jl.mem
 /Manifest.toml
+/Manifest-v*.toml
 /docs/build/
 test/test_images
 test/Manifest.toml
 docs/Manifest.toml
 docs/.CondaPkg
+docs/Manifest-v*.toml
 deps/build.log

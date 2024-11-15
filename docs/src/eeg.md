@@ -10,7 +10,7 @@ TopoPlots.eeg_topoplot
 
 
 For the standard 10/20 (or 10/05) montage, one can drop the `positions` attribute:
-```@example 1
+```@example eeg
 using TopoPlots, CairoMakie
 
 labels = TopoPlots.CHANNELS_10_05
@@ -22,7 +22,7 @@ f,ax,h = TopoPlots.eeg_topoplot(rand(348); labels=labels, axis=(aspect=DataAspec
 
 If the channels aren't 10/05, one can still plot them, but then the positions need to be passed as well:
 
-```@example 1
+```@example eeg
 data, positions = TopoPlots.example_data()
 labels = ["s$i" for i in 1:size(data, 1)]
 TopoPlots.eeg_topoplot(data[:, 340, 1]; labels = labels, label_text = true, positions=positions, axis=(aspect=DataAspect(),))
