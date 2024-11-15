@@ -1,12 +1,13 @@
 
-@recipe(EEG_TopoPlot, data, labels) do scene
+@recipe(EEG_TopoPlot, data) do scene
     return Attributes(;
-        head = (color=:black, linewidth=3),
+        head=(color=:black, linewidth=3),
+        labels=Makie.automatic,
         positions = Makie.automatic,
         # overwrite some topoplot defaults
         default_theme(scene, TopoPlot)...,
-        label_scatter = true,
-        contours = true,
+        label_scatter=true,
+        contours=true,
     )
 end
 
@@ -16,15 +17,21 @@ end
 Attributes:
 
 * `positions::Vector{<: Point} = Makie.automatic`: Can be calculated from label (channel) names. Currently, only 10/20 montage has default coordinates provided.
-
+* `labels::AbstractVector{<:AbstractString} = Makie.automatic`: Add custom labels, when `label_text` is set to true. If `positions` is not specified, `labels` are used to look up the 10/20 coordinates.
 * `head = (color=:black, linewidth=3)`: draw the outline of the head. Set to nothing to not draw the head outline, otherwise set to a namedtuple that get passed down to the `line!` call that draws the shape.
 # Some attributes from topoplot are set to different defaults:
 * `label_scatter = true`
 * `contours = true`
 
 Otherwise the recipe just uses the [`topoplot`](@ref) defaults and passes through the attributes.
+
+!!! note
+    You MUST set `label_text=true` for labels to display.
 """
 eeg_topoplot
+
+@deprecate eeg_topoplot(data::AbstractVector{<:Real}, labels::Vector{<:AbstractString}) eeg_topoplot(data; labels)
+@deprecate eeg_topoplot!(fig, data::AbstractVector{<:Real}, labels::Vector{<:AbstractString}) eeg_topoplot!(fig, data; labels)
 
 function draw_ear_nose!(parent, circle; kw...)
     # draw circle
@@ -33,15 +40,18 @@ function draw_ear_nose!(parent, circle; kw...)
         diameter = 2GeometryBasics.radius(circle)
         middle = GeometryBasics.origin(circle)
         nose = (Point2f[(-0.05, 0.5), (0.0, 0.55), (0.05, 0.5)] .* diameter) .+ (middle,)
-        push!(points, Point2f(NaN)); append!(points, nose)
+        push!(points, Point2f(NaN))
+        append!(points, nose)
         ear = (Point2f[
             (0.497, 0.0555), (0.51, 0.0775), (0.518, 0.0783),
             (0.5299, 0.0746), (0.5419, 0.0555), (0.54, -0.0055),
             (0.547, -0.0932), (0.532, -0.1313), (0.51, -0.1384),
             (0.489, -0.1199)] .* diameter)
 
-        push!(points, Point2f(NaN)); append!(points, ear .+ middle)
-        push!(points, Point2f(NaN)); append!(points, (ear .* Point2f(-1, 1)) .+ (middle,))
+        push!(points, Point2f(NaN))
+        append!(points, ear .+ middle)
+        push!(points, Point2f(NaN))
+        append!(points, (ear .* Point2f(-1, 1)) .+ (middle,))
         return points
     end
 
@@ -57,7 +67,7 @@ const CHANNEL_TO_POSITION_10_20 = begin
     result = Matrix{Float64}(undef, 19, 2)
     read!(assetpath("layout_10_20.bin"), result)
     positions = Point2f.(result[:, 1], result[:, 2])
-    Dict{String, Point2f}(zip(CHANNELS_10_20, positions))
+    Dict{String,Point2f}(zip(CHANNELS_10_20, positions))
 end
 
 """
@@ -70,26 +80,41 @@ function labels2positions(labels)
         if haskey(CHANNEL_TO_POSITION_10_20, key)
             return CHANNEL_TO_POSITION_10_20[key]
         else
-            error("Currently only 10_20 is supported. Found: $(label)")
+            error("Currently only 10/20 is supported. Found label: $(label)")
+
         end
     end
 end
 
-function Makie.convert_arguments(::Type{<:EEG_TopoPlot}, data::AbstractVector{<: Real})
-    return (data, ["sensor $i" for i in 1:length(data)])
-end
+#function Makie.convert_arguments(::Type{<:EEG_TopoPlot}, data::AbstractVector{<:Real})
+#    return (data, labels2positions(labels))#
+
+    #
+#end
 
 function Makie.plot!(plot::EEG_TopoPlot)
+
     positions = lift(plot.labels, plot.positions) do labels, positions
+
         if positions isa Makie.Automatic
+            (!isnothing(labels) && labels != Makie.Automatic) || error("Either positions or labels (10/20-lookup) have to be specified")
+
             return labels2positions(labels)
         else
             # apply same conversion as for e.g. the scatter arguments
             return convert_arguments(Makie.PointBased(), positions)[1]
         end
     end
+    plot.labels = lift(plot.labels, plot.positions) do labels, positions
 
-    tplot = topoplot!(plot, Attributes(plot), plot.data, positions; labels=plot.labels)
+        if isnothing(labels) || labels isa Makie.Automatic
+                return ["sensor $i" for i in 1:length(positions)]
+        else
+            return labels
+        end
+    end
+
+    tplot = topoplot!(plot, Attributes(plot), plot.data, positions;)
     head = plot_or_defaults(to_value(plot.head), Attributes(), :head)
     if !isnothing(head)
         draw_ear_nose!(plot, tplot.geometry; head...)
