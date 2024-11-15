@@ -17,19 +17,22 @@ end
 Attributes:
 
 * `positions::Vector{<: Point} = Makie.automatic`: Can be calculated from label (channel) names. Currently, only 10/20 montage has default coordinates provided.
-* `labels::AbstractVector{<:AbstractString} = Makie.automatic`: Add custom labels, in case `label_text` is set to true. If `positions` is not specified, `labels` are used to look up the 10/20 coordinates.
+* `labels::AbstractVector{<:AbstractString} = Makie.automatic`: Add custom labels, when `label_text` is set to true. If `positions` is not specified, `labels` are used to look up the 10/20 coordinates.
 * `head = (color=:black, linewidth=3)`: draw the outline of the head. Set to nothing to not draw the head outline, otherwise set to a namedtuple that get passed down to the `line!` call that draws the shape.
 # Some attributes from topoplot are set to different defaults:
 * `label_scatter = true`
 * `contours = true`
 
 Otherwise the recipe just uses the [`topoplot`](@ref) defaults and passes through the attributes.
+
+!!! note
+    You MUST set `label_text=true` for labels to display.
 """
 eeg_topoplot
 
 @deprecate eeg_topoplot(data::AbstractVector{<:Real}, labels::Vector{<:AbstractString}) eeg_topoplot(data; labels)
 @deprecate eeg_topoplot!(fig, data::AbstractVector{<:Real}, labels::Vector{<:AbstractString}) eeg_topoplot!(fig, data; labels)
- 
+
 function draw_ear_nose!(parent, circle; kw...)
     # draw circle
     head_points = lift(circle) do circle
@@ -85,14 +88,14 @@ end
 
 #function Makie.convert_arguments(::Type{<:EEG_TopoPlot}, data::AbstractVector{<:Real})
 #    return (data, labels2positions(labels))#
-    
+
     #
 #end
 
 function Makie.plot!(plot::EEG_TopoPlot)
-    
+
     positions = lift(plot.labels, plot.positions) do labels, positions
-        
+
         if positions isa Makie.Automatic
             (!isnothing(labels) && labels != Makie.Automatic) || error("Either positions or labels (10/20-lookup) have to be specified")
 
@@ -102,16 +105,15 @@ function Makie.plot!(plot::EEG_TopoPlot)
             return convert_arguments(Makie.PointBased(), positions)[1]
         end
     end
-    labels = lift(plot.labels, plot.positions) do labels, positions
-        
+    plot.labels = lift(plot.labels, plot.positions) do labels, positions
+
         if isnothing(labels) || labels isa Makie.Automatic
                 return ["sensor $i" for i in 1:length(positions)]
         else
             return labels
         end
     end
-    plot.labels = labels
-    
+
     tplot = topoplot!(plot, Attributes(plot), plot.data, positions;)
     head = plot_or_defaults(to_value(plot.head), Attributes(), :head)
     if !isnothing(head)
