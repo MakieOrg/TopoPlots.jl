@@ -116,7 +116,7 @@ f = Figure()
 TopoPlots.topoplot(f[1,1],
     rand(10), rand(Point2f, 10),
     axis=(; aspect=DataAspect()),
-    plotfnc! = contourf!, plotfnc_kwargs_filter=[:colormap])
+    plotfnc! = contourf!, plotfnc_kwargs_names=[:colormap])
 
 TopoPlots.topoplot(f[1,2],
     rand(10), rand(Point2f, 10),

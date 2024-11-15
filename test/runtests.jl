@@ -186,9 +186,10 @@ end
 
 let
     data, positions = TopoPlots.example_data()
-    f, ax, pl = topoplot(1:10,positions[1:10];plotfnc! = contourf!,plotfnc_kwargs_filter=[:colormap])
+    f, ax, pl = topoplot(1:10,positions[1:10];plotfnc! = contourf!,plotfnc_kwargs_names=[:colormap])
+    @test_figure("test-contour-plotfnc!", f)
     f, ax, pl = topoplot(1:10,positions[1:10];plotfnc! = (args...;kwargs...)->heatmap!(args...;alpha=0.3,kwargs...))
-    #@test_figure("ClaughTochter", f)
+    @test_figure("test-heatmap-with-alphs-plotfnc!", f)
 end
 
 begin
