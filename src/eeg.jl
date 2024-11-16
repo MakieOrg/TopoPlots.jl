@@ -17,24 +17,22 @@ end
 Attributes:
 
 * `positions::Vector{<: Point} = Makie.automatic`: Can be calculated from label (channel) names. Currently, only 10/20 montage has default coordinates provided.
-* `labels::Vector{<: String} = Makie.automatic`: Add custom labels, in case `label_text` is set to true. If `positions` is not specified, `labels` are used to look up the 10/20 coordinates.
+* `labels::AbstractVector{<:AbstractString} = Makie.automatic`: Add custom labels, when `label_text` is set to true. If `positions` is not specified, `labels` are used to look up the 10/20 coordinates.
 * `head = (color=:black, linewidth=3)`: draw the outline of the head. Set to nothing to not draw the head outline, otherwise set to a namedtuple that get passed down to the `line!` call that draws the shape.
 # Some attributes from topoplot are set to different defaults:
 * `label_scatter = true`
 * `contours = true`
 
 Otherwise the recipe just uses the [`topoplot`](@ref) defaults and passes through the attributes.
+
+!!! note
+    You MUST set `label_text=true` for labels to display.
 """
 eeg_topoplot
- function eeg_topoplot(data,labels;kwargs...) 
-    @warn "labels as positional arguments have been deprecated. Please provide them as keyword arguments"
-    eeg_topoplot(data;labels=labels,kwargs...)
- end
- function eeg_topoplot!(fig, data,labels;kwargs...) 
-    @warn "labels as positional arguments have been deprecated. Please provide them as keyword arguments"
-    eeg_topoplot!(fig,data;labels=labels,kwargs...)
- end
- 
+
+@deprecate eeg_topoplot(data::AbstractVector{<:Real}, labels::Vector{<:AbstractString}) eeg_topoplot(data; labels)
+@deprecate eeg_topoplot!(fig, data::AbstractVector{<:Real}, labels::Vector{<:AbstractString}) eeg_topoplot!(fig, data; labels)
+
 function draw_ear_nose!(parent, circle; kw...)
     # draw circle
     head_points = lift(circle) do circle
@@ -82,39 +80,37 @@ function labels2positions(labels)
         if haskey(CHANNEL_TO_POSITION_10_20, key)
             return CHANNEL_TO_POSITION_10_20[key]
         else
-            error("Currently only 10_20 is supported. Found label: $(label)")
+            error("Currently only 10/20 is supported. Found label: $(label)")
         end
     end
 end
 
 #function Makie.convert_arguments(::Type{<:EEG_TopoPlot}, data::AbstractVector{<:Real})
 #    return (data, labels2positions(labels))#
-    
     #
 #end
 
 function Makie.plot!(plot::EEG_TopoPlot)
-    
+
     positions = lift(plot.labels, plot.positions) do labels, positions
-        
+
         if positions isa Makie.Automatic
-            @assert !isnothing(labels) && labels != Makie.Automatic "Either positions or labels (10/20-lookup) have to be specified"
+            (!isnothing(labels) && labels != Makie.Automatic) || error("Either positions or labels (10/20-lookup) have to be specified")
+
             return labels2positions(labels)
         else
             # apply same conversion as for e.g. the scatter arguments
             return convert_arguments(Makie.PointBased(), positions)[1]
         end
     end
-    labels = lift(plot.labels, plot.positions) do labels, positions
-        
+    plot.labels = lift(plot.labels, plot.positions) do labels, positions
+
         if isnothing(labels) || labels isa Makie.Automatic
                 return ["sensor $i" for i in 1:length(positions)]
         else
             return labels
         end
     end
-    plot.labels = labels
-    
     tplot = topoplot!(plot, Attributes(plot), plot.data, positions;)
     head = plot_or_defaults(to_value(plot.head), Attributes(), :head)
     if !isnothing(head)

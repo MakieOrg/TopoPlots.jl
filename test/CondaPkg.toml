@@ -2,7 +2,7 @@ channels = ["anaconda", "conda-forge"]
 
 [deps]
 matplotlib = ""
-python = ">=3.7,<4"
+python = ">=3.7, <3.13" # we get segaults on 3.13 on Apple Silicon
 scipy = ">=1.9"
 
 [pip.deps]
