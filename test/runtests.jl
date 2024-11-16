@@ -63,7 +63,7 @@ function compare_to_mne(data, positions; kw...)
     return f
 end
 
-begin
+@testset "interpolations" begin
     f = Makie.Figure(; resolution=(1000, 1000))
     interpolators = [DelaunayMesh(), CloughTocher(), SplineInterpolator()]
 
@@ -81,7 +81,7 @@ begin
     @test_figure("all-interpolations", f)
 end
 
-let
+@testset "ClaughTochter" begin
     f = Makie.Figure(; resolution=(1000, 1000))
     @test_deprecated interpolation = ClaughTochter()
 
@@ -90,14 +90,14 @@ let
     @test_figure("ClaughTochter", f)
 end
 
-begin # empty eeg topoplot
+@testset "null interpolator" begin # empty eeg topoplot
     f, ax, pl = TopoPlots.eeg_topoplot(1:length(TopoPlots.CHANNELS_10_20);
                                        labels=TopoPlots.CHANNELS_10_20,
                                        interpolation=TopoPlots.NullInterpolator(),)
     @test_figure("nullInterpolator", f)
 end
 
-begin
+@testset "Delaunay with Slider" begin
     f = Makie.Figure(; size=(1000, 1000))
     s = Makie.Slider(f[:, 1]; range=1:size(data, 2), startvalue=351)
     data_obs = map(s.value) do idx
@@ -113,7 +113,7 @@ begin
     @test_figure("delaunay-with-slider", f)
 end
 
-begin
+@testset "keyword customization" begin
     f, ax, pl = TopoPlots.topoplot(data[:, 340, 1], positions;
                                    axis=(; aspect=DataAspect()),
                                    colorrange=(-1, 1),
@@ -125,33 +125,26 @@ begin
     @test_figure("more-parameters", f)
 end
 
-begin
+@testset "compare to MNE" begin
+    data, positions = TopoPlots.example_data()
     f = compare_to_mne(data[:, 340, 1], positions)
     @test_figure("eeg-topoplot", f)
-end
 
-begin
-    labels = TopoPlots.CHANNELS_10_20
-    pos = TopoPlots.labels2positions(TopoPlots.CHANNELS_10_20)
-    f = compare_to_mne(data[1:19, 340, 1], pos)
-    @test_figure("eeg-topoplot2", f)
-end
+     labels = TopoPlots.CHANNELS_10_20
+     pos = TopoPlots.labels2positions(TopoPlots.CHANNELS_10_20)
+     f = compare_to_mne(data[1:19, 340, 1], pos)
+     @test_figure("eeg-topoplot2", f)
 
-begin
     f = compare_to_mne(data[:, 340, 1], positions)
     @test_figure("eeg-topoplot3", f)
-end
 
-begin
-    positions = Point2f[(-1, 0), (0, -1), (1, 0), (0, 1), (0, 0)]
-    posmat = hcat(first.(positions), last.(positions))
-    data = zeros(length(positions))
-    data[1] = 1.0
-    f = compare_to_mne(data, positions)
-    @test_figure("eeg-topoplot4", f)
-end
+     positions = Point2f[(-1, 0), (0, -1), (1, 0), (0, 1), (0, 0)]
+     posmat = hcat(first.(positions), last.(positions))
+     data = zeros(length(positions))
+     data[1] = 1.0
+     f = compare_to_mne(data, positions)
+     @test_figure("eeg-topoplot4", f)
 
-begin
     positions = Point2f[(-1, 0), (0, -1), (1, 0), (0, 1), (0, 0)]
     posmat = hcat(first.(positions), last.(positions))
     data = zeros(length(positions))
@@ -161,7 +154,7 @@ begin
     @test_figure("eeg-topoplot5", f)
 end
 
-begin
+@testset "extrapolation" begin
     data, positions = TopoPlots.example_data()
     extra = TopoPlots.GeomExtrapolation()
     pos_extra, data_extra, rect, rect_extended = extra(positions[1:19], data[1:19, 340, 1])
@@ -173,9 +166,7 @@ begin
     lines!(ax, rect)
     lines!(ax, rect_extended; color=:red)
     @test_figure("test-extrapolate-data", f)
-end
 
-begin
     data, positions = TopoPlots.example_data()
     extra = TopoPlots.GeomExtrapolation(; geometry=Circle)
     pos_extra, data_extra, rect, rect_extended = extra(positions[1:19], data[1:19, 340, 1])
@@ -189,7 +180,7 @@ begin
     @test_figure("test-extrapolate-data-circle", f)
 end
 
-let
+@testset "custom plotfnc" begin
     data, positions = TopoPlots.example_data()
     f, ax, pl = topoplot(1:10, positions[1:10]; (plotfnc!)=contourf!,
                          plotfnc_kwargs_names=[:colormap])
@@ -200,12 +191,12 @@ let
     @test_figure("test-heatmap-with-alphs-plotfnc!", f)
 end
 
-begin
+@testset "channel labels" begin
     f = TopoPlots.eeg_topoplot(1:10; labels=TopoPlots.CHANNELS_10_20[1:10], label_text=true)
     @test_figure("test-eeg-channel-labels", f)
 end
 
-let
+@testset "10/05 channel positions" begin
     pos = TopoPlots.labels2positions(TopoPlots.CHANNELS_10_20)
     pos10_05 = TopoPlots.labels2positions(TopoPlots.CHANNELS_10_05)
     @test pos[TopoPlots.CHANNELS_10_20 .== "t3"] ==
