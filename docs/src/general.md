@@ -124,5 +124,4 @@ TopoPlots.topoplot(f[1,2],
     plotfnc! = surface!) # surface can take all default kwargs similar to heatmap!
 
 f
-
 ```
