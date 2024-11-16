@@ -113,7 +113,7 @@ Positions for 10/05 channels.
 
 These are used for all channel locations, including the 10/20 subset.
 
-!!! warn
+!!! warning
     The 10/05 channel locations are "perfect" spherical locations based on
     https://github.com/sappelhoff/eeg_positions/, while
     the default 10/20 locations in MNE-Python are **not**.
@@ -145,7 +145,7 @@ Positions for 10/20 channels.
 
 See also [CHANNEL_TO_POSITION_10_05](@ref)
 
-!!! warn
+!!! warning
     This is deprecated and unused! The coordinates here differ slightly from the
     newer 10/05 coordinates now used in all plotting functions.
     The 10-05 channel locations are "perfect" spherical locations based on
