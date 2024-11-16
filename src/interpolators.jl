@@ -21,27 +21,27 @@ This is the default interpolator in MNE-Python.
     rescale::Bool = false
 end
 
-function (ct::CloughTocher)(
-        xrange::LinRange, yrange::LinRange,
-        positions::AbstractVector{<: Point{2}}, data::AbstractVector{<:Number};mask=nothing)
+function (ct::CloughTocher)(xrange::LinRange, yrange::LinRange,
+                            positions::AbstractVector{<:Point{2}},
+                            data::AbstractVector{<:Number}; mask=nothing)
+    posMat = Float64.(vcat([[p[1], p[2]] for p in positions]...))
+    interp = CloughTocher2DInterpolation.CloughTocher2DInterpolator(posMat, data;
+                                                                    tol=ct.tol,
+                                                                    maxiter=ct.maxiter,
+                                                                    rescale=ct.rescale)
 
-    	posMat = Float64.(vcat([[p[1],p[2]] for p in positions]...))
-        interp = CloughTocher2DInterpolation.CloughTocher2DInterpolator(posMat, data,tol=ct.tol, maxiter=ct.maxiter, rescale=ct.rescale)
-
-    out = fill(NaN,size(mask))
+    out = fill(NaN, size(mask))
 
     x = (xrange)' .* ones(length(yrange))
-	  y = ones(length(xrange))' .* (yrange)
+    y = ones(length(xrange))' .* (yrange)
 
-
-	icoords = hcat(x[:],y[:])'
+    icoords = hcat(x[:], y[:])'
     if isnothing(mask)
         out .= interp(icoords)
     else
-	    out[mask[:]] .= interp(icoords[:,mask[:]])
+        out[mask[:]] .= interp(icoords[:, mask[:]])
     end
     return out'
-
 end
 
 """
@@ -56,9 +56,9 @@ Uses [Dierckx.Spline2D](https://github.com/kbarbary/Dierckx.jl#2-d-splines) for 
     smoothing::Float64 = 0.5
 end
 
-function (sp::SplineInterpolator)(
-        xrange::LinRange, yrange::LinRange,
-        positions::AbstractVector{<:Point{2}}, data::AbstractVector{<:Number}; mask=nothing)
+function (sp::SplineInterpolator)(xrange::LinRange, yrange::LinRange,
+                                  positions::AbstractVector{<:Point{2}},
+                                  data::AbstractVector{<:Number}; mask=nothing)
     # calculate 2D spline (Dierckx)
     # get extrema and extend by 20%
     x, y = first.(positions), last.(positions)
@@ -70,7 +70,6 @@ function (sp::SplineInterpolator)(
     end
     return out
 end
-
 
 # TODO how to properly integrade delauny with the interpolation interface,
 # if the actualy interpolation happens inside the plotting framework (or even on the GPU for (W)GLMakie).
@@ -92,17 +91,15 @@ Really fast interpolation that happens on the GPU (for GLMakie), so optimal for 
 struct DelaunayMesh <: Interpolator
 end
 
-(::DelaunayMesh)(positions::AbstractVector{<: Point{2}}) = delaunay_mesh(positions)
+(::DelaunayMesh)(positions::AbstractVector{<:Point{2}}) = delaunay_mesh(positions)
 
-function delaunay_mesh(positions::AbstractVector{<: Point{2}})
-
+function delaunay_mesh(positions::AbstractVector{<:Point{2}})
     t = triangulate(positions) # triangulate them!   #
-    simp = Int.(collect(reshape(t._triangles,3,:)'))
+    simp = Int.(collect(reshape(t._triangles, 3, :)'))
     m = GeometryBasics.Mesh(Makie.to_vertices(positions), Makie.to_triangles(simp))
 
     return m
 end
-
 
 """
     ScatteredInterpolationMethod(InterpolationMethod)
@@ -114,9 +111,9 @@ E.g. ScatteredInterpolationMethod(Shepard(P=4))
     method::ScatteredInterpolation.InterpolationMethod = Shepard(4)
 end
 
-function (sim::ScatteredInterpolationMethod)(
-            xrange::LinRange, yrange::LinRange,
-            positions::AbstractVector{<:Point{2}}, data::AbstractVector{<:Number}; mask=nothing)
+function (sim::ScatteredInterpolationMethod)(xrange::LinRange, yrange::LinRange,
+                                             positions::AbstractVector{<:Point{2}},
+                                             data::AbstractVector{<:Number}; mask=nothing)
     n = length(xrange)
     X = repeat(xrange, n)[:]
     Y = repeat(yrange', n)[:]
@@ -130,7 +127,6 @@ function (sim::ScatteredInterpolationMethod)(
         gridded[.!mask] .= NaN
     end
     return gridded
-
 end
 
 """
@@ -180,30 +176,26 @@ function NaturalNeighboursMethod(method::NaturalNeighbours.AbstractInterpolator)
     return NaturalNeighboursMethod(; method)
 end
 
-function (alg::NaturalNeighboursMethod)(
-        xrange::AbstractRange, yrange::AbstractRange,
-        positions::AbstractVector{<:Point{2}}, 
-        data::AbstractVector{<:Number}; 
-        mask=nothing
-        )
+function (alg::NaturalNeighboursMethod)(xrange::AbstractRange, yrange::AbstractRange,
+                                        positions::AbstractVector{<:Point{2}},
+                                        data::AbstractVector{<:Number};
+                                        mask=nothing)
     @assert length(positions) == length(data) "Positions (length $(length(positions))) and data (length $(length(data))) must have the same length."
     # First, create the triangulated interpolator
-    interpolator = NaturalNeighbours.interpolate(
-        first.(positions), last.(positions), data; 
-        derivatives = true, method = alg.derivative_method, 
-        use_cubic_terms = alg.use_cubic_terms, alpha = alg.alpha,
-        parallel = alg.parallel,
-    )
+    interpolator = NaturalNeighbours.interpolate(first.(positions), last.(positions), data;
+                                                 derivatives=true,
+                                                 method=alg.derivative_method,
+                                                 use_cubic_terms=alg.use_cubic_terms,
+                                                 alpha=alg.alpha,
+                                                 parallel=alg.parallel,)
     # Then, interpolate the data at the grid points.
     nx, ny = length(xrange), length(yrange)
     x_values = vec([x for x in xrange, _ in yrange])
     y_values = vec([y for _ in xrange, y in yrange])
-    z_values = interpolator(
-        x_values, y_values; 
-        method = alg.method, 
-        parallel = alg.parallel,
-        project = alg.project, 
-    )
+    z_values = interpolator(x_values, y_values;
+                            method=alg.method,
+                            parallel=alg.parallel,
+                            project=alg.project,)
     # Reshape the data into a matrix.
     gridded = reshape(z_values, nx, ny)
     # Mask off if necessary.
@@ -219,11 +211,10 @@ end
 Interpolator that returns "0", which is useful to display only the electrode locations + labels
 """
 struct NullInterpolator <: TopoPlots.Interpolator
-
 end
 
-function (ni::NullInterpolator)(
-        xrange::LinRange, yrange::LinRange,
-        positions::AbstractVector{<:Point{2}}, data::AbstractVector{<:Number}; mask=nothing)
+function (ni::NullInterpolator)(xrange::LinRange, yrange::LinRange,
+                                positions::AbstractVector{<:Point{2}},
+                                data::AbstractVector{<:Number}; mask=nothing)
     return fill(NaN, length(xrange), length(yrange))
 end

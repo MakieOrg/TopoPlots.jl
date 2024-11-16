@@ -51,7 +51,8 @@ include("core-recipe.jl")
 include("eeg.jl")
 
 # Interpolators
-export CloughTocher, SplineInterpolator, DelaunayMesh, NullInterpolator, ScatteredInterpolationMethod, NaturalNeighboursMethod
+export CloughTocher, SplineInterpolator, DelaunayMesh, NullInterpolator,
+       ScatteredInterpolationMethod, NaturalNeighboursMethod
 @deprecate ClaughTochter(args...; kwargs...) CloughTocher(args...; kwargs...) true
 # Extrapolators
 export GeomExtrapolation, NullExtrapolation
@@ -63,8 +64,8 @@ export GeomExtrapolation, NullExtrapolation
     @compile_workload begin
         # all calls in this block will be precompiled, regardless of whether
         # they belong to your package or not (on Julia 1.8 and higher)
-       eeg_topoplot(view(data, :, 340, 1); positions)
-       eeg_topoplot(data[:, 340, 1]; positions)
+        eeg_topoplot(view(data, :, 340, 1); positions)
+        eeg_topoplot(data[:, 340, 1]; positions)
     end
 end
 
