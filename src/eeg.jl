@@ -65,7 +65,46 @@ function draw_ear_nose!(parent, circle; kw...)
 end
 
 
-const CHANNELS_10_05 = lowercase.(["AF1","AF10","AF10h","AF1h","AF2","AF2h","AF3","AF3h","AF4","AF4h","AF5","AF5h","AF6","AF6h","AF7","AF7h","AF8","AF8h","AF9","AF9h","AFF1","AFF10","AFF10h","AFF1h","AFF2","AFF2h","AFF3","AFF3h","AFF4","AFF4h","AFF5","AFF5h","AFF6","AFF6h","AFF7","AFF7h","AFF8","AFF8h","AFF9","AFF9h","AFFz","AFp1","AFp10","AFp10h","AFp1h","AFp2","AFp2h","AFp3","AFp3h","AFp4","AFp4h","AFp5","AFp5h","AFp6","AFp6h","AFp7","AFp7h","AFp8","AFp8h","AFp9","AFp9h","AFpz","AFz","C1","C1h","C2","C2h","C3","C3h","C4","C4h","C5","C5h","C6","C6h","CCP1","CCP1h","CCP2","CCP2h","CCP3","CCP3h","CCP4","CCP4h","CCP5","CCP5h","CCP6","CCP6h","CCPz","CP1","CP1h","CP2","CP2h","CP3","CP3h","CP4","CP4h","CP5","CP5h","CP6","CP6h","CPP1","CPP1h","CPP2","CPP2h","CPP3","CPP3h","CPP4","CPP4h","CPP5","CPP5h","CPP6","CPP6h","CPPz","CPz","Cz","F1","F10","F10h","F1h","F2","F2h","F3","F3h","F4","F4h","F5","F5h","F6","F6h","F7","F7h","F8","F8h","F9","F9h","FC1","FC1h","FC2","FC2h","FC3","FC3h","FC4","FC4h","FC5","FC5h","FC6","FC6h","FCC1","FCC1h","FCC2","FCC2h","FCC3","FCC3h","FCC4","FCC4h","FCC5","FCC5h","FCC6","FCC6h","FCCz","FCz","FFC1","FFC1h","FFC2","FFC2h","FFC3","FFC3h","FFC4","FFC4h","FFC5","FFC5h","FFC6","FFC6h","FFCz","FFT10","FFT10h","FFT7","FFT7h","FFT8","FFT8h","FFT9","FFT9h","FT10","FT10h","FT7","FT7h","FT8","FT8h","FT9","FT9h","FTT10","FTT10h","FTT7","FTT7h","FTT8","FTT8h","FTT9","FTT9h","Fp1","Fp1h","Fp2","Fp2h","Fpz","Fz","I1","I1h","I2","I2h","Iz","LPA","N1","N1h","N2","N2h","NAS","NFp1","NFp1h","NFp2","NFp2h","NFpz","Nz","O1","O1h","O2","O2h","OI1","OI1h","OI2","OI2h","OIz","Oz","P1","P10","P10h","P1h","P2","P2h","P3","P3h","P4","P4h","P5","P5h","P6","P6h","P7","P7h","P8","P8h","P9","P9h","PO1","PO10","PO10h","PO1h","PO2","PO2h","PO3","PO3h","PO4","PO4h","PO5","PO5h","PO6","PO6h","PO7","PO7h","PO8","PO8h","PO9","PO9h","POO1","POO10","POO10h","POO1h","POO2","POO2h","POO3","POO3h","POO4","POO4h","POO5","POO5h","POO6","POO6h","POO7","POO7h","POO8","POO8h","POO9","POO9h","POOz","POz","PPO1","PPO10","PPO10h","PPO1h","PPO2","PPO2h","PPO3","PPO3h","PPO4","PPO4h","PPO5","PPO5h","PPO6","PPO6h","PPO7","PPO7h","PPO8","PPO8h","PPO9","PPO9h","PPOz","Pz","RPA","T10","T10h","T7","T7h","T8","T8h","T9","T9h","TP10","TP10h","TP7","TP7h","TP8","TP8h","TP9","TP9h","TPP10","TPP10h","TPP7","TPP7h","TPP8","TPP8h","TPP9","TPP9h","TTP10","TTP10h","TTP7","TTP7h","TTP8","TTP8h","TTP9","TTP9h"])
+const CHANNELS_10_05 = ["af1","af10","af10h","af1h","af2","af2h","af3","af3h",
+                        "af4","af4h","af5","af5h","af6","af6h","af7","af7h","af8",
+                        "af8h","af9","af9h","aff1","aff10","aff10h","aff1h","aff2",
+                        "aff2h","aff3","aff3h","aff4","aff4h","aff5","aff5h","aff6",
+                        "aff6h","aff7","aff7h","aff8","aff8h","aff9","aff9h","affz",
+                        "afp1","afp10","afp10h","afp1h","afp2","afp2h","afp3","afp3h",
+                        "afp4","afp4h","afp5","afp5h","afp6","afp6h","afp7","afp7h",
+                        "afp8","afp8h","afp9","afp9h","afpz","afz","c1","c1h","c2",
+                        "c2h","c3","c3h","c4","c4h","c5","c5h","c6","c6h","ccp1",
+                        "ccp1h","ccp2","ccp2h","ccp3","ccp3h","ccp4","ccp4h","ccp5",
+                        "ccp5h","ccp6","ccp6h","ccpz","cp1","cp1h","cp2","cp2h","cp3",
+                        "cp3h","cp4","cp4h","cp5","cp5h","cp6","cp6h","cpp1","cpp1h",
+                        "cpp2","cpp2h","cpp3","cpp3h","cpp4","cpp4h","cpp5","cpp5h",
+                        "cpp6","cpp6h","cppz","cpz","cz","f1","f10","f10h","f1h",
+                        "f2","f2h","f3","f3h","f4","f4h","f5","f5h","f6","f6h",
+                        "f7","f7h","f8","f8h","f9","f9h","fc1","fc1h","fc2","fc2h",
+                        "fc3","fc3h","fc4","fc4h","fc5","fc5h","fc6","fc6h","fcc1",
+                        "fcc1h","fcc2","fcc2h","fcc3","fcc3h","fcc4","fcc4h","fcc5",
+                        "fcc5h","fcc6","fcc6h","fccz","fcz","ffc1","ffc1h","ffc2",
+                        "ffc2h","ffc3","ffc3h","ffc4","ffc4h","ffc5","ffc5h","ffc6",
+                        "ffc6h","ffcz","fft10","fft10h","fft7","fft7h","fft8","fft8h",
+                        "fft9","fft9h","ft10","ft10h","ft7","ft7h","ft8","ft8h","ft9",
+                        "ft9h","ftt10","ftt10h","ftt7","ftt7h","ftt8","ftt8h","ftt9",
+                        "ftt9h","fp1","fp1h","fp2","fp2h","fpz","fz","i1","i1h","i2",
+                        "i2h","iz","lpa","n1","n1h","n2","n2h","nas","nfp1","nfp1h",
+                        "nfp2","nfp2h","nfpz","nz","o1","o1h","o2","o2h","oi1","oi1h",
+                        "oi2","oi2h","oiz","oz","p1","p10","p10h","p1h","p2","p2h",
+                        "p3","p3h","p4","p4h","p5","p5h","p6","p6h","p7","p7h","p8",
+                        "p8h","p9","p9h","po1","po10","po10h","po1h","po2","po2h",
+                        "po3","po3h","po4","po4h","po5","po5h","po6","po6h","po7",
+                        "po7h","po8","po8h","po9","po9h","poo1","poo10","poo10h",
+                        "poo1h","poo2","poo2h","poo3","poo3h","poo4","poo4h","poo5",
+                        "poo5h","poo6","poo6h","poo7","poo7h","poo8","poo8h","poo9",
+                        "poo9h","pooz","poz","ppo1","ppo10","ppo10h","ppo1h","ppo2",
+                        "ppo2h","ppo3","ppo3h","ppo4","ppo4h","ppo5","ppo5h","ppo6",
+                        "ppo6h","ppo7","ppo7h","ppo8","ppo8h","ppo9","ppo9h","ppoz",
+                        "pz","rpa","t10","t10h","t7","t7h","t8","t8h","t9","t9h",
+                        "tp10","tp10h","tp7","tp7h","tp8","tp8h","tp9","tp9h","tpp10",
+                        "tpp10h","tpp7","tpp7h","tpp8","tpp8h","tpp9","tpp9h","ttp10",
+                        "ttp10h","ttp7","ttp7h","ttp8","ttp8h","ttp9","ttp9h"]
 
 const CHANNEL_TO_POSITION_10_05 = begin
  # We load this during precompilation, so that this gets stored as a global
