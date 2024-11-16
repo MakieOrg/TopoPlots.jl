@@ -106,8 +106,8 @@ const CHANNELS_10_05 = ["af1","af10","af10h","af1h","af2","af2h","af3","af3h",
                         "tpp10h","tpp7","tpp7h","tpp8","tpp8h","tpp9","tpp9h","ttp10",
                         "ttp10h","ttp7","ttp7h","ttp8","ttp8h","ttp9","ttp9h"]
 
-const CHANNEL_TO_POSITION_10_05 = begin
- # We load this during precompilation, so that this gets stored as a global
+const CHANNEL_TO_POSITION_10_05 = let
+    # We load this during precompilation, so that this gets stored as a global
     # that's immediately loaded when loading the package
     result = Matrix{Float64}(undef, 348, 2)
     read!(assetpath("layout_10_05.bin"), result)
@@ -117,8 +117,7 @@ const CHANNEL_TO_POSITION_10_05 = begin
     d["t4"] = d["t8"]
     d["t5"] = d["p7"]
     d["t6"] = d["p8"]
-     d
-
+    d
 end
 
 # even though these are not actively used, sometimes they can be helpful just to plot a default subset of channels. Therefore we havent deleted them yet (because 10_05 is a superset)
