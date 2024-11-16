@@ -23,7 +23,7 @@ jobs:
           - 'min'
         os:
           - ubuntu-latest
-          - macos-latest
+        #   - macos-latest # segfaults at the end of testing due to Python things
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
