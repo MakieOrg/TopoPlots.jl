@@ -15,7 +15,7 @@
         label_scatter = false,
         contours = false,
         plotfnc! = heatmap!,
-        plotfnc_kwargs_filter=  [:colorrange, :colormap, :interpolate],
+        plotfnc_kwargs_names=  [:colorrange, :colormap, :interpolate],
     )
 end
 
@@ -42,7 +42,7 @@ Creates an irregular interpolation for each `data[i]` point at `positions[i]`.
     * NamedTuple: Attributes get passed to the Makie.scatter! call.
 * `markersize = 5`: size of the points defined by positions, shortcut for label_scatter=(markersize=5,)
 * `plotfnc! = heatmap!`: function to use for plotting the interpolation
-* `plotfnc_kwargs_filter = [:colorrange, :colormap, :interpolate]`: different `plotfnc` support different kwargs, this array contains the keys to filter the full list which is [:colorrange, :colormap, :interpolate]
+* `plotfnc_kwargs_names = [:colorrange, :colormap, :interpolate]`: different `plotfnc` support different kwargs, this array contains the keys to filter the full list which is [:colorrange, :colormap, :interpolate]
 
 * `contours = false`:
     * true: add scatter point for each position
@@ -114,15 +114,15 @@ function Makie.plot!(p::TopoPlot)
             pts = Point2f.(xg' .* ones(length(yg)), ones(length(xg))' .* yg)
             return in.(pts, Ref(geometry))
         end
-        
+
         data = lift(p, p.interpolation, xg, yg, padded_pos_data_bb,mask) do interpolation, xg, yg, (points, data, _, _),mask
             z = interpolation(xg, yg, points, data;mask=mask)
 #            z[mask] .= NaN
             return z
         end
         kwargs_all = Dict(:colorrange => colorrange, :colormap => p.colormap, :interpolate => true)
-        
-        p.plotfnc![](p, xg, yg, data;  (p.plotfnc_kwargs_filter[].=>getindex.(Ref(kwargs_all),p.plotfnc_kwargs_filter[]))...)
+
+        p.plotfnc![](p, xg, yg, data;  (p.plotfnc_kwargs_names[].=>getindex.(Ref(kwargs_all),p.plotfnc_kwargs_names[]))...)
         contours = to_value(p.contours)
         attributes = @plot_or_defaults contours Attributes(color=(:black, 0.5), linestyle=:dot, levels=6)
         if !isnothing(attributes) && !(p.interpolation[] isa NullInterpolator)

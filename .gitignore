@@ -7,6 +7,6 @@
 test/test_images
 test/Manifest.toml
 docs/Manifest.toml
-docs/.CondaPkg
+.CondaPkg/
 docs/Manifest-v*.toml
 deps/build.log
