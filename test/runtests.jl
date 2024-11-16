@@ -130,20 +130,20 @@ end
     f = compare_to_mne(data[:, 340, 1], positions)
     @test_figure("eeg-topoplot", f)
 
-     labels = TopoPlots.CHANNELS_10_20
-     pos = TopoPlots.labels2positions(TopoPlots.CHANNELS_10_20)
-     f = compare_to_mne(data[1:19, 340, 1], pos)
-     @test_figure("eeg-topoplot2", f)
+    labels = TopoPlots.CHANNELS_10_20
+    pos = TopoPlots.labels2positions(TopoPlots.CHANNELS_10_20)
+    f = compare_to_mne(data[1:19, 340, 1], pos)
+    @test_figure("eeg-topoplot2", f)
 
     f = compare_to_mne(data[:, 340, 1], positions)
     @test_figure("eeg-topoplot3", f)
 
-     positions = Point2f[(-1, 0), (0, -1), (1, 0), (0, 1), (0, 0)]
-     posmat = hcat(first.(positions), last.(positions))
-     data = zeros(length(positions))
-     data[1] = 1.0
-     f = compare_to_mne(data, positions)
-     @test_figure("eeg-topoplot4", f)
+    positions = Point2f[(-1, 0), (0, -1), (1, 0), (0, 1), (0, 0)]
+    posmat = hcat(first.(positions), last.(positions))
+    data = zeros(length(positions))
+    data[1] = 1.0
+    f = compare_to_mne(data, positions)
+    @test_figure("eeg-topoplot4", f)
 
     positions = Point2f[(-1, 0), (0, -1), (1, 0), (0, 1), (0, 0)]
     posmat = hcat(first.(positions), last.(positions))
