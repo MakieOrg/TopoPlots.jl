@@ -41,7 +41,7 @@ f
 ```
 As visible in the left plot, the positions are normalized to the bounding geometry. The right plot shows the same data, but with Cz correctly centered.
 
-
+## Example data
 
 ```@docs
 TopoPlots.example_data
