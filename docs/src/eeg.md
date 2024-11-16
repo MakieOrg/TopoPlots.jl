@@ -29,7 +29,7 @@ TopoPlots.eeg_topoplot(data[:, 340, 1]; labels, label_text = true, positions=pos
 ## Subset of channels
 If you only ask to plot a subset of channels, we highly recommend to define your bounding geometry yourself. We follow MNE functionality and normalize the positions prior to interpolation / plotting. If you only use a subset of channels, the positions will be relative to eachother, not at absolute coordinates.
 
-```@example 1
+```@example general
 f = Figure()
 ax1 = f[1,1] = Axis(f;aspect=DataAspect())
 ax2 = f[1,2] = Axis(f;aspect=DataAspect())
