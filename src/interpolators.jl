@@ -71,8 +71,8 @@ function (sp::SplineInterpolator)(xrange::LinRange, yrange::LinRange,
     return out
 end
 
-# TODO how to properly integrade delauny with the interpolation interface,
-# if the actualy interpolation happens inside the plotting framework (or even on the GPU for (W)GLMakie).
+# TODO how to properly integrated delauny with the interpolation interface,
+# if the actually interpolation happens inside the plotting framework (or even on the GPU for (W)GLMakie).
 
 """
     DelaunayMesh()
@@ -139,7 +139,7 @@ a variety of methods like `Sibson(::Int)`, `Nearest()`, and `Triangle()`.
 
 The advantage of Voronoi-diagram based methods is that they are more robust to 
 irregularly distributed datasets and some discontinuities, which may throw off 
-some polynomial based methods as well as independant distance weighting (kriging). 
+some polynomial based methods as well as independent distance weighting (kriging). 
 See [this Discourse post](https://discourse.julialang.org/t/ann-naturalneighbours-jl-natural-neighbour-interpolation-and-derivative-generation/99164/11) for more information on why NaturalNeighbours are cool! 
 
 To access the methods easily, you should run `using NearestNeighbours`.

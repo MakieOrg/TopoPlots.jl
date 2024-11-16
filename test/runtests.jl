@@ -12,7 +12,7 @@ catch e
     # Now, Conda started making problems (in a fresh CI env?!) https://github.com/MakieOrg/TopoPlots.jl/pull/20#issuecomment-1224822002
     # So, lets go back to install matplotlib manually, and let mne install automatically!
     #run(PyCall.python_cmd(`-m pip install matplotlib`))#
-    error("to be adressed")
+    error("to be addressed")
 end
 
 using PyMNE
