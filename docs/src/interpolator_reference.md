@@ -16,8 +16,8 @@ interpolators = [
     SplineInterpolator() NullInterpolator() DelaunayMesh();
     CloughTocher() ScatteredInterpolationMethod(ThinPlate()) ScatteredInterpolationMethod(Shepard(3));
     ScatteredInterpolationMethod(Multiquadratic()) ScatteredInterpolationMethod(InverseMultiquadratic()) ScatteredInterpolationMethod(Gaussian());
-    # NaturalNeighboursMethod(Hiyoshi(2)) NaturalNeighboursMethod(Sibson()) NaturalNeighboursMethod(Laplace());
-    # NaturalNeighboursMethod(Farin()) NaturalNeighboursMethod(Sibson(1)) NaturalNeighboursMethod(Nearest());
+    NaturalNeighboursMethod(Hiyoshi(2)) NaturalNeighboursMethod(Sibson()) NaturalNeighboursMethod(Laplace());
+    NaturalNeighboursMethod(Farin()) NaturalNeighboursMethod(Sibson(1)) NaturalNeighboursMethod(Nearest());
     ]
 
 data_slice = data[:, 360, 1]
