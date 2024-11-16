@@ -25,6 +25,24 @@ labels = ["s$i" for i in 1:size(data, 1)]
 TopoPlots.eeg_topoplot(data[:, 340, 1]; labels, label_text = true, positions=positions, axis=(aspect=DataAspect(),))
 ```
 
+
+## Subset of channels
+If you only ask to plot a subset of channels, we highly recommend to define your bounding geometry yourself. We follow MNE functionality and normalize the positions prior to interpolation / plotting. If you only use a subset of channels, the positions will be relative to each other, not at absolute coordinates.
+
+```@example eeg
+f = Figure()
+ax1 = f[1,1] = Axis(f;aspect=DataAspect())
+ax2 = f[1,2] = Axis(f;aspect=DataAspect())
+kwlist = (;label_text=true,label_scatter=(markersize=10, strokewidth=2,color=:white))
+TopoPlots.eeg_topoplot!(ax1,[1,0.5,0]; labels=["Cz","Fz","Fp1"],kwlist...)
+TopoPlots.eeg_topoplot!(ax2,[1,0.5,05]; labels=["Cz","Fz","Fp1"], bounding_geometry=Circle(Point2f(0.5,0.5), 0.5),kwlist...)
+
+f
+```
+As visible in the left plot, the positions are normalized to the bounding geometry. The right plot shows the same data, but with Cz correctly centered.
+
+## Example data
+
 ```@docs
 TopoPlots.example_data
 ```
