@@ -8,6 +8,6 @@ TopoPlots.labels2positions
 ## Internal constants, functions and types
 
 ```docs
-TopoPlots.CHANNELS_10_05
-TopoPlots.CHANNELS_10_20
+TopoPlots.CHANNEL_TO_POSITION_10_05
+TopoPlots.CHANNEL_TO_POSITION_10_20
 ```
