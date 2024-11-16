@@ -106,6 +106,21 @@ const CHANNELS_10_05 = ["af1","af10","af10h","af1h","af2","af2h","af3","af3h",
                         "tpp10h","tpp7","tpp7h","tpp8","tpp8h","tpp9","tpp9h","ttp10",
                         "ttp10h","ttp7","ttp7h","ttp8","ttp8h","ttp9","ttp9h"]
 
+"""
+    CHANNEL_TO_POSITION_10_05
+
+Positions for 10/05 channels.
+
+These are used for all channel locations, including the 10/20 subset.
+
+!!! warn
+    The 10/05 channel locations are "perfect" spherical locations based on
+    https://github.com/sappelhoff/eeg_positions/, while
+    the default 10/20 locations in MNE-Python are **not**.
+    The coordinates here are better for visualization, while the MNE provided
+    coordinates, which were warped to a fsaverage head are better for source
+    localization.
+"""
 const CHANNEL_TO_POSITION_10_05 = let
     # We load this during precompilation, so that this gets stored as a global
     # that's immediately loaded when loading the package
@@ -123,7 +138,23 @@ end
 # even though these are not actively used, sometimes they can be helpful just to plot a default subset of channels. Therefore we havent deleted them yet (because 10_05 is a superset)
 const CHANNELS_10_20 = ["fp1", "f3", "c3", "p3", "o1", "f7", "t3", "t5", "fz", "cz", "pz", "fp2", "f4", "c4", "p4", "o2", "f8", "t4", "t6"]
 
-#=const CHANNEL_TO_POSITION_10_20 = begin
+"""
+    CHANNEL_TO_POSITION_10_20
+
+Positions for 10/20 channels.
+
+See also [CHANNEL_TO_POSITION_10_05](@ref)
+
+!!! warn
+    This is deprecated and unused! The coordinates here differ slightly from the
+    newer 10/05 coordinates now used in all plotting functions.
+    The 10-05 channel locations are "perfect" spherical locations based on
+    https://github.com/sappelhoff/eeg_positions/, while
+    the default 10/20 locations in MNE-Python are **not**.
+    The MNE locations were warped to a fsaverage head, which is better for source
+    localization but worse for visualization.
+"""
+const CHANNEL_TO_POSITION_10_20 = let
     # We load this during precompilation, so that this gets stored as a global
     # that's immediately loaded when loading the package
     result = Matrix{Float64}(undef, 19, 2)
@@ -131,7 +162,6 @@ const CHANNELS_10_20 = ["fp1", "f3", "c3", "p3", "o1", "f7", "t3", "t5", "fz", "
     positions = Point2f.(result[:, 1], result[:, 2])
     Dict{String,Point2f}(zip(CHANNELS_10_20, positions))
 end
-=#
 
 """
     labels2positions(labels)
