@@ -1,0 +1,25 @@
+{
+    "access_right": "open",
+    "license": "MIT",
+    "title": "MakieOrg/TopoPlots.jl",
+    "description": "A Julia package using Makie to generate topographical plots",
+    "upload_type": "software",
+    "creators": [
+
+        {
+            "affiliation": "MakieOrg",
+            "name": "Danisch, Simon",
+            "orcid": "0000-0001-8834-6644"
+        },
+        {
+            "affiliation": "University of Stuttgart",
+            "name": "Ehinger, Benedikt",
+            "orcid": "0000-0002-6276-3332"
+        },
+        {
+            "affiliation": "Beacon Biosignals",
+            "name": "Alday, Phillip M.",
+            "orcid": "0000-0002-9984-5745"
+        }
+    ]
+}
