@@ -1,0 +1,3 @@
+[default.extend-words]
+# don't current this name
+Shepard = "Shepard"

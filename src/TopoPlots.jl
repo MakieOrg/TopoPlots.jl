@@ -24,7 +24,7 @@ Load EEG example data.
 
 Returns a two-tuple:
   - data: a (64, 400, 3) Float32 array of channel x timepoint x stat array.
-    Timepoints correponds to samples at 500Hz from -0.3s to 0.5s relative to stimulus onset.
+    Timepoints corresponds to samples at 500Hz from -0.3s to 0.5s relative to stimulus onset.
     Stats are mean over subjects, standard errors over subjects, and associated p-value from a t-test.
     For demonstration purposes, the first stat dimension is generally the most applicable.
   - positions: a length-64 Point2f vector of positions for each channel in data.
@@ -51,7 +51,8 @@ include("core-recipe.jl")
 include("eeg.jl")
 
 # Interpolators
-export CloughTocher, SplineInterpolator, DelaunayMesh, NullInterpolator, ScatteredInterpolationMethod, NaturalNeighboursMethod
+export CloughTocher, SplineInterpolator, DelaunayMesh, NullInterpolator,
+       ScatteredInterpolationMethod, NaturalNeighboursMethod
 @deprecate ClaughTochter(args...; kwargs...) CloughTocher(args...; kwargs...) true
 # Extrapolators
 export GeomExtrapolation, NullExtrapolation
@@ -63,8 +64,8 @@ export GeomExtrapolation, NullExtrapolation
     @compile_workload begin
         # all calls in this block will be precompiled, regardless of whether
         # they belong to your package or not (on Julia 1.8 and higher)
-       eeg_topoplot(view(data, :, 340, 1); positions)
-       eeg_topoplot(data[:, 340, 1]; positions)
+        eeg_topoplot(view(data, :, 340, 1); positions)
+        eeg_topoplot(data[:, 340, 1]; positions)
     end
 end
 

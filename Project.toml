@@ -31,10 +31,11 @@ PrecompileTools = "1"
 ScatteredInterpolation = "0.3.6"
 Statistics = "1"
 Test = "1"
-julia = "1.6"
+julia = "1.10"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
+# See test/Project.toml!!
 [targets]
 test = ["Test"]

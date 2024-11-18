@@ -7,7 +7,7 @@ The Geometry can be enlarged by 1.x, so e.g. `enclosing_geometry(Circle, positio
 """
 function enclosing_geometry(::Type{Circle}, positions, enlarge=1.0)
     middle = mean(positions)
-    radius, idx = findmax(x-> norm(x .- middle), positions)
+    radius, idx = findmax(x -> norm(x .- middle), positions)
     return Circle(middle, radius * enlarge)
 end
 
@@ -26,12 +26,11 @@ function enclosing_geometry(geometry::GeometryPrimitive, positions, enlarge=1.0)
 end
 
 function enclosing_geometry(type, positions, enlarge=1.0)
-    error("Wrong type for `bounding_geometry`: $(type)")
+    return error("Wrong type for `bounding_geometry`: $(type)")
 end
 
 points2mat(points) = vcat(first.(points)', last.(points)')
 mat2points(mat) = Point2f.(view(mat, 1, :), view(mat, 2, :))
-
 
 """
     GeomExtrapolation(
