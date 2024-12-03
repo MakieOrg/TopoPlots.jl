@@ -4,7 +4,7 @@
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://MakieOrg.github.io/TopoPlots.jl/dev)
 [![Build Status](https://github.com/MakieOrg/TopoPlots.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/MakieOrg/TopoPlots.jl/actions/workflows/CI.yml?query=branch%3Amaster)
 [![Coverage](https://codecov.io/gh/MakieOrg/TopoPlots.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/MakieOrg/TopoPlots.jl)
-
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14179492.svg)](https://doi.org/10.5281/zenodo.14179492)
 
 A package for creating topoplots from data that were measured on arbitrarily positioned sensors.
 
