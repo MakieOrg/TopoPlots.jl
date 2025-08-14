@@ -1,8 +1,11 @@
-using Test
 using Aqua
+using CairoMakie
+using FileIO
+using LinearAlgebra
 using PythonCall
+using Statistics
+using Test
 using TopoPlots
-using LinearAlgebra, Statistics, CairoMakie, FileIO
 try
     matplotlib = PythonCall.pyimport("matplotlib")
 
@@ -22,7 +25,7 @@ PythonPlot.pygui(false)
 include("percy.jl")
 
 @testset "Aqua" begin
-    Aqua.test_all(TopoPlots; ambiguities=false)
+    Aqua.test_all(TopoPlots; ambiguities=false, persistent_tasks=false)
 end
 
 data, positions = TopoPlots.example_data()
