@@ -71,33 +71,24 @@ end
 
 function Makie.plot!(p::TopoPlot)
     Obs(x) = Observable(x; ignore_equal_values=true) # we almost never want to trigger updates if value stay the same
-    npositions = Obs(0)
 
     # positions changes with with data together since it gets into convert_arguments
-    positions = lift(identity, p, p.positions; ignore_equal_values=true)
-    geometry = lift(enclosing_geometry, p, p.bounding_geometry, positions, p.enlarge;
-                    ignore_equal_values=true)
 
-    xg = Obs(LinRange(0.0f0, 1.0f0, p.interp_resolution[][1]))
-    yg = Obs(LinRange(0.0f0, 1.0f0, p.interp_resolution[][2]))
+    @debug p.attributes
+    map!(enclosing_geometry, p.attributes, [:bounding_geometry, :positions, :enlarge],
+         :geometry)
 
-    f = onany(p, geometry, p.interp_resolution) do geometry, interp_resolution
-        (xmin, ymin), (xmax, ymax) = extrema(geometry)
-        xg[] = LinRange(xmin, xmax, interp_resolution[1])
-        yg[] = LinRange(ymin, ymax, interp_resolution[2])
-        return
+    map!(p.attributes, [:geometry, :interp_resolution], [:xg, :yg]) do geom, intp
+        (xmin, ymin), (xmax, ymax) = extrema(geom)
+        return LinRange(xmin, xmax, intp[1]), LinRange(ymin, ymax, intp[2])
     end
 
-    notify(p.interp_resolution) # trigger above (we really need `update=true` for onany)
-
-    p.geometry = geometry # store geometry in plot object, so others can access it
-
-    padded_pos_data_bb = lift(p, p.extrapolation, p.positions,
-                              p.data) do extrapolation, positions, data
-        return extrapolation(positions, data)
+    map!(p.attributes, [:extrapolation, :positions, :data],
+         :padded_pos_data_bb) do ext, pos, dat
+        return ext(pos, dat)
     end
 
-    colorrange = lift(p, p.data, p.colorrange) do data, crange
+    map!(p.attributes, [:data, :colorrange], :_colorrange) do data, crange
         if crange isa Makie.Automatic
             return Makie.extrema_nan(data)
         else
@@ -107,50 +98,60 @@ function Makie.plot!(p::TopoPlot)
 
     if p.interpolation[] isa DelaunayMesh
         # TODO, delaunay works very differently from the other interpolators, so we can't switch interactively between them
-        m = lift(delaunay_mesh, p, p.positions)
-        mesh!(p, m; color=p.data, colorrange=colorrange, colormap=p.colormap,
+        map!(delaunay_mesh, p.attributes, :positions, :delaunay_mesh)
+
+        mesh!(p, p.delaunay_mesh; color=p.data, colorrange=p.colorrange,
+              colormap=p.colormap,
               shading=NoShading)
     else
-        mask = lift(p, xg, yg, geometry) do xg, yg, geometry
+        map!(p.attributes, [:xg, :yg, :geometry], :mask) do xg, yg, geometry
             pts = Point2f.(xg' .* ones(length(yg)), ones(length(xg))' .* yg)
             return in.(pts, Ref(geometry))
         end
-
-        data = lift(p, p.interpolation, xg, yg, padded_pos_data_bb,
-                    mask) do interpolation, xg, yg, (points, data, _, _), mask
+        map!(p.attributes, [:interpolation, :xg, :yg, :padded_pos_data_bb, :mask],
+             :data_interpolated) do interpolation, xg, yg, (points, data, _, _), mask
             z = interpolation(xg, yg, points, data; mask=mask)
             #            z[mask] .= NaN
             return z
         end
-        kwargs_all = Dict(:colorrange => colorrange, :colormap => p.colormap,
-                          :interpolate => true)
 
-        p.plotfnc![](p, xg, yg, data;
-                     (p.plotfnc_kwargs_names[] .=>
-                          getindex.(Ref(kwargs_all), p.plotfnc_kwargs_names[]))...)
-        contours = to_value(p.contours)
-        attributes = @plot_or_defaults contours Attributes(color=(:black, 0.5),
-                                                           linestyle=:dot, levels=6)
-        if !isnothing(attributes) && !(p.interpolation[] isa NullInterpolator)
-            contour!(p, xg, yg, data; attributes...)
+        p.plotfnc![](p, p.attributes, p.xg, p.yg, p.data_interpolated;)#(p.plotfnc_kwargs_names[] .=>
+        #    getindex.(Ref(kwargs_all), p.plotfnc_kwargs_names[]))...)
+
+        contourdefaults = (; color=(:black, 0.5), linestyle=:dot, levels=6)
+
+        if p.interpolation isa NullInterpolator || p.contours[] == false
+        else
+            apply_defaults!(p, :contours, :contour_attributes, contourdefaults)
+            contour!(p, p.contour_attributes[], p.xg, p.yg, p.data_interpolated;)
         end
     end
-    label_scatter = to_value(p.label_scatter)
-    attributes = @plot_or_defaults label_scatter Attributes(markersize=p.markersize,
-                                                            color=p.data,
-                                                            colormap=p.colormap,
-                                                            colorrange=colorrange,
-                                                            strokecolor=:black,
-                                                            strokewidth=1)
-    if !isnothing(attributes)
-        scatter!(p, p.positions; attributes...)
+
+    map!(p.attributes, [:label_scatter, :markersize, :data, :colormap, :colorrange],
+         :labelscatter_attributes) do label_scatter, markersize, data, colormap, colorrange
+        attr = (; strokecolor=:black, strokewidth=1, color=data,
+                colormap=colormap, colorrange=colorrange, markersize=markersize)
+        if !(label_scatter isa Bool)
+            attr = merge(attr, label_scatter)
+        end
+        return Attributes(attr)
     end
+
+    scatter!(p, p.labelscatter_attributes[], p.positions)
+
     if !isnothing(p.labels[])
-        label_text = to_value(p.label_text)
-        attributes = @plot_or_defaults label_text Attributes(align=(:right, :top))
-        if !isnothing(attributes)
-            text!(p, p.positions; text=p.labels, attributes...)
-        end
+        labeldefaults = (; align=(:right, :top))
+        apply_defaults!(p, :label_text, :label_attributes, labeldefaults)
+
+        text!(p, p.label_attributes[], p.positions; text=p.labels)
     end
+
     return
+end
+function apply_defaults!(p, inp, outp, defaults)
+    map!(p.attributes, inp, outp) do inp
+        return inp isa Bool ? Attributes(defaults) :
+               Attributes(merge(defaults, inp))
+    end
+    #                                                        linestyle=:dot, levels=6)
 end
