@@ -185,7 +185,7 @@ end
 
 @testset "custom plotfnc" begin
     data, positions = TopoPlots.example_data()
-    f, ax, pl = topoplot(1:10, positions[1:10]; (plotfnc!)=contourf!,
+    f, ax, pl = topoplot(1:10, positions[1:10]; (plotfnc!)=(contourf!),
                          plotfnc_kwargs_names=[:colormap])
     @test_figure("test-contour-plotfnc!", f)
     f, ax, pl = topoplot(1:10, positions[1:10];

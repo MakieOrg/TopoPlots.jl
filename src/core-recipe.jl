@@ -13,7 +13,7 @@
                       label_text=false,
                       label_scatter=false,
                       contours=false,
-                      (plotfnc!)=heatmap!,
+                      (plotfnc!)=(heatmap!),
                       plotfnc_kwargs_names=[:colorrange, :colormap, :interpolate])
 end
 
