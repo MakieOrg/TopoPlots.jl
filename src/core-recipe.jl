@@ -155,3 +155,6 @@ function apply_defaults!(p, inp, outp, defaults)
     end
     #                                                        linestyle=:dot, levels=6)
 end
+
+# We return the colormap of the heatmap, ignoring the contour, text & scatter plots
+Makie.extract_colormap(plot::TopoPlot) = Makie.extract_colormap(plot.plots[1])
