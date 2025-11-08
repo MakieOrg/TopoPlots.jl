@@ -1,7 +1,7 @@
 name = "TopoPlots"
 uuid = "2bdbdf9c-dbd8-403f-947b-1a4e0dd41a7a"
+version = "0.2.4"
 authors = ["Benedikt Ehinger", "Simon Danisch", "Beacon Biosignals, Inc."]
-version = "0.2.3"
 
 [deps]
 CloughTocher2DInterpolation = "b70b374f-000b-463f-88dc-37030f004bd0"
@@ -29,7 +29,7 @@ GeometryBasics = "0.4, 0.5"
 ImageIO = "0.6"
 InteractiveUtils = "1"
 LinearAlgebra = "1"
-Makie = "0.17.8, 0.18, 0.19, 0.20, 0.21, 0.22, 0.23"
+Makie = "0.17.8, 0.18, 0.19, 0.20, 0.21, 0.22, 0.23, 0.24"
 NaturalNeighbours = "1"
 Parameters = "0.12"
 PrecompileTools = "1"
