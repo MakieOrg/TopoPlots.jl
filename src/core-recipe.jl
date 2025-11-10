@@ -154,3 +154,6 @@ function Makie.plot!(p::TopoPlot)
     end
     return
 end
+
+# Use plot_fcn colormap, but not contour, text or scatter
+Makie.extract_colormap(plot::TopoPlot) = Makie.extract_colormap(plot.plots[1])
