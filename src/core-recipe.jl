@@ -155,3 +155,6 @@ function apply_defaults!(p, inp, outp, defaults)
     end
     #                                                        linestyle=:dot, levels=6)
 end
+
+# Use plot_fcn colormap, but not contour, text or scatter
+Makie.extract_colormap(plot::TopoPlot) = Makie.extract_colormap(plot.plots[1])

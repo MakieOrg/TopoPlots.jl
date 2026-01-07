@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Actions Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Check spelling
-        uses: crate-ci/typos@83157de2df0fa7c7ae20f73f9dbed44c41f2bb64 # v1.38.0
+        uses: crate-ci/typos@626c4bedb751ce0b7f03262ca97ddda9a076ae1c # v1.39.2
         with:
             config: _typos.toml
             write_changes: true

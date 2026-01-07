@@ -25,7 +25,7 @@ Load EEG example data.
 Returns a two-tuple:
   - data: a (64, 400, 3) Float32 array of channel x timepoint x stat array.
     Timepoints corresponds to samples at 500Hz from -0.3s to 0.5s relative to stimulus onset.
-    Stats are mean over subjects, standard errors over subjects, and associated p-value from a t-test.
+    Stats are mean over subjects, standard deviation over subjects, and associated p-value from a t-test.
     For demonstration purposes, the first stat dimension is generally the most applicable.
   - positions: a length-64 Point2f vector of positions for each channel in data.
 
