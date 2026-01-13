@@ -74,7 +74,7 @@ function Makie.plot!(p::TopoPlot)
 
     # positions changes with with data together since it gets into convert_arguments
 
-    @debug p.attributes
+    @debug "Plot attributes" p.attributes
     map!(enclosing_geometry, p.attributes, [:bounding_geometry, :positions, :enlarge],
          :geometry)
 
