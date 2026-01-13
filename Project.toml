@@ -35,7 +35,6 @@ Parameters = "0.12"
 PrecompileTools = "1"
 PyMNE = "0.2"
 PythonCall = "0.9"
-PythonPlot = "1"
 ScatteredInterpolation = "0.3.6"
 StaticArrays = "1"
 Statistics = "1"
@@ -50,9 +49,8 @@ FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 ImageIO = "82e4d734-157c-48bb-816b-45c225c6df19"
 PyMNE = "6c5003b2-cbe8-491c-a0d1-70088e6a0fd6"
 PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
-PythonPlot = "274fc56d-3b97-40fa-a1cd-1b4a50311bf9"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "CairoMakie", "CondaPkg", "FileIO", "ImageIO", "PyMNE", "PythonCall", "PythonPlot", "StaticArrays", "Test"]
+test = ["Aqua", "CairoMakie", "CondaPkg", "FileIO", "ImageIO", "PythonCall", "PyMNE", "StaticArrays", "Test"]

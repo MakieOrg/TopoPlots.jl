@@ -2,25 +2,14 @@ using Aqua
 using CairoMakie
 using FileIO
 using LinearAlgebra
-using PythonCall
 using Statistics
 using Test
 using TopoPlots
-try
-    matplotlib = PythonCall.pyimport("matplotlib")
 
-catch e
-    # I tried adding Conda for PyPlot, which then installs matplotlib automatically.
-    # It looks like this messed with mne, so that then needed manual installation...
-    # Now, Conda started making problems (in a fresh CI env?!) https://github.com/MakieOrg/TopoPlots.jl/pull/20#issuecomment-1224822002
-    # So, lets go back to install matplotlib manually, and let mne install automatically!
-    #run(PyCall.python_cmd(`-m pip install matplotlib`))#
-    error("to be addressed")
-end
-
+using PythonCall
 using PyMNE
-using PythonPlot
-PythonPlot.pygui(false)
+pyimport("matplotlib").use("Agg")
+const pyplot = pyimport("matplotlib.pyplot")
 
 include("percy.jl")
 
@@ -39,11 +28,11 @@ function mne_topoplot(fig, data, positions)
     end
     x, y = first.(positions_normed), last.(positions_normed)
     posmat = hcat(x, y)
-    f = PythonPlot.figure()
+    f = pyplot.figure()
     PyMNE.viz.plot_topomap(data, Py(posmat).to_numpy(); sphere=1.1, extrapolate="box",
                            cmap="RdBu_r", sensors=false, contours=6)
-    PythonPlot.scatter(x, y; c=data, cmap="RdBu_r")
-    PythonPlot.savefig("pymne_plot.png"; bbox_inches="tight", pad_inches=0, dpi=200)
+    pyplot.scatter(x, y; c=data, cmap="RdBu_r")
+    pyplot.savefig("pymne_plot.png"; bbox_inches="tight", pad_inches=0, dpi=200)
     img = load("pymne_plot.png")
     rm("pymne_plot.png")
     s = Axis(fig; aspect=DataAspect())
