@@ -116,7 +116,6 @@ function Makie.plot!(p::TopoPlot)
         end
 
         p.plotfnc![](p, p.attributes, p.xg, p.yg, p.data_interpolated;)#(p.plotfnc_kwargs_names[] .=>
-        #    getindex.(Ref(kwargs_all), p.plotfnc_kwargs_names[]))...)
 
         contourdefaults = (; color=(:black, 0.5), linestyle=:dot, levels=6)
 
