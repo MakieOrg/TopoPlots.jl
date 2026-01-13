@@ -1,7 +1,7 @@
 name = "TopoPlots"
 uuid = "2bdbdf9c-dbd8-403f-947b-1a4e0dd41a7a"
 authors = ["Benedikt Ehinger", "Simon Danisch", "Beacon Biosignals, Inc."]
-version = "0.2.4"
+version = "0.2.5"
 
 [deps]
 CloughTocher2DInterpolation = "b70b374f-000b-463f-88dc-37030f004bd0"
