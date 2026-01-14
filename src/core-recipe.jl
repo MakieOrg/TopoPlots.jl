@@ -40,10 +40,8 @@ Creates an irregular interpolation for each `data[i]` point at `positions[i]`.
     * NamedTuple: Attributes get passed to the Makie.scatter! call.
 * `markersize = 5`: size of the points defined by positions, shortcut for label_scatter=(markersize=5,)
 * `plotfnc! = heatmap!`: function to use for plotting the interpolation
-* `plotfnc_kwargs_names = [:colorrange, :colormap, :interpolate]`: different `plotfnc` support different kwargs, this array contains the keys to filter the full list which is [:colorrange, :colormap, :interpolate]
-
 * `contours = false`:
-    * true: add scatter point for each position
+    * true: adds contour-lines with default attributes
     * NamedTuple: Attributes get passed to the Makie.contour! call.
 
 # Example
@@ -54,20 +52,6 @@ topoplot(rand(10), rand(Point2f, 10); contours=(color=:red, linewidth=2))
 ```
 """
 topoplot
-
-# Handle the nothing/bool/attribute situation for e.g. contours/label_scatter
-plot_or_defaults(value::Bool, defaults, name) = value ? defaults : nothing
-plot_or_defaults(value::Attributes, defaults, name) = merge(value, defaults)
-
-function plot_or_defaults(value, defaults, name)
-    return error("Attribute $(name) has the wrong type: $(typeof(value)).
-                 Use either a bool to enable/disable plotting with default attributes,
-                 or a NamedTuple with attributes getting passed down to the plot command.")
-end
-
-macro plot_or_defaults(var, defaults)
-    return :(plot_or_defaults($(esc(var)), $(esc(defaults)), $(QuoteNode(var))))
-end
 
 function Makie.plot!(p::TopoPlot)
     Obs(x) = Observable(x; ignore_equal_values=true) # we almost never want to trigger updates if value stay the same
@@ -126,19 +110,14 @@ function Makie.plot!(p::TopoPlot)
         end
     end
 
-    map!(p.attributes, [:label_scatter, :markersize, :data, :colormap, :colorrange],
-         :labelscatter_attributes) do label_scatter, markersize, data, colormap, colorrange
-        attr = (; strokecolor=:black, strokewidth=1, color=data,
-                colormap=colormap, colorrange=colorrange, markersize=markersize)
-        if !(label_scatter isa Bool)
-            attr = merge(attr, label_scatter)
-        end
-        return Attributes(attr)
+    if p.label_scatter[] !== false
+        scatterdefaults = (; strokecolor=:black, strokewidth=1, colormap=p.colormap,
+                           colorrange=p.colorrange, markersize=p.markersize)
+        apply_defaults!(p, :label_scatter, :labelscatter_attributes, scatterdefaults)
+        scatter!(p, p.labelscatter_attributes[], p.positions; color=p.data)
     end
 
-    scatter!(p, p.labelscatter_attributes[], p.positions)
-
-    if !isnothing(p.labels[])
+    if p.labels[] !== nothing && p.label_text[] !== false
         labeldefaults = (; align=(:right, :top))
         apply_defaults!(p, :label_text, :label_attributes, labeldefaults)
 
