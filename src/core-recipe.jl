@@ -32,12 +32,12 @@ Creates an irregular interpolation for each `data[i]` point at `positions[i]`.
 * `bounding_geometry = Circle`: A geometry that defines what to mask and the x/y extend of the interpolation. E.g. `Rect(0, 0, 100, 200)`, will create a `heatmap(0..100, 0..200, ...)`. By default, a circle enclosing the `positions` points will be used.
 * `enlarge` = 1.2`, enlarges the area that is being drawn. E.g., if `bounding_geometry` is `Circle`, a circle will be fitted to the points and the interpolation area that gets drawn will be 1.2x that bounding circle.
 * `interp_resolution = (512, 512)`: resolution of the interpolation
-* `label_text = false`:
-    * true: add text plot for each position from `labels`
-    * NamedTuple: Attributes get passed to the Makie.text! call.
 * `label_scatter = false`:
-    * true: add point for each position with default attributes
+    * true: add point for each position
     * NamedTuple: Attributes get passed to the Makie.scatter! call.
+* `label_text = false`:
+    * true: add text plot for each position taken from `labels`
+    * NamedTuple: Attributes get passed to the Makie.text! call.
 * `markersize = 5`: size of the points defined by positions, shortcut for label_scatter=(markersize=5,)
 * `plotfnc! = heatmap!`: function to use for plotting the interpolation
 * `contours = false`:
@@ -101,15 +101,15 @@ function Makie.plot!(p::TopoPlot)
 
         p.plotfnc![](p, p.attributes, p.xg, p.yg, p.data_interpolated;)#(p.plotfnc_kwargs_names[] .=>
 
-        contourdefaults = (; color=(:black, 0.5), linestyle=:dot, levels=6)
-
-        if p.interpolation isa NullInterpolator || p.contours[] == false
-        else
+        # we can only do contour plot DelaunayMesh is not used, as there is no explicit interpolation to base contour on
+        if !(p.interpolation isa NullInterpolator) && p.contours[] !== false
+            contourdefaults = (; color=(:black, 0.5), linestyle=:dot, levels=6)
             apply_defaults!(p, :contours, :contour_attributes, contourdefaults)
             contour!(p, p.contour_attributes[], p.xg, p.yg, p.data_interpolated;)
         end
     end
 
+    # plot a scatter plot at each position?
     if p.label_scatter[] !== false
         scatterdefaults = (; strokecolor=:black, strokewidth=1, colormap=p.colormap,
                            colorrange=p.colorrange, markersize=p.markersize)
@@ -117,10 +117,10 @@ function Makie.plot!(p::TopoPlot)
         scatter!(p, p.labelscatter_attributes[], p.positions; color=p.data)
     end
 
+    # plot the label at each position?
     if p.labels[] !== nothing && p.label_text[] !== false
         labeldefaults = (; align=(:right, :top))
         apply_defaults!(p, :label_text, :label_attributes, labeldefaults)
-
         text!(p, p.label_attributes[], p.positions; text=p.labels)
     end
 
