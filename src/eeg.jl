@@ -12,7 +12,7 @@
 end
 
 """
-    eeg_topoplot(data::Vector{<: Real}, labels::Vector{<: AbstractString})
+    eeg_topoplot(data::Vector{<: Real})
 
 Attributes:
 
@@ -194,7 +194,7 @@ end
 #end
 
 function Makie.plot!(plot::EEG_TopoPlot)
-    positions = lift(plot.labels, plot.positions) do labels, positions
+    map!(plot.attributes, [:labels, :positions], :_positions) do labels, positions
         if positions isa Makie.Automatic
             (!isnothing(labels) && labels != Makie.Automatic) ||
                 error("Either positions or labels (10/05-lookup) have to be specified")
@@ -205,17 +205,19 @@ function Makie.plot!(plot::EEG_TopoPlot)
             return convert_arguments(Makie.PointBased(), positions)[1]
         end
     end
-    plot.labels = lift(plot.labels, plot.positions) do labels, positions
+    map!(plot.attributes, [:labels, :positions], :_labels) do labels, positions
         if isnothing(labels) || labels isa Makie.Automatic
             return ["sensor $i" for i in 1:length(positions)]
         else
             return labels
         end
     end
-    tplot = topoplot!(plot, Attributes(plot), plot.data, positions;)
-    head = plot_or_defaults(to_value(plot.head), Attributes(), :head)
-    if !isnothing(head)
-        draw_ear_nose!(plot, tplot.geometry; head...)
+
+    tplot = topoplot!(plot, plot.attributes, plot.data, plot._positions;
+                      labels=plot._labels)
+
+    if !isnothing(plot.head)
+        draw_ear_nose!(plot, tplot.geometry; plot.head[]...)
     end
     return
 end
