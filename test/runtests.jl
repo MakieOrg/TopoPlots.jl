@@ -1,3 +1,9 @@
+# PythonCall/matplotlib must be imported before CairoMakie. CairoMakie pulls in
+# Julia's HarfBuzz_jll (an older harfbuzz build) which, once loaded, gets reused
+# by the dynamic linker to satisfy any later dlopen of "libharfbuzz.so.0" -
+# including conda's newer harfbuzz that matplotlib's libraqm needs. Loading
+# matplotlib first avoids an "undefined symbol: hb_ft_font_get_ft_face" error
+# (that symbol only exists in harfbuzz >=10.4, newer than HarfBuzz_jll).
 using PythonCall
 using PyMNE
 pyimport("matplotlib").use("Agg")
