@@ -3,6 +3,7 @@ channels = ["conda-forge"]
 [deps]
 matplotlib = ">=3"
 python = ">=3.14" # we get segfaults on 3.13 on Apple Silicon
+harfbuzz = ">=10.4" # avoid ABI skew with libraqm: https://github.com/harfbuzz/harfbuzz/issues/5084
 # scipy = ">=1.9"
 
 [pip.deps]
