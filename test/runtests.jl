@@ -1,3 +1,8 @@
+using PythonCall
+using PyMNE
+pyimport("matplotlib").use("Agg")
+const pyplot = pyimport("matplotlib.pyplot")
+
 using Aqua
 using CairoMakie
 using FileIO
@@ -5,11 +10,6 @@ using LinearAlgebra
 using Statistics
 using Test
 using TopoPlots
-
-using PythonCall
-using PyMNE
-pyimport("matplotlib").use("Agg")
-const pyplot = pyimport("matplotlib.pyplot")
 
 include("percy.jl")
 
