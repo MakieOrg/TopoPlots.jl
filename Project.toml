@@ -1,6 +1,6 @@
 name = "TopoPlots"
 uuid = "2bdbdf9c-dbd8-403f-947b-1a4e0dd41a7a"
-version = "0.3.1"
+version = "0.3.2"
 authors = ["Benedikt Ehinger", "Simon Danisch", "Beacon Biosignals, Inc."]
 
 [deps]
@@ -29,7 +29,9 @@ GeometryBasics = "0.4, 0.5"
 ImageIO = "0.6"
 InteractiveUtils = "1"
 LinearAlgebra = "1"
-Makie = "0.24"
+# Makie 0.24.15's canonical_line_order uses a naive comparison
+# that gets NaN poisoned.
+Makie = "0.24.0 - 0.24.14, 0.24.16"
 NaturalNeighbours = "1"
 Parameters = "0.12, 0.13"
 PrecompileTools = "1"
